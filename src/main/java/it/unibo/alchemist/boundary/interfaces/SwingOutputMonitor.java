@@ -22,5 +22,5 @@ public interface SwingOutputMonitor<T> extends GraphicalOutputMonitor<T> {
 	 * @param component you want to represent
 	 * @return a String containing the screenshot in svg format
 	 */
-	String getSVGScreenShot(Component component);
+	String getSVGScreenShot();
 }

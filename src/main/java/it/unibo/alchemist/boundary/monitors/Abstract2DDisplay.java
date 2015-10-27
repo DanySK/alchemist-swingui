@@ -306,10 +306,10 @@ public abstract class Abstract2DDisplay<T> extends JPanel implements SwingOutput
 	 * @param component you want to represent
 	 * @return a String containing the screenshot in svg format
 	 */
-	public String getSVGScreenShot(final Component component) {		
-		SVGGraphics2D svg = new SVGGraphics2D(component.getWidth(), component.getHeight());
+	public String getSVGScreenShot() {		
+		SVGGraphics2D svg = new SVGGraphics2D(this.getWidth(), this.getHeight());
 		
-		component.paint(svg);
+		this.paint(svg);
 		return svg.getSVGDocument();
 	}
 
