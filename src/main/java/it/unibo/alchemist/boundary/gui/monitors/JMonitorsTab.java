@@ -15,6 +15,7 @@ import it.unibo.alchemist.boundary.gui.tape.JTapeSection;
 import it.unibo.alchemist.boundary.gui.tape.JTapeTab;
 import it.unibo.alchemist.boundary.interfaces.OutputMonitor;
 import it.unibo.alchemist.boundary.l10n.Res;
+import it.unibo.alchemist.boundary.monitors.RecordingMonitor;
 import it.unibo.alchemist.core.interfaces.ISimulation;
 import it.unibo.alchemist.utils.L;
 
@@ -94,6 +95,7 @@ public class JMonitorsTab<T> extends JTapeTab implements ItemListener {
 			try {
 				final Constructor<OutputMonitor<T>> c = monClass.getConstructor();
 				mon = c.newInstance();
+				
 				if(simulation != null) {
 					simulation.addOutputMonitor(mon);
 				}

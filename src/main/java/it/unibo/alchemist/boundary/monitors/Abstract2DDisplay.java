@@ -10,7 +10,7 @@ package it.unibo.alchemist.boundary.monitors;
 
 import it.unibo.alchemist.boundary.gui.AlchemistSwingUI;
 import it.unibo.alchemist.boundary.gui.effects.Effect;
-import it.unibo.alchemist.boundary.interfaces.GraphicalOutputMonitor;
+import it.unibo.alchemist.boundary.interfaces.SwingOutputMonitor;
 import it.unibo.alchemist.boundary.l10n.Res;
 import it.unibo.alchemist.boundary.wormhole.implementation.AngleManager;
 import it.unibo.alchemist.boundary.wormhole.implementation.DoubleDimension;
@@ -36,6 +36,7 @@ import it.unibo.alchemist.model.interfaces.ITime;
 import it.unibo.alchemist.utils.L;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.event.ComponentEvent;
@@ -60,6 +61,8 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.event.MouseInputListener;
 
+import org.jfree.graphics2d.svg.SVGGraphics2D;
+
 /**
  * Abstract base-class for each display able a graphically represent a 2D space
  * and simulation.
@@ -69,7 +72,7 @@ import javax.swing.event.MouseInputListener;
  * 
  * @param <T>
  */
-public abstract class Abstract2DDisplay<T> extends JPanel implements GraphicalOutputMonitor<T> {
+public abstract class Abstract2DDisplay<T> extends JPanel implements SwingOutputMonitor<T> {
 	/**
 	 * The default frame rate.
 	 */
@@ -295,6 +298,19 @@ public abstract class Abstract2DDisplay<T> extends JPanel implements GraphicalOu
 	@Override
 	public int getStep() {
 		return st;
+	}
+	
+	/**
+	 * Make an svg representation of a UI element.
+	 * 
+	 * @param component you want to represent
+	 * @return a String containing the screenshot in svg format
+	 */
+	public String getSVGScreenShot() {		
+		SVGGraphics2D svg = new SVGGraphics2D(this.getWidth(), this.getHeight());
+		
+		this.paint(svg);
+		return svg.getSVGDocument();
 	}
 
 	/**

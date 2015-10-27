@@ -60,6 +60,8 @@ configurations.all {
 		    substitute module('org.eclipse.xtext:org.eclipse.xtext.common.types:2.8.3') with module('org.eclipse.xtext:org.eclipse.xtext.common.types:[2.7.3, 2.9[')
 		}
 		force "com.google.guava:guava:$guavaVersion"
+		force "it.unibo.alchemist:alchemist-interfaces:2.0.1"
+		force "it.unibo.alchemist:alchemist-implementationbase:4.0.1"
     }
 }
 
@@ -80,6 +82,7 @@ dependencies {
     
     compile "com.miglayout:miglayout-swing:$miglayoutVersion"
     compile "org.jfree:jfreechart:$jfreechartVersion"
+    compile "org.jfree:jfreesvg:$jfreesvgVersion"
     
     testCompile "junit:junit:$junitVersion"
     
