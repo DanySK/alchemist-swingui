@@ -36,7 +36,7 @@ dependencies {
     compile "it.unibo.alchemist:alchemist-maps:$mapsVersion"
     compile "it.unibo.alchemist:alchemist-implementationbase:$implbaseVersion"
     compile "it.unibo.alchemist:alchemist-incarnations:$incarnationsVersion"
-
+    compile "org.jfree:jfreesvg:$jfreesvgVersion"
     compile "com.miglayout:miglayout-swing:$miglayoutVersion"
     compile "org.jfree:jfreechart:$jfreechartVersion"
 
