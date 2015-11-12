@@ -201,6 +201,11 @@ uploadArchives {
 	            		email 'giovanni.ciatto@studio.unibo.it'
 	            		url 'https://bitbucket.org/gciatto'
 	            	}
+			developer {
+				name 'Gianluca Turin'
+				email 'turin.gianluca@educ.di.unito.it'
+				url 'https://github.com/giaku'
+			}
 	            }
 	            scm {
 	            	url "$scmRootUrl/$artifactId"
