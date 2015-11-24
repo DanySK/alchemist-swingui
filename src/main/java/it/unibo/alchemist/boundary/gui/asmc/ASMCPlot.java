@@ -19,24 +19,24 @@ import javax.swing.JPanel;
  */
 public abstract class ASMCPlot extends JPanel {
 
-	private static final long serialVersionUID = -7436019965350494058L;
+    private static final long serialVersionUID = -7436019965350494058L;
 
-	/**
-	 * @param values
-	 *            A plot-ready array of quadruples: (x-value, y-lb, y-value,
-	 *            x-lb)
-	 * @param lb
-	 *            A lower bound for plotting
-	 * @param ub
-	 *            An upper bound for plotting
-	 * @param sampleSize
-	 *            How many simulations have run
-	 * 
-	 */
-	public abstract void batchDone(double[][] values, double lb, double ub, int sampleSize);
+    /**
+     * @param values
+     *            A plot-ready array of quadruples: (x-value, y-lb, y-value,
+     *            x-lb)
+     * @param lb
+     *            A lower bound for plotting
+     * @param ub
+     *            An upper bound for plotting
+     * @param sampleSize
+     *            How many simulations have run
+     * 
+     */
+    public abstract void batchDone(double[][] values, double lb, double ub, int sampleSize);
 
-	/**
-	 * Toggles between available views, when available.
-	 */
-	public abstract void switchView();
+    /**
+     * Toggles between available views, when available.
+     */
+    public abstract void switchView();
 }

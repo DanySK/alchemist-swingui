@@ -14,32 +14,32 @@ import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 
 public class JHandler extends Handler {
-	private static final String PATTERN = "[logger] level:\nmessage\n";
-	private final JPrintStream jps;
+    private static final String PATTERN = "[logger] level:\nmessage\n";
+    private final JPrintStream jps;
 
-	public JHandler(final JPrintStream s) {
-		super();
-		jps = s;
-	}
+    public JHandler(final JPrintStream s) {
+        super();
+        jps = s;
+    }
 
-	@Override
-	public void close() throws SecurityException {
-		// TODO Auto-generated method stub
+    @Override
+    public void close() throws SecurityException {
+        // TODO Auto-generated method stub
 
-	}
+    }
 
-	@Override
-	public void flush() {
-		// TODO Auto-generated method stub
+    @Override
+    public void flush() {
+        // TODO Auto-generated method stub
 
-	}
+    }
 
-	@Override
-	public void publish(final LogRecord r) {
-		final String p1 = PATTERN.replace("logger", r.getLoggerName());
-		final String p2 = p1.replace("level", r.getLevel().toString());
-		final String line = p2.replace("message", r.getMessage());
-		jps.println(line);
-	}
+    @Override
+    public void publish(final LogRecord r) {
+        final String p1 = PATTERN.replace("logger", r.getLoggerName());
+        final String p2 = p1.replace("level", r.getLevel().toString());
+        final String line = p2.replace("message", r.getMessage());
+        jps.println(line);
+    }
 
 }

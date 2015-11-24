@@ -9,36 +9,34 @@
 package it.unibo.alchemist.boundary.options;
 
 /**
- * @author Danilo Pianini
- * 
  * @param <T>
  */
 public abstract class GenericOption<T> implements IOption<T> {
 
-	private static final long serialVersionUID = -2368088259183945173L;
-	private T val;
+    private static final long serialVersionUID = -2368088259183945173L;
+    private T val;
 
-	/**
-	 * @param defaultsTo
-	 *            the default value for this option
-	 */
-	public GenericOption(final T defaultsTo) {
-		val = defaultsTo;
-	}
+    /**
+     * @param defaultsTo
+     *            the default value for this option
+     */
+    public GenericOption(final T defaultsTo) {
+        val = defaultsTo;
+    }
 
-	@Override
-	public T getVal() {
-		return val;
-	}
+    @Override
+    public T getVal() {
+        return val;
+    }
 
-	@Override
-	public void setVal(final T value) {
-		val = value;
-	}
+    @Override
+    public void setVal(final T value) {
+        val = value;
+    }
 
-	@Override
-	public String toString() {
-		return getName() + ": " + val.toString();
-	}
+    @Override
+    public String toString() {
+        return getName() + ": " + val.toString();
+    }
 
 }

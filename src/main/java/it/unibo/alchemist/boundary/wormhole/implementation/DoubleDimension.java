@@ -14,76 +14,76 @@ import java.awt.geom.Dimension2D;
  * Implementation of the {@link Dimension2D} abstract class with double
  * precision.
  * 
- * @author <a href="mailto:giovanni.ciatto@studio.unibo.it">Giovanni Ciatto</a>
+
  */
 public class DoubleDimension extends Dimension2D {
 
-	private double width;
-	private double height;
+    private double width;
+    private double height;
 
-	@SuppressWarnings("unused")
-	private static final long serialVersionUID = 1L;
+    @SuppressWarnings("unused")
+    private static final long serialVersionUID = 1L;
 
-	/**
-	 * Initializes a new <code>DoubleDimension</code> instance with both width
-	 * and height set to zero.
-	 */
-	public DoubleDimension() {
-		this(0d, 0d);
-	}
+    /**
+     * Initializes a new <code>DoubleDimension</code> instance with both width
+     * and height set to zero.
+     */
+    public DoubleDimension() {
+        this(0d, 0d);
+    }
 
-	/**
-	 * Initializes a new <code>DoubleDimension</code> instance using another
-	 * {@link Dimension2D} object's data.<br>
-	 * No side effects.
-	 * 
-	 * @param d
-	 *            is the objects used to get the data
-	 */
-	public DoubleDimension(final Dimension2D d) {
-		this(d.getWidth(), d.getHeight());
-	}
+    /**
+     * Initializes a new <code>DoubleDimension</code> instance using another
+     * {@link Dimension2D} object's data.<br>
+     * No side effects.
+     * 
+     * @param d
+     *            is the objects used to get the data
+     */
+    public DoubleDimension(final Dimension2D d) {
+        this(d.getWidth(), d.getHeight());
+    }
 
-	/**
-	 * Initializes a new <code>DoubleDimension</code> using raw data.
-	 * 
-	 * @param w
-	 *            is the <code>double</code> containing the width
-	 * @param h
-	 *            is the <code>double</code> containing the height
-	 */
-	public DoubleDimension(final double w, final double h) {
-		super();
-		width = w;
-		height = h;
-	}
+    /**
+     * Initializes a new <code>DoubleDimension</code> using raw data.
+     * 
+     * @param w
+     *            is the <code>double</code> containing the width
+     * @param h
+     *            is the <code>double</code> containing the height
+     */
+    public DoubleDimension(final double w, final double h) {
+        super();
+        width = w;
+        height = h;
+    }
 
-	/**
-	 * Initializes a new <code>DoubleDimension</code> through an array of
-	 * numbers.<br>
-	 * d[0] is width, d[1] is height, other elements will be ignored.
-	 * 
-	 * @param d
-	 *            is a mono-dimensional array of {@link Number}.
-	 */
-	public DoubleDimension(final double[] d) {
-		this(d[0], d[1]);
-	}
+    /**
+     * Initializes a new <code>DoubleDimension</code> through an array of
+     * numbers.<br>
+     * d[0] is width, d[1] is height, other elements will be ignored.
+     * 
+     * @param d
+     *            is a mono-dimensional array of {@link Number}.
+     */
+    public DoubleDimension(final double[] d) {
+        this(d[0], d[1]);
+    }
 
-	@Override
-	public double getHeight() {
-		return height;
-	}
+    @Override
+    public double getHeight() {
+        return height;
+    }
 
-	@Override
-	public double getWidth() {
-		return width;
-	}
+    @Override
+    public double getWidth() {
+        return width;
+    }
 
-	@Override
-	public void setSize(final double w, final double h) {
-		width = w;
-		height = h;
-	}
+    @Override
+    public void setSize(final double w, final double h) {
+        width = w;
+        height = h;
+    }
 
 }

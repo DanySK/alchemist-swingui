@@ -14,8 +14,8 @@ import javax.swing.JTextArea;
 
 public class JPrintStream extends PrintStream {
 
-	public JPrintStream(final JTextArea jta) {
-		super(new JOutputStream(jta));
-	}
+    public JPrintStream(final JTextArea jta) {
+        super(new JOutputStream(jta));
+    }
 
 }

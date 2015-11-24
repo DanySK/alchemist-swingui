@@ -11,29 +11,27 @@ package it.unibo.alchemist.boundary.gui;
 import javax.swing.JButton;
 
 /**
- * @author Danilo Pianini
- * 
  */
 public class SimControlButton extends JButton {
 
-	private static final long serialVersionUID = 5772261651038729446L;
+    private static final long serialVersionUID = 5772261651038729446L;
 
-	/**
-	 * Builds a new Button.
-	 * 
-	 * @param imagePath
-	 *            Path to the image to use
-	 * @param command
-	 *            the command for this button
-	 * @param tooltip
-	 *            the tooltip message
-	 */
-	public SimControlButton(final String imagePath, final Enum<?> command, final String tooltip) {
-		super(AlchemistSwingUI.loadScaledImage(imagePath));
-		setActionCommand(command.toString());
-		setToolTipText(tooltip);
-		// TODO find a better way to do this
-		setText(tooltip);
-	}
+    /**
+     * Builds a new Button.
+     * 
+     * @param imagePath
+     *            Path to the image to use
+     * @param command
+     *            the command for this button
+     * @param tooltip
+     *            the tooltip message
+     */
+    public SimControlButton(final String imagePath, final Enum<?> command, final String tooltip) {
+        super(AlchemistSwingUI.loadScaledImage(imagePath));
+        setActionCommand(command.toString());
+        setToolTipText(tooltip);
+        // TODO find a better way to do this
+        setText(tooltip);
+    }
 
 }

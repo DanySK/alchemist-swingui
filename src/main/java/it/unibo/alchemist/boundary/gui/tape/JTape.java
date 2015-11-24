@@ -18,21 +18,21 @@ import javax.swing.JTabbedPane;
  */
 public class JTape extends JTabbedPane {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -2711040476982254056L;
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -2711040476982254056L;
 
-	/**
-	 * Adds a tab to the JTape instance.
-	 * 
-	 * @param tab
-	 *            is the {@link JTapeTab} to add
-	 * @return <code>true</code>
-	 */
-	public boolean registerTab(final JTapeTab tab) {
-		addTab(tab.getTitle(), tab);
-		return true;
-	}
+    /**
+     * Adds a tab to the JTape instance.
+     * 
+     * @param tab
+     *            is the {@link JTapeTab} to add
+     * @return <code>true</code>
+     */
+    public boolean registerTab(final JTapeTab tab) {
+        addTab(tab.getTitle(), tab);
+        return true;
+    }
 
 }

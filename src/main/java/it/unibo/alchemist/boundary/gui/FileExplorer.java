@@ -16,49 +16,47 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author Enrico Polverelli
- * @author Danilo Pianini
  * 
  */
 public class FileExplorer implements Serializable {
 
-	private static final long serialVersionUID = -1823016369233397745L;
-	private int spcCount;
-	private final List<File> fileList;
+    private static final long serialVersionUID = -1823016369233397745L;
+    private int spcCount;
+    private final List<File> fileList;
 
-	/**
-	 * 
-	 */
-	public FileExplorer() {
-		spcCount = -1;
-		fileList = new ArrayList<>();
-	}
+    /**
+     * 
+     */
+    public FileExplorer() {
+        spcCount = -1;
+        fileList = new ArrayList<>();
+    }
 
-	/**
-	 * 
-	 * @param aFile
-	 *            the starting file
-	 * @return the list of all the files contained
-	 */
-	public List<File> process(final File aFile) {
-		spcCount++;
-		if (aFile.isFile()) {
-			fileList.add(aFile);
-		} else if (aFile.isDirectory()) {
-			final File[] listOfFiles = aFile.listFiles();
-			if (listOfFiles != null) {
-				for (final File listOfFile : listOfFiles) {
-					process(listOfFile);
-				}
-			} else {
-				L.warn(aFile + " [ACCESS DENIED]");
-			}
-		}
-		spcCount--;
-		if (spcCount == -1) {
-			return fileList;
-		} else {
-			return null;
-		}
-	}
+    /**
+     * 
+     * @param aFile
+     *            the starting file
+     * @return the list of all the files contained
+     */
+    public List<File> process(final File aFile) {
+        spcCount++;
+        if (aFile.isFile()) {
+            fileList.add(aFile);
+        } else if (aFile.isDirectory()) {
+            final File[] listOfFiles = aFile.listFiles();
+            if (listOfFiles != null) {
+                for (final File listOfFile : listOfFiles) {
+                    process(listOfFile);
+                }
+            } else {
+                L.warn(aFile + " [ACCESS DENIED]");
+            }
+        }
+        spcCount--;
+        if (spcCount == -1) {
+            return fileList;
+        } else {
+            return null;
+        }
+    }
 }

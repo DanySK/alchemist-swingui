@@ -14,40 +14,38 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * @author Danilo Pianini
- * 
  */
 public class OptionsSet implements Serializable {
 
-	private static final long serialVersionUID = -4377259625620844578L;
+    private static final long serialVersionUID = -4377259625620844578L;
 
-	private static final IOption<?>[] OPTIONS = {  };
+    private static final IOption<?>[] OPTIONS = {  };
 
-	private final Map<String, IOption<?>> opts = new ConcurrentHashMap<>();
+    private final Map<String, IOption<?>> opts = new ConcurrentHashMap<>();
 
-	/**
-	 * 
-	 */
-	public OptionsSet() {
-		for (final IOption<?> o : OPTIONS) {
-			opts.put(o.getName(), o);
-		}
-	};
+    /**
+     * 
+     */
+    public OptionsSet() {
+        for (final IOption<?> o : OPTIONS) {
+            opts.put(o.getName(), o);
+        }
+    };
 
-	/**
-	 * @param name
-	 *            the name of the option to retrieve
-	 * @return the option, or null if it does not exists
-	 */
-	public IOption<?> get(final String name) {
-		return opts.get(name);
-	}
+    /**
+     * @param name
+     *            the name of the option to retrieve
+     * @return the option, or null if it does not exists
+     */
+    public IOption<?> get(final String name) {
+        return opts.get(name);
+    }
 
-	/**
-	 * @return returns the whole options set as list
-	 */
-	public IOption<?>[] getSet() {
-		return Arrays.copyOf(OPTIONS, OPTIONS.length);
-	}
+    /**
+     * @return returns the whole options set as list
+     */
+    public IOption<?>[] getSet() {
+        return Arrays.copyOf(OPTIONS, OPTIONS.length);
+    }
 
 }

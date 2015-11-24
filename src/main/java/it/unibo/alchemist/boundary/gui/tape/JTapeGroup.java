@@ -24,65 +24,65 @@ import net.miginfocom.swing.MigLayout;
  * @author Giovanni Ciatto
  */
 public class JTapeGroup extends JPanel {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1066617411250906275L;
-	private static final int DESC_TEXT_SIZE = 8;
-	private final JLabel lblDescription;
-	private final JPanel contentPanel;
-	private final StringBuilder layoutString = new StringBuilder();
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1066617411250906275L;
+    private static final int DESC_TEXT_SIZE = 8;
+    private final JLabel lblDescription;
+    private final JPanel contentPanel;
+    private final StringBuilder layoutString = new StringBuilder();
 
-	/**
-	 * Initializes a new {@link JTapeGroup} with the description in input.
-	 * 
-	 * @param d
-	 *            is a {@link String}
-	 */
-	public JTapeGroup(final String d) {
-		super();
-		setLayout(new BorderLayout(0, 0));
+    /**
+     * Initializes a new {@link JTapeGroup} with the description in input.
+     * 
+     * @param d
+     *            is a {@link String}
+     */
+    public JTapeGroup(final String d) {
+        super();
+        setLayout(new BorderLayout(0, 0));
 
-		lblDescription = new JLabel(d);
-		lblDescription.setFont(new Font("Dialog", Font.BOLD, DESC_TEXT_SIZE));
-		lblDescription.setHorizontalAlignment(SwingConstants.CENTER);
-		add(lblDescription, BorderLayout.SOUTH);
+        lblDescription = new JLabel(d);
+        lblDescription.setFont(new Font("Dialog", Font.BOLD, DESC_TEXT_SIZE));
+        lblDescription.setHorizontalAlignment(SwingConstants.CENTER);
+        add(lblDescription, BorderLayout.SOUTH);
 
-		contentPanel = new JPanel();
-		add(contentPanel, BorderLayout.CENTER);
-		contentPanel.setLayout(new MigLayout("", "", "[grow,fill]"));
-	}
+        contentPanel = new JPanel();
+        add(contentPanel, BorderLayout.CENTER);
+        contentPanel.setLayout(new MigLayout("", "", "[grow,fill]"));
+    }
 
-	/**
-	 * Gets the description.
-	 * 
-	 * @return a {@link String}
-	 */
-	public String getDescription() {
-		return lblDescription.getText();
-	}
+    /**
+     * Gets the description.
+     * 
+     * @return a {@link String}
+     */
+    public String getDescription() {
+        return lblDescription.getText();
+    }
 
-	/**
-	 * Adds a section to the current group.
-	 * 
-	 * @param section
-	 *            is the {@link JTapeSection} to add
-	 * @return <code>true</code>
-	 */
-	public boolean registerSection(final JTapeSection section) {
-		layoutString.append("[fill]");
-		contentPanel.setLayout(new MigLayout("", layoutString.toString(), "[grow,fill]"));
-		contentPanel.add(section, "cell " + contentPanel.getComponentCount() + " 0,grow");
-		return true;
-	}
+    /**
+     * Adds a section to the current group.
+     * 
+     * @param section
+     *            is the {@link JTapeSection} to add
+     * @return <code>true</code>
+     */
+    public boolean registerSection(final JTapeSection section) {
+        layoutString.append("[fill]");
+        contentPanel.setLayout(new MigLayout("", layoutString.toString(), "[grow,fill]"));
+        contentPanel.add(section, "cell " + contentPanel.getComponentCount() + " 0,grow");
+        return true;
+    }
 
-	/**
-	 * Sets the description.
-	 * 
-	 * @param d
-	 *            is a {@link String}
-	 */
-	public void setDescription(final String d) {
-		lblDescription.setText(d);
-	}
+    /**
+     * Sets the description.
+     * 
+     * @param d
+     *            is a {@link String}
+     */
+    public void setDescription(final String d) {
+        lblDescription.setText(d);
+    }
 }

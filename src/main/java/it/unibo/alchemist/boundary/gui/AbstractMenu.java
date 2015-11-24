@@ -8,36 +8,30 @@
  */
 package it.unibo.alchemist.boundary.gui;
 
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
 /**
- * @author Danilo Pianini
- * 
  */
 public abstract class AbstractMenu extends JMenu implements ActionListener {
 
-	private static final long serialVersionUID = 5209455686362711386L;
+    private static final long serialVersionUID = 5209455686362711386L;
 
-	/**
-	 * @param title
-	 *            the menu name
-	 * @param items
-	 *            the items for this menu
-	 */
-	public AbstractMenu(final String title, final JMenuItem[] items) {
-		super(title);
-		for (final JMenuItem i : items) {
-			add(i);
-			i.setActionCommand(i.getText());
-			i.addActionListener(this);
-		}
-	}
-
-	@Override
-	public abstract void actionPerformed(final ActionEvent e);
+    /**
+     * @param title
+     *            the menu name
+     * @param items
+     *            the items for this menu
+     */
+    public AbstractMenu(final String title, final JMenuItem[] items) {
+        super(title);
+        for (final JMenuItem i : items) {
+            add(i);
+            i.setActionCommand(i.getText());
+            i.addActionListener(this);
+        }
+    }
 
 }

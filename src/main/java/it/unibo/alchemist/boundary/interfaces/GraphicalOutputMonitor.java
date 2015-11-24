@@ -13,60 +13,58 @@ import it.unibo.alchemist.boundary.gui.effects.Effect;
 import java.util.List;
 
 /**
- * @author Danilo Pianini
- * 
  * @param <T>
  */
 public interface GraphicalOutputMonitor<T> extends OutputMonitor<T> {
 
-	/**
-	 * 
-	 */
-	void dispose();
+    /**
+     * 
+     */
+    void dispose();
 
-	/**
-	 * @return how many simulation steps this monitor updates the graphics
-	 */
-	int getStep();
+    /**
+     * @return how many simulation steps this monitor updates the graphics
+     */
+    int getStep();
 
-	/**
-	 * @return true if this monitor is trying to draw in realtime
-	 */
-	boolean isRealTime();
+    /**
+     * @return true if this monitor is trying to draw in realtime
+     */
+    boolean isRealTime();
 
-	/**
-	 * 
-	 */
-	void repaint();
+    /**
+     * 
+     */
+    void repaint();
 
-	/**
-	 * @param b
-	 *            if true, this monitor draws the links between nodes
-	 */
-	void setDrawLinks(boolean b);
+    /**
+     * @param b
+     *            if true, this monitor draws the links between nodes
+     */
+    void setDrawLinks(boolean b);
 
-	/**
-	 * @param l
-	 *            the {@link EffectStack} to use
-	 */
-	void setEffectStack(List<Effect> l);
+    /**
+     * @param l
+     *            the {@link EffectStack} to use
+     */
+    void setEffectStack(List<Effect> l);
 
-	/**
-	 * If enabled, the monitor tries to synchronize the simulation time with the
-	 * real time, slowing down the simulator if needed. If the simulation is
-	 * slower than the real time, then the display refreshes fast enough to keep
-	 * the {@link #DEFAULT_FRAME_RATE}.
-	 * 
-	 * @param rt
-	 *            true for the real time mode
-	 */
-	void setRealTime(boolean rt);
+    /**
+     * If enabled, the monitor tries to synchronize the simulation time with the
+     * real time, slowing down the simulator if needed. If the simulation is
+     * slower than the real time, then the display refreshes fast enough to keep
+     * the {@link #DEFAULT_FRAME_RATE}.
+     * 
+     * @param rt
+     *            true for the real time mode
+     */
+    void setRealTime(boolean rt);
 
-	/**
-	 * @param step
-	 *            How many steps should be computed by the engine for the
-	 *            display to update the graphics
-	 */
-	void setStep(int step);
+    /**
+     * @param step
+     *            How many steps should be computed by the engine for the
+     *            display to update the graphics
+     */
+    void setStep(int step);
 
 }

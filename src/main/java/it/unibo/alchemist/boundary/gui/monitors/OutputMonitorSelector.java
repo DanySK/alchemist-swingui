@@ -22,33 +22,33 @@ import org.reflections.Reflections;
 
 public class OutputMonitorSelector<T> extends JComboBox<Class<? extends OutputMonitor<T>>> {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	private static final Reflections REFLECTIONS = new Reflections("it.unibo.alchemist");
-	@SuppressWarnings("rawtypes")
-	private static final Set<Class<? extends OutputMonitor>> MONITORS = REFLECTIONS.getSubTypesOf(OutputMonitor.class);
-	
-	public OutputMonitorSelector() {
-		super();
-		update();
-	}
-	
-	/**
-	 * 
-	 */
-	@SuppressWarnings("unchecked")
-	public final void update() {
-		for (@SuppressWarnings("rawtypes") final Class<? extends OutputMonitor> c : MONITORS) {
-			if (!GraphicalOutputMonitor.class.isAssignableFrom(c) && !Modifier.isAbstract(c.getModifiers()) && c.isAnnotationPresent(ExportInspector.class)) {
-				try {
-					c.getConstructor();
-					addItem((Class<? extends OutputMonitor<T>>) c);
-				} catch (NoSuchMethodException e) {
-					L.log(c + " cannot be added to the GUI: it has no default constructor.");
-				}
-			}
-		}
-	}
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+    private static final Reflections REFLECTIONS = new Reflections("it.unibo.alchemist");
+    @SuppressWarnings("rawtypes")
+    private static final Set<Class<? extends OutputMonitor>> MONITORS = REFLECTIONS.getSubTypesOf(OutputMonitor.class);
+
+    public OutputMonitorSelector() {
+        super();
+        update();
+    }
+
+    /**
+     * 
+     */
+    @SuppressWarnings("unchecked")
+    public final void update() {
+        for (@SuppressWarnings("rawtypes") final Class<? extends OutputMonitor> c : MONITORS) {
+            if (!GraphicalOutputMonitor.class.isAssignableFrom(c) && !Modifier.isAbstract(c.getModifiers()) && c.isAnnotationPresent(ExportInspector.class)) {
+                try {
+                    c.getConstructor();
+                    addItem((Class<? extends OutputMonitor<T>>) c);
+                } catch (NoSuchMethodException e) {
+                    L.log(c + " cannot be added to the GUI: it has no default constructor.");
+                }
+            }
+        }
+    }
 }

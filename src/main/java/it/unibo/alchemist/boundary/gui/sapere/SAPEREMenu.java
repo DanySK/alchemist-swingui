@@ -18,35 +18,33 @@ import java.awt.event.ActionEvent;
 import javax.swing.JMenuItem;
 
 /**
- * @author Danilo Pianini
- * 
  */
 public class SAPEREMenu extends AbstractMenu {
 
-	private static final long serialVersionUID = 5209455686362711386L;
-	private static final JMenuItem[] ITEMS = { new JMenuItem(Res.get(Res.OPEN_PERSPECTIVE)) };
-	private int n = 1;
+    private static final long serialVersionUID = 5209455686362711386L;
+    private static final JMenuItem[] ITEMS = { new JMenuItem(Res.get(Res.OPEN_PERSPECTIVE)) };
+    private int n = 1;
 
-	/**
-	 * Builds the File menu.
-	 * 
-	 */
-	public SAPEREMenu() {
-		super(Res.get(Res.PERSPECTIVES), ITEMS);
-	}
+    /**
+     * Builds the File menu.
+     * 
+     */
+    public SAPEREMenu() {
+        super(Res.get(Res.PERSPECTIVES), ITEMS);
+    }
 
-	@Override
-	public void actionPerformed(final ActionEvent e) {
-		if (e.getSource().equals(ITEMS[0])) {
-			final StringBuilder sb = new StringBuilder("SAPERE Perspective");
-			if (n > 1) {
-				sb.append(' ');
-				sb.append(n);
-			}
-			n++;
-			final String name = sb.toString();
-			AlchemistSwingUI.addTab(new Perspective<>(), name, name);
-		}
-	}
+    @Override
+    public void actionPerformed(final ActionEvent e) {
+        if (e.getSource().equals(ITEMS[0])) {
+            final StringBuilder sb = new StringBuilder("SAPERE Perspective");
+            if (n > 1) {
+                sb.append(' ');
+                sb.append(n);
+            }
+            n++;
+            final String name = sb.toString();
+            AlchemistSwingUI.addTab(new Perspective<>(), name, name);
+        }
+    }
 
 }

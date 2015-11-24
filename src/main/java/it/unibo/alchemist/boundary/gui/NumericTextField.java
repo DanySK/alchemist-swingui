@@ -17,38 +17,36 @@ import javax.swing.text.Document;
 import javax.swing.text.PlainDocument;
 
 /**
- * @author Danilo Pianini
- * 
  */
 class NumericTextField extends JTextField {
 
-	private static final long serialVersionUID = 1556539674522648542L;
+    private static final long serialVersionUID = 1556539674522648542L;
 
-	private static class NumericDocument extends PlainDocument {
+    private static class NumericDocument extends PlainDocument {
 
-		private static final long serialVersionUID = 3063832505179925120L;
+        private static final long serialVersionUID = 3063832505179925120L;
 
-		// The regular expression to match input against (zero or more digits)
-		private static final String REGEX = "[\\+-]?\\d+";
-		private static final Pattern DIGITS = Pattern.compile(REGEX);
+        // The regular expression to match input against (zero or more digits)
+        private static final String REGEX = "[\\+-]?\\d+";
+        private static final Pattern DIGITS = Pattern.compile(REGEX);
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see javax.swing.text.PlainDocument#insertString(int,
-		 * java.lang.String, javax.swing.text.AttributeSet)
-		 */
-		@Override
-		public void insertString(final int offs, final String str, final AttributeSet a) throws BadLocationException {
-			// Only insert the text if it matches the regular expression
-			if (str != null && DIGITS.matcher(str).matches()) {
-				super.insertString(offs, str, a);
-			}
-		}
-	}
+        /*
+         * (non-Javadoc)
+         * 
+         * @see javax.swing.text.PlainDocument#insertString(int,
+         * java.lang.String, javax.swing.text.AttributeSet)
+         */
+        @Override
+        public void insertString(final int offs, final String str, final AttributeSet a) throws BadLocationException {
+            // Only insert the text if it matches the regular expression
+            if (str != null && DIGITS.matcher(str).matches()) {
+                super.insertString(offs, str, a);
+            }
+        }
+    }
 
-	@Override
-	protected Document createDefaultModel() {
-		return new NumericDocument();
-	}
+    @Override
+    protected Document createDefaultModel() {
+        return new NumericDocument();
+    }
 }

@@ -14,29 +14,29 @@ import java.io.OutputStream;
 import javax.swing.JTextArea;
 
 public class JOutputStream extends OutputStream {
-	private final JTextArea file;
+    private final JTextArea file;
 
-	public JOutputStream(final JTextArea t) {
-		super();
-		file = t;
-	}
+    public JOutputStream(final JTextArea t) {
+        super();
+        file = t;
+    }
 
-	@Override
-	public void write(final byte[] data) throws IOException {
-		file.append(new String(data));
-		file.setCaretPosition(file.getDocument().getLength());
-	}
+    @Override
+    public void write(final byte[] data) throws IOException {
+        file.append(new String(data));
+        file.setCaretPosition(file.getDocument().getLength());
+    }
 
-	@Override
-	public void write(final byte[] b, final int off, final int len) {
-		file.append(new String(b, off, len));
-		file.setCaretPosition(file.getDocument().getLength());
-	}
+    @Override
+    public void write(final byte[] b, final int off, final int len) {
+        file.append(new String(b, off, len));
+        file.setCaretPosition(file.getDocument().getLength());
+    }
 
-	@Override
-	public void write(final int c) throws IOException {
-		file.append(String.valueOf((char) c));
-		file.setCaretPosition(file.getDocument().getLength());
-	}
+    @Override
+    public void write(final int c) throws IOException {
+        file.append(String.valueOf((char) c));
+        file.setCaretPosition(file.getDocument().getLength());
+    }
 
 }

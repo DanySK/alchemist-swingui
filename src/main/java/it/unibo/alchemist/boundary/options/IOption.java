@@ -12,36 +12,34 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * @author Danilo Pianini
- * 
  * @param <T>
  */
 public interface IOption<T> extends Serializable {
 
-	/**
-	 * @return default value for this option
-	 */
-	T getDefaultVal();
+    /**
+     * @return default value for this option
+     */
+    T getDefaultVal();
 
-	/**
-	 * @return the name of the option
-	 */
-	String getName();
+    /**
+     * @return the name of the option
+     */
+    String getName();
 
-	/**
-	 * @return all the possible values for this option
-	 */
-	List<? extends T> getPossibleValues();
+    /**
+     * @return all the possible values for this option
+     */
+    List<? extends T> getPossibleValues();
 
-	/**
-	 * @return current value for this option
-	 */
-	T getVal();
+    /**
+     * @return current value for this option
+     */
+    T getVal();
 
-	/**
-	 * @param value
-	 *            the value to adopt
-	 */
-	void setVal(T value);
+    /**
+     * @param value
+     *            the value to adopt
+     */
+    void setVal(T value);
 
 }

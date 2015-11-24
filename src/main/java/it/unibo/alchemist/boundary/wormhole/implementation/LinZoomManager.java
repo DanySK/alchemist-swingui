@@ -15,45 +15,45 @@ import it.unibo.alchemist.boundary.wormhole.interfaces.IZoomManager;
  * device/control into a zoom rate through a linear function.<br>
  * Zoom = amount of slides * rate.
  * 
- * @author <a href="mailto:giovanni.ciatto@studio.unibo.it">Giovanni Ciatto</a>
+
  */
 public class LinZoomManager extends AbstractSlideInputManager implements IZoomManager {
-	private final double rate;
+    private final double rate;
 
-	/**
-	 * Same of {@link #LinZoomManager(double, double)} but rate is 1.
-	 * 
-	 * @param z
-	 *            is the desired initial zoom
-	 */
-	public LinZoomManager(final double z) {
-		this(z, 1d);
-	}
+    /**
+     * Same of {@link #LinZoomManager(double, double)} but rate is 1.
+     * 
+     * @param z
+     *            is the desired initial zoom
+     */
+    public LinZoomManager(final double z) {
+        this(z, 1d);
+    }
 
-	/**
-	 * Initialize a new <code>LinZoomManager</code> instance with the parameters
-	 * in input.
-	 * 
-	 * @param z
-	 *            is the desired initial zoom
-	 * @param r
-	 *            is the linear factor
-	 */
-	public LinZoomManager(final double z, final double r) {
-		super(z / r);
-		if (r == 0 || r < Double.MIN_NORMAL) {
-			throw new IllegalStateException();
-		}
-		rate = r;
-	}
+    /**
+     * Initialize a new <code>LinZoomManager</code> instance with the parameters
+     * in input.
+     * 
+     * @param z
+     *            is the desired initial zoom
+     * @param r
+     *            is the linear factor
+     */
+    public LinZoomManager(final double z, final double r) {
+        super(z / r);
+        if (r == 0 || r < Double.MIN_NORMAL) {
+            throw new IllegalStateException();
+        }
+        rate = r;
+    }
 
-	@Override
-	public double getZoom() {
-		return rate * getValue();
-	}
+    @Override
+    public double getZoom() {
+        return rate * getValue();
+    }
 
-	@Override
-	public void setZoom(final double z) {
-		setValue(z / rate);
-	}
+    @Override
+    public void setZoom(final double z) {
+        setValue(z / rate);
+    }
 }

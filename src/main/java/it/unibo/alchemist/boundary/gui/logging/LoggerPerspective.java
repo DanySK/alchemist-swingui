@@ -29,68 +29,68 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 public class LoggerPerspective extends JPanel implements ActionListener {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	private final JHandler handler;
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+    private final JHandler handler;
 
-	private static class JLevelSelector extends JComboBox<Level> {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-		private static final Level[] LEVELS = { Level.ALL, Level.SEVERE, Level.WARNING, Level.INFO, Level.CONFIG, Level.FINE, Level.FINER, Level.FINEST, Level.OFF };
+    private static class JLevelSelector extends JComboBox<Level> {
+        /**
+         * 
+         */
+        private static final long serialVersionUID = 1L;
+        private static final Level[] LEVELS = { Level.ALL, Level.SEVERE, Level.WARNING, Level.INFO, Level.CONFIG, Level.FINE, Level.FINER, Level.FINEST, Level.OFF };
 
-		public JLevelSelector() {
-			super();
-			for (final Level l : LEVELS) {
-				addItem(l);
-			}
-			setSelectedItem(L.getLevel());
-		}
-	}
+        public JLevelSelector() {
+            super();
+            for (final Level l : LEVELS) {
+                addItem(l);
+            }
+            setSelectedItem(L.getLevel());
+        }
+    }
 
-	public LoggerPerspective() {
-		super();
-		setLayout(new BorderLayout(0, 0));
+    public LoggerPerspective() {
+        super();
+        setLayout(new BorderLayout(0, 0));
 
-		final JTape tape = new JTape();
-		final JTapeTab tab = new JTapeTab("Logging");
-		final JTapeGroup group = new JTapeGroup("Log options");
-		final JTapeSection section = new JTapeMainFeature();
-		final JLevelSelector jls = new JLevelSelector();
-		jls.addItemListener(new ItemListener() {
+        final JTape tape = new JTape();
+        final JTapeTab tab = new JTapeTab("Logging");
+        final JTapeGroup group = new JTapeGroup("Log options");
+        final JTapeSection section = new JTapeMainFeature();
+        final JLevelSelector jls = new JLevelSelector();
+        jls.addItemListener(new ItemListener() {
 
-			@Override
-			public void itemStateChanged(final ItemEvent e) {
-				L.setLoggingLevel((Level) e.getItem());
-			}
-		});
-		// section.registerFeature(new Label("Log level:"));
-		section.registerFeature(jls);
-		group.registerSection(section);
-		tab.registerGroup(group);
-		tape.registerTab(tab);
-		add(tape, BorderLayout.NORTH);
+            @Override
+            public void itemStateChanged(final ItemEvent e) {
+                L.setLoggingLevel((Level) e.getItem());
+            }
+        });
+        // section.registerFeature(new Label("Log level:"));
+        section.registerFeature(jls);
+        group.registerSection(section);
+        tab.registerGroup(group);
+        tape.registerTab(tab);
+        add(tape, BorderLayout.NORTH);
 
-		final JScrollPane scrollPane = new JScrollPane();
-		add(scrollPane, BorderLayout.CENTER);
+        final JScrollPane scrollPane = new JScrollPane();
+        add(scrollPane, BorderLayout.CENTER);
 
-		final JTextArea textArea = new JTextArea();
-		textArea.setEditable(false);
-		scrollPane.setViewportView(textArea);
+        final JTextArea textArea = new JTextArea();
+        textArea.setEditable(false);
+        scrollPane.setViewportView(textArea);
 
-		final JPrintStream jps = new JPrintStream(textArea);
-		handler = new JHandler(jps);
-		L.addHandler(handler);
-	}
+        final JPrintStream jps = new JPrintStream(textArea);
+        handler = new JHandler(jps);
+        L.addHandler(handler);
+    }
 
-	@Override
-	public void actionPerformed(final ActionEvent e) {
-		if (e.getActionCommand().equals("CloseTab")) {
-			L.removeHandler(handler);
-		}
-	}
+    @Override
+    public void actionPerformed(final ActionEvent e) {
+        if (e.getActionCommand().equals("CloseTab")) {
+            L.removeHandler(handler);
+        }
+    }
 
 }

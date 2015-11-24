@@ -21,253 +21,251 @@ import java.util.Objects;
  * I am considering the particular case of the view as an entity into the
  * sceern-space: the y-axis grows on the bottom side of the screen.
  * 
- * @author <a href="mailto:giovanni.ciatto@studio.unibo.it">Giovanni Ciatto</a>
- * @author Danilo Pianini
  */
 public abstract class AbstractNSEWormhole2D implements IWormhole2D {
-	private Dimension2D viewSize;
-	private Dimension2D envSize;
-	private Point2D position;
-	private Point2D offset = new Point2D.Double(0d, 0d);
-	private final Point2D originalOffset;
-	private double zoom = 1d;
-	private double angle = 0d;
-	private double hRate = 1d;
-	private double vRate = 1d;
-	private Mode mode = Mode.ISOMETRIC;
+    private Dimension2D viewSize;
+    private Dimension2D envSize;
+    private Point2D position;
+    private Point2D offset = new Point2D.Double(0d, 0d);
+    private final Point2D originalOffset;
+    private double zoom = 1d;
+    private double angle;
+    private double hRate = 1d;
+    private double vRate = 1d;
+    private Mode mode = Mode.ISOMETRIC;
 
-	/**
-	 * Initializes a new instance directly setting the size of both view and
-	 * environment, and the offset too.
-	 * 
-	 * @param vSize
-	 *            is the size of the view
-	 * @param eSize
-	 *            is the size of the environment
-	 * @param o
-	 *            is the offset
-	 * 
-	 * @see IWormhole2D
-	 */
-	public AbstractNSEWormhole2D(final Dimension2D vSize, final Dimension2D eSize, final Point2D o) {
-		Objects.requireNonNull(vSize);
-		Objects.requireNonNull(eSize);
-		Objects.requireNonNull(o);
-		viewSize = new DoubleDimension(vSize.getWidth(), vSize.getHeight());
-		envSize = new DoubleDimension(eSize.getWidth(), eSize.getHeight());
-		position = new Point2D.Double(0d, vSize.getHeight());
-		offset = new Point2D.Double(o.getX(), o.getY());
-		originalOffset = new Point2D.Double(o.getX(), o.getY());
-	}
+    /**
+     * Initializes a new instance directly setting the size of both view and
+     * environment, and the offset too.
+     * 
+     * @param vSize
+     *            is the size of the view
+     * @param eSize
+     *            is the size of the environment
+     * @param o
+     *            is the offset
+     * 
+     * @see IWormhole2D
+     */
+    public AbstractNSEWormhole2D(final Dimension2D vSize, final Dimension2D eSize, final Point2D o) {
+        Objects.requireNonNull(vSize);
+        Objects.requireNonNull(eSize);
+        Objects.requireNonNull(o);
+        viewSize = new DoubleDimension(vSize.getWidth(), vSize.getHeight());
+        envSize = new DoubleDimension(eSize.getWidth(), eSize.getHeight());
+        position = new Point2D.Double(0d, vSize.getHeight());
+        offset = new Point2D.Double(o.getX(), o.getY());
+        originalOffset = new Point2D.Double(o.getX(), o.getY());
+    }
 
-	@Override
-	public Point2D getEnvOffset() {
-		return offset;
-	}
+    @Override
+    public Point2D getEnvOffset() {
+        return offset;
+    }
 
-	@Override
-	public Point2D getEnvPosition() {
-		return getEnvPoint(getViewPosition());
-	}
+    @Override
+    public Point2D getEnvPosition() {
+        return getEnvPoint(getViewPosition());
+    }
 
-	@Override
-	public double getEnvRatio() {
-		return envSize.getWidth() / envSize.getHeight();
-	}
+    @Override
+    public double getEnvRatio() {
+        return envSize.getWidth() / envSize.getHeight();
+    }
 
-	@Override
-	public Dimension2D getEnvSize() {
-		return (Dimension2D) envSize.clone();
-	}
+    @Override
+    public Dimension2D getEnvSize() {
+        return (Dimension2D) envSize.clone();
+    }
 
-	@Override
-	public double getHRate() {
-		return hRate;
-	}
+    @Override
+    public double getHRate() {
+        return hRate;
+    }
 
-	@Override
-	public Mode getMode() {
-		return mode;
-	}
+    @Override
+    public Mode getMode() {
+        return mode;
+    }
 
-	@Override
-	public double getNIHorizontalRatio() {
-		if (mode == Mode.ISOMETRIC) {
-			return 1d;
-		} else if (mode == Mode.ADAPT_TO_VIEW) {
-			return viewSize.getWidth() / envSize.getWidth();
-		} else {
-			return hRate;
-		}
-	}
+    @Override
+    public double getNIHorizontalRatio() {
+        if (mode == Mode.ISOMETRIC) {
+            return 1d;
+        } else if (mode == Mode.ADAPT_TO_VIEW) {
+            return viewSize.getWidth() / envSize.getWidth();
+        } else {
+            return hRate;
+        }
+    }
 
-	@Override
-	public double getNIVerticalRatio() {
-		if (mode == Mode.ISOMETRIC) {
-			return 1d;
-		} else if (mode == Mode.ADAPT_TO_VIEW) {
-			return viewSize.getHeight() / envSize.getHeight();
-		} else {
-			return vRate;
-		}
+    @Override
+    public double getNIVerticalRatio() {
+        if (mode == Mode.ISOMETRIC) {
+            return 1d;
+        } else if (mode == Mode.ADAPT_TO_VIEW) {
+            return viewSize.getHeight() / envSize.getHeight();
+        } else {
+            return vRate;
+        }
 
-	}
+    }
 
-	/**
-	 * Gets the original offset.
-	 * 
-	 * @return a {@link Point2D}
-	 */
-	protected Point2D getOriginalOffset() {
-		return originalOffset;
-	}
+    /**
+     * Gets the original offset.
+     * 
+     * @return a {@link Point2D}
+     */
+    protected Point2D getOriginalOffset() {
+        return originalOffset;
+    }
 
-	@Override
-	public double getRotation() {
-		return angle;
-	}
+    @Override
+    public double getRotation() {
+        return angle;
+    }
 
-	@Override
-	public Point2D getViewPosition() {
-		return (Point2D) position.clone();
-	}
+    @Override
+    public Point2D getViewPosition() {
+        return (Point2D) position.clone();
+    }
 
-	@Override
-	public double getViewRatio() {
-		return viewSize.getWidth() / viewSize.getHeight();
-	}
+    @Override
+    public double getViewRatio() {
+        return viewSize.getWidth() / viewSize.getHeight();
+    }
 
-	@Override
-	public Dimension2D getViewSize() {
-		return (Dimension2D) viewSize.clone();
-	}
+    @Override
+    public Dimension2D getViewSize() {
+        return (Dimension2D) viewSize.clone();
+    }
 
-	@Override
-	public double getVRate() {
-		return vRate;
-	}
+    @Override
+    public double getVRate() {
+        return vRate;
+    }
 
-	@Override
-	public double getZoom() {
-		return zoom;
-	}
+    @Override
+    public double getZoom() {
+        return zoom;
+    }
 
-	@Override
-	public boolean isInsideView(final Point2D viewPoint) {
-		final double x = viewPoint.getX();
-		final double y = viewPoint.getY();
-		final Dimension2D vs = getViewSize();
-		return x >= 0 && x <= vs.getWidth() && y >= 0 && y <= vs.getHeight();
-	}
+    @Override
+    public boolean isInsideView(final Point2D viewPoint) {
+        final double x = viewPoint.getX();
+        final double y = viewPoint.getY();
+        final Dimension2D vs = getViewSize();
+        return x >= 0 && x <= vs.getWidth() && y >= 0 && y <= vs.getHeight();
+    }
 
-	@Override
-	public void setDeltaViewPosition(final Point2D delta) {
-		position = NSEAlg2DHelper.sum(position, delta);
-	}
+    @Override
+    public void setDeltaViewPosition(final Point2D delta) {
+        position = NSEAlg2DHelper.sum(position, delta);
+    }
 
-	@Override
-	public void setEnvOffset(final Point2D point) {
-		offset = new Point2D.Double(point.getX(), point.getY());
-	}
+    @Override
+    public void setEnvOffset(final Point2D point) {
+        offset = new Point2D.Double(point.getX(), point.getY());
+    }
 
-	@Override
-	public void setEnvPosition(final Point2D pos) {
-		setViewPosition(getViewPoint(new Point2D.Double(pos.getX(), pos.getY())));
-	}
+    @Override
+    public void setEnvPosition(final Point2D pos) {
+        setViewPosition(getViewPoint(new Point2D.Double(pos.getX(), pos.getY())));
+    }
 
-	/**
-	 * Changes the point referred ad 'position'.
-	 * 
-	 * @param envPoint
-	 *            is a {@link Point2D} into the env-space
-	 */
-	protected void setEnvPositionWithoutMoving(final Point2D envPoint) {
-		setViewPositionWithoutMoving(getViewPoint(new Point2D.Double(envPoint.getX(), envPoint.getY())));
-	}
+    /**
+     * Changes the point referred ad 'position'.
+     * 
+     * @param envPoint
+     *            is a {@link Point2D} into the env-space
+     */
+    protected void setEnvPositionWithoutMoving(final Point2D envPoint) {
+        setViewPositionWithoutMoving(getViewPoint(new Point2D.Double(envPoint.getX(), envPoint.getY())));
+    }
 
-	@Override
-	public void setEnvSize(final Dimension2D size) {
-		envSize = new DoubleDimension(size);
-	}
+    @Override
+    public void setEnvSize(final Dimension2D size) {
+        envSize = new DoubleDimension(size);
+    }
 
-	@Override
-	public void setHRate(final double value) {
-		if (mode == Mode.ISOMETRIC) {
-			hRate = 1d;
-		} else if (mode == Mode.ADAPT_TO_VIEW) {
-			hRate = getNIHorizontalRatio();
-		} else {
-			hRate = value;
-		}
-	}
+    @Override
+    public void setHRate(final double value) {
+        if (mode == Mode.ISOMETRIC) {
+            hRate = 1d;
+        } else if (mode == Mode.ADAPT_TO_VIEW) {
+            hRate = getNIHorizontalRatio();
+        } else {
+            hRate = value;
+        }
+    }
 
-	/**
-	 * Allows child-classes to modify the {@link #mode} field.
-	 * 
-	 * @param m
-	 *            is the new {@link Mode}
-	 */
-	protected void setMode(final Mode m) {
-		mode = m;
-		if (m == Mode.ADAPT_TO_VIEW) {
-			vRate = getNIVerticalRatio();
-			hRate = getNIHorizontalRatio();
-		}
-	}
+    /**
+     * Allows child-classes to modify the {@link #mode} field.
+     * 
+     * @param m
+     *            is the new {@link Mode}
+     */
+    protected void setMode(final Mode m) {
+        mode = m;
+        if (m == Mode.ADAPT_TO_VIEW) {
+            vRate = getNIVerticalRatio();
+            hRate = getNIHorizontalRatio();
+        }
+    }
 
-	@Override
-	public void setOptimalZoomRate() {
-		if (getEnvRatio() <= 1) {
-			zoom = viewSize.getHeight() / envSize.getHeight();
-		} else {
-			zoom = viewSize.getWidth() / envSize.getWidth();
-		}
+    @Override
+    public void setOptimalZoomRate() {
+        if (getEnvRatio() <= 1) {
+            zoom = viewSize.getHeight() / envSize.getHeight();
+        } else {
+            zoom = viewSize.getWidth() / envSize.getWidth();
+        }
 
-	}
+    }
 
-	@Override
-	public void setRotation(final double rad) {
-		angle = rad % NSEAlg2DHelper.PI2;
-	}
+    @Override
+    public void setRotation(final double rad) {
+        angle = rad % NSEAlg2DHelper.PI2;
+    }
 
-	@Override
-	public void setViewPosition(final Point2D point) {
-		position = new Point2D.Double(point.getX(), point.getY());
-	}
+    @Override
+    public void setViewPosition(final Point2D point) {
+        position = new Point2D.Double(point.getX(), point.getY());
+    }
 
-	/**
-	 * Changes the point referred ad 'position'.
-	 * 
-	 * @param viewPoint
-	 *            is a {@link Point2D} into the view-space
-	 */
-	protected void setViewPositionWithoutMoving(final Point2D viewPoint) {
-		final Point2D envDelta = NSEAlg2DHelper.variation(getEnvPoint(new Point2D.Double(viewPoint.getX(), viewPoint.getY())), getEnvPoint(position));
-		position = new Point2D.Double(viewPoint.getX(), viewPoint.getY());
-		offset = NSEAlg2DHelper.sum(offset, envDelta);
-	}
+    /**
+     * Changes the point referred ad 'position'.
+     * 
+     * @param viewPoint
+     *            is a {@link Point2D} into the view-space
+     */
+    protected void setViewPositionWithoutMoving(final Point2D viewPoint) {
+        final Point2D envDelta = NSEAlg2DHelper.variation(getEnvPoint(new Point2D.Double(viewPoint.getX(), viewPoint.getY())), getEnvPoint(position));
+        position = new Point2D.Double(viewPoint.getX(), viewPoint.getY());
+        offset = NSEAlg2DHelper.sum(offset, envDelta);
+    }
 
-	@Override
-	public void setViewSize(final Dimension2D size) {
-		viewSize = new DoubleDimension(size.getWidth(), size.getHeight());
-	}
+    @Override
+    public void setViewSize(final Dimension2D size) {
+        viewSize = new DoubleDimension(size.getWidth(), size.getHeight());
+    }
 
-	@Override
-	public void setVRate(final double value) {
-		if (mode == Mode.ISOMETRIC) {
-			vRate = 1d;
-		} else if (mode == Mode.ADAPT_TO_VIEW) {
-			vRate = getNIVerticalRatio();
-		} else {
-			vRate = value;
-		}
-	}
+    @Override
+    public void setVRate(final double value) {
+        if (mode == Mode.ISOMETRIC) {
+            vRate = 1d;
+        } else if (mode == Mode.ADAPT_TO_VIEW) {
+            vRate = getNIVerticalRatio();
+        } else {
+            vRate = value;
+        }
+    }
 
-	@Override
-	public void setZoom(final double value) {
-		if (value < 0d) {
-			zoom = 0d;
-		}
-		zoom = value;
-	}
+    @Override
+    public void setZoom(final double value) {
+        if (value < 0d) {
+            zoom = 0d;
+        }
+        zoom = value;
+    }
 }

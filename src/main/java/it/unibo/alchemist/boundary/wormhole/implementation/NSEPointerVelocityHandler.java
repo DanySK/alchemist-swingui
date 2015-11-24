@@ -16,37 +16,37 @@ import java.awt.geom.Point2D;
  * Implementation for {@link IPointerVelocityManager} interface.<br>
  * NSE = No Side Effects.
  * 
- * @author <a href="mailto:giovanni.ciatto@studio.unibo.it">Giovanni Ciatto</a>
+
  */
 public class NSEPointerVelocityHandler implements IPointerVelocityManager {
-	private Point2D oldPosition = new Point2D.Double();
-	private Point2D position = new Point2D.Double();
+    private Point2D oldPosition = new Point2D.Double();
+    private Point2D position = new Point2D.Double();
 
-	@Override
-	public Point2D getCurrentPosition() {
-		return (Point2D) position.clone();
-	}
+    @Override
+    public Point2D getCurrentPosition() {
+        return (Point2D) position.clone();
+    }
 
-	@Override
-	public Point2D getOldPosition() {
-		return (Point2D) oldPosition.clone();
-	}
+    @Override
+    public Point2D getOldPosition() {
+        return (Point2D) oldPosition.clone();
+    }
 
-	@Override
-	public Point2D getVariation() {
-		return new Point2D.Double(position.getX() - oldPosition.getX(), position.getY() - oldPosition.getY());
-	}
+    @Override
+    public Point2D getVariation() {
+        return new Point2D.Double(position.getX() - oldPosition.getX(), position.getY() - oldPosition.getY());
+    }
 
-	@Override
-	public Point2D getVelocity() {
-		// TODO implement this method
-		return null;
-	}
+    @Override
+    public Point2D getVelocity() {
+        // TODO implement this method
+        return null;
+    }
 
-	@Override
-	public void setCurrentPosition(final Point2D point) {
-		oldPosition = position;
-		position = (Point2D) point.clone();
-	}
+    @Override
+    public void setCurrentPosition(final Point2D point) {
+        oldPosition = position;
+        position = (Point2D) point.clone();
+    }
 
 }

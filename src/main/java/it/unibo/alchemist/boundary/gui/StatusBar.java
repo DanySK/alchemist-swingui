@@ -15,36 +15,34 @@ import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 
 /**
- * @author Danilo Pianini
- * 
  */
 public class StatusBar extends JLabel {
 
-	private static final long serialVersionUID = -7528209649098499107L;
-	private static final byte ICON_SIZE = 16;
-	private final Icon ok = loadScaledImage("/oxygen/emotes/opinion-okay.png", ICON_SIZE);
-	private final Icon no = loadScaledImage("/oxygen/emotes/opinion-no.png", ICON_SIZE);
+    private static final long serialVersionUID = -7528209649098499107L;
+    private static final byte ICON_SIZE = 16;
+    private final Icon ok = loadScaledImage("/oxygen/emotes/opinion-okay.png", ICON_SIZE);
+    private final Icon no = loadScaledImage("/oxygen/emotes/opinion-no.png", ICON_SIZE);
 
-	/**
-	 * 
-	 */
-	public StatusBar() {
-		super("Init OK", SwingConstants.LEADING);
-		setIcon(ok);
-	}
+    /**
+     * 
+     */
+    public StatusBar() {
+        super("Init OK", SwingConstants.LEADING);
+        setIcon(ok);
+    }
 
-	/**
-	 * 
-	 */
-	public void setNo() {
-		setIcon(no);
-	}
+    /**
+     * 
+     */
+    public void setNo() {
+        setIcon(no);
+    }
 
-	/**
-	 * 
-	 */
-	public void setOK() {
-		setIcon(ok);
-	}
+    /**
+     * 
+     */
+    public void setOK() {
+        setIcon(ok);
+    }
 
 }

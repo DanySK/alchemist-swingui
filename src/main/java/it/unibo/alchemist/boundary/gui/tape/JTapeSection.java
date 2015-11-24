@@ -20,26 +20,26 @@ import javax.swing.JPanel;
  */
 public abstract class JTapeSection extends JPanel {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 128847317931592742L;
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 128847317931592742L;
 
-	/**
-	 * Adds a feature to the current section.
-	 * 
-	 * @param c
-	 *            is the {@link Component} containing the feature
-	 * @return a <code>boolean</code> value
-	 */
-	public abstract boolean registerFeature(Component c);
+    /**
+     * Adds a feature to the current section.
+     * 
+     * @param c
+     *            is the {@link Component} containing the feature
+     * @return a <code>boolean</code> value
+     */
+    public abstract boolean registerFeature(Component c);
 
-	/**
-	 * Removes a feature from the current section.
-	 * 
-	 * @param c
-	 *            is the {@link Component} containing the feature
-	 * @return a <code>boolean</code> value
-	 */
-	public abstract boolean unregisterFeature(Component c);
+    /**
+     * Removes a feature from the current section.
+     * 
+     * @param c
+     *            is the {@link Component} containing the feature
+     * @return a <code>boolean</code> value
+     */
+    public abstract boolean unregisterFeature(Component c);
 }

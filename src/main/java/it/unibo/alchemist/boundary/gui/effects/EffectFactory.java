@@ -9,33 +9,31 @@
 package it.unibo.alchemist.boundary.gui.effects;
 
 /**
- * @author Danilo Pianini
- * 
  */
 public final class EffectFactory {
 
-	/**
-	 * @return the effect which is inserted by default
-	 */
-	public static Effect buildDefaultEffect() {
-		return new DrawShape();
-	}
+    /**
+     * @return the effect which is inserted by default
+     */
+    public static Effect buildDefaultEffect() {
+        return new DrawShape();
+    }
 
-	/**
-	 * Given a class, builds the corresponding effect.
-	 * 
-	 * @param effect
-	 *            the effect class
-	 * @return a new effect
-	 */
-	public static Effect buildEffect(final Class<? extends Effect> effect) {
-		if (DrawShape.class.isAssignableFrom(effect)) {
-			return buildDefaultEffect();
-		}
-		return null;
-	}
+    /**
+     * Given a class, builds the corresponding effect.
+     * 
+     * @param effect
+     *            the effect class
+     * @return a new effect
+     */
+    public static Effect buildEffect(final Class<? extends Effect> effect) {
+        if (DrawShape.class.isAssignableFrom(effect)) {
+            return buildDefaultEffect();
+        }
+        return null;
+    }
 
-	private EffectFactory() {
-	};
+    private EffectFactory() {
+    };
 
 }

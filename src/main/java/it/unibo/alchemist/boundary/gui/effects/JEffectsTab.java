@@ -46,362 +46,359 @@ import org.danilopianini.view.GUIUtilities;
 /**
  * Graphic component to handle effects.
  * 
- * @author Giovanni Ciatto
- * @author Danilo Pianini
- * @see JTapeTab
  * @param <T>
  *            is the type for the concentration
  */
 public class JEffectsTab<T> extends JTapeTab implements ItemListener {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 5687806032498247246L;
-	private static final String EXT = ".aes", DESC = "Alchemist Effect Stack";
-	private GraphicalOutputMonitor<T> main;
-	private final List<ActionListener> listeners = new LinkedList<>();
-	private final JTapeFeatureStack stackSec;
-	private final JButton addEffectButton, remEffectButton, saveButton, loadButton, moveLeftButton, moveRightButton;
-	private final JToggleButton paintLinksButton;
-	private File currentDirectory = new File(System.getProperty("user.home"));
-	private JEffectRepresentation<T> selected = null;
-	private final FileFilter ff = new FileFilter() {
-		@Override
-		public boolean accept(final File f) {
-			return f.getName().endsWith(EXT) || f.isDirectory();
-		}
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 5687806032498247246L;
+    private static final String EXT = ".aes", DESC = "Alchemist Effect Stack";
+    private GraphicalOutputMonitor<T> main;
+    private final List<ActionListener> listeners = new LinkedList<>();
+    private final JTapeFeatureStack stackSec;
+    private final JButton addEffectButton, remEffectButton, saveButton, loadButton, moveLeftButton, moveRightButton;
+    private final JToggleButton paintLinksButton;
+    private File currentDirectory = new File(System.getProperty("user.home"));
+    private JEffectRepresentation<T> selected = null;
+    private final FileFilter ff = new FileFilter() {
+        @Override
+        public boolean accept(final File f) {
+            return f.getName().endsWith(EXT) || f.isDirectory();
+        }
 
-		@Override
-		public String getDescription() {
-			return DESC;
-		}
-	};
+        @Override
+        public String getDescription() {
+            return DESC;
+        }
+    };
 
-	private final ActionListener saveActionListener = new ActionListener() {
-		@Override
-		public void actionPerformed(final ActionEvent e) {
-			final JFileChooser fc = new JFileChooser();
-			fc.setFileFilter(ff);
-			fc.setCurrentDirectory(currentDirectory);
-			final int result = fc.showSaveDialog(null);
-			if (result == JFileChooser.APPROVE_OPTION) {
-				currentDirectory = fc.getSelectedFile().getParentFile();
-				try {
-					final File f = fc.getSelectedFile();
-					final File fileToWrite = f.getName().endsWith(EXT) ? f : new File(f.getAbsolutePath() + EXT);
-					FileUtilities.objectToFile(getEffects(), fileToWrite, false);
-				} catch (final IOException e1) {
-					GUIUtilities.errorMessage(e1);
-				}
-			}
-		}
-	};
+    private final ActionListener saveActionListener = new ActionListener() {
+        @Override
+        public void actionPerformed(final ActionEvent e) {
+            final JFileChooser fc = new JFileChooser();
+            fc.setFileFilter(ff);
+            fc.setCurrentDirectory(currentDirectory);
+            final int result = fc.showSaveDialog(null);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                currentDirectory = fc.getSelectedFile().getParentFile();
+                try {
+                    final File f = fc.getSelectedFile();
+                    final File fileToWrite = f.getName().endsWith(EXT) ? f : new File(f.getAbsolutePath() + EXT);
+                    FileUtilities.objectToFile(getEffects(), fileToWrite, false);
+                } catch (final IOException e1) {
+                    GUIUtilities.errorMessage(e1);
+                }
+            }
+        }
+    };
 
-	private final ActionListener loadActionListener = new ActionListener() {
-		@Override
-		public void actionPerformed(final ActionEvent e) {
-			final JFileChooser fc = new JFileChooser();
-			fc.setFileFilter(ff);
-			fc.setCurrentDirectory(currentDirectory);
-			final int result = fc.showOpenDialog(null);
-			if (result == JFileChooser.APPROVE_OPTION) {
-				currentDirectory = fc.getSelectedFile().getParentFile();
-				try {
-					clearEffects();
-					@SuppressWarnings("unchecked")
-					final List<Effect> effects = (List<Effect>) FileUtilities.fileToObject(fc.getSelectedFile());
-					setEffects(effects);
-					revalidate();
-				} catch (IOException | ClassNotFoundException e1) {
-					GUIUtilities.errorMessage(e1);
-				}
-			}
-		}
-	};
-	private final ActionListener removeActionListener = new ActionListener() {
-		@Override
-		public void actionPerformed(final ActionEvent e) {
-			if (selected != null) {
-				stackSec.unregisterFeature(selected);
-				selected = null;
-				genEvents();
-			}
-		}
-	};
-	private final ActionListener moveLeftActionListener = new ActionListener() {
-		@Override
-		public void actionPerformed(final ActionEvent e) {
-			moveSelectedLeft();
-		}
-	};
-	private final ActionListener moveRightActionListener = new ActionListener() {
-		@Override
-		public void actionPerformed(final ActionEvent e) {
-			moveSelectedRight();
-		}
-	};
+    private final ActionListener loadActionListener = new ActionListener() {
+        @Override
+        public void actionPerformed(final ActionEvent e) {
+            final JFileChooser fc = new JFileChooser();
+            fc.setFileFilter(ff);
+            fc.setCurrentDirectory(currentDirectory);
+            final int result = fc.showOpenDialog(null);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                currentDirectory = fc.getSelectedFile().getParentFile();
+                try {
+                    clearEffects();
+                    @SuppressWarnings("unchecked")
+                    final List<Effect> effects = (List<Effect>) FileUtilities.fileToObject(fc.getSelectedFile());
+                    setEffects(effects);
+                    revalidate();
+                } catch (IOException | ClassNotFoundException e1) {
+                    GUIUtilities.errorMessage(e1);
+                }
+            }
+        }
+    };
+    private final ActionListener removeActionListener = new ActionListener() {
+        @Override
+        public void actionPerformed(final ActionEvent e) {
+            if (selected != null) {
+                stackSec.unregisterFeature(selected);
+                selected = null;
+                genEvents();
+            }
+        }
+    };
+    private final ActionListener moveLeftActionListener = new ActionListener() {
+        @Override
+        public void actionPerformed(final ActionEvent e) {
+            moveSelectedLeft();
+        }
+    };
+    private final ActionListener moveRightActionListener = new ActionListener() {
+        @Override
+        public void actionPerformed(final ActionEvent e) {
+            moveSelectedRight();
+        }
+    };
 
-	private class CreateEffectBuilder implements ActionListener {
-		private final Component parent;
+    private class CreateEffectBuilder implements ActionListener {
+        private final Component parent;
 
-		public CreateEffectBuilder(final Component p) {
-			parent = p;
-		};
+        public CreateEffectBuilder(final Component p) {
+            parent = p;
+        };
 
-		@Override
-		public void actionPerformed(final ActionEvent e) {
-			final EffectBuilder eb = new EffectBuilder();
-			eb.pack();
-			final Point location = parent.getLocation();
-			SwingUtilities.convertPointToScreen(location, parent);
-			eb.setLocation(location);
-			eb.setVisible(true);
-			new Thread(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						final Effect effect = EffectFactory.buildEffect(eb.getResult());
-						addEffect(effect);
-						genEvents();
-					} catch (final Exception e1) {
-						GUIUtilities.errorMessage(e1);
-					}
-				}
-			}).start();
-		}
-	}
+        @Override
+        public void actionPerformed(final ActionEvent e) {
+            final EffectBuilder eb = new EffectBuilder();
+            eb.pack();
+            final Point location = parent.getLocation();
+            SwingUtilities.convertPointToScreen(location, parent);
+            eb.setLocation(location);
+            eb.setVisible(true);
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        final Effect effect = EffectFactory.buildEffect(eb.getResult());
+                        addEffect(effect);
+                        genEvents();
+                    } catch (final Exception e1) {
+                        GUIUtilities.errorMessage(e1);
+                    }
+                }
+            }).start();
+        }
+    }
 
-	private static String r(final Res r) {
-		return Res.get(r);
-	}
+    private static String r(final Res r) {
+        return Res.get(r);
+    }
 
-	/**
-	 * Initialize the component.
-	 */
-	public JEffectsTab() {
-		super(r(Res.EFFECT_TAB));
-		final JTapeGroup showGroup = new JTapeGroup(r(Res.SHOW_GROUP));
-		final JTapeGroup effectsGroup = new JTapeGroup(r(Res.EFFECTS_GROUP));
+    /**
+     * Initialize the component.
+     */
+    public JEffectsTab() {
+        super(r(Res.EFFECT_TAB));
+        final JTapeGroup showGroup = new JTapeGroup(r(Res.SHOW_GROUP));
+        final JTapeGroup effectsGroup = new JTapeGroup(r(Res.EFFECTS_GROUP));
 
-		final JTapeSection showLinksSec = new JTapeMainFeature();
-		paintLinksButton = new JToggleButton(r(Res.ENABLE_DRAW_LINKS));
-		paintLinksButton.setActionCommand(Commands.PAINT_LINKS.toString());
-		showLinksSec.registerFeature(paintLinksButton);
+        final JTapeSection showLinksSec = new JTapeMainFeature();
+        paintLinksButton = new JToggleButton(r(Res.ENABLE_DRAW_LINKS));
+        paintLinksButton.setActionCommand(Commands.PAINT_LINKS.toString());
+        showLinksSec.registerFeature(paintLinksButton);
 
-		showGroup.registerSection(showLinksSec);
+        showGroup.registerSection(showLinksSec);
 
-		final JTapeSection saveLoadSec = new JTapeFeatureStack(Type.VERTICAL_STACK);
-		saveButton = new JButton(r(Res.SAVE));
-		saveButton.addActionListener(saveActionListener);
-		loadButton = new JButton(r(Res.LOAD));
-		loadButton.addActionListener(loadActionListener);
-		saveLoadSec.registerFeature(saveButton);
-		saveLoadSec.registerFeature(loadButton);
+        final JTapeSection saveLoadSec = new JTapeFeatureStack(Type.VERTICAL_STACK);
+        saveButton = new JButton(r(Res.SAVE));
+        saveButton.addActionListener(saveActionListener);
+        loadButton = new JButton(r(Res.LOAD));
+        loadButton.addActionListener(loadActionListener);
+        saveLoadSec.registerFeature(saveButton);
+        saveLoadSec.registerFeature(loadButton);
 
-		effectsGroup.registerSection(saveLoadSec);
+        effectsGroup.registerSection(saveLoadSec);
 
-		final JTapeSection addRemSec = new JTapeFeatureStack(Type.VERTICAL_STACK);
-		addEffectButton = new JButton(r(Res.ADD_EFFECT));
-		addEffectButton.addActionListener(new CreateEffectBuilder(addEffectButton));
-		remEffectButton = new JButton(r(Res.REMOVE_EFFECT));
-		remEffectButton.addActionListener(removeActionListener);
-		addRemSec.registerFeature(addEffectButton);
-		addRemSec.registerFeature(remEffectButton);
+        final JTapeSection addRemSec = new JTapeFeatureStack(Type.VERTICAL_STACK);
+        addEffectButton = new JButton(r(Res.ADD_EFFECT));
+        addEffectButton.addActionListener(new CreateEffectBuilder(addEffectButton));
+        remEffectButton = new JButton(r(Res.REMOVE_EFFECT));
+        remEffectButton.addActionListener(removeActionListener);
+        addRemSec.registerFeature(addEffectButton);
+        addRemSec.registerFeature(remEffectButton);
 
-		effectsGroup.registerSection(addRemSec);
+        effectsGroup.registerSection(addRemSec);
 
-		final JTapeSection moveSec = new JTapeFeatureStack(Type.VERTICAL_STACK);
-		moveLeftButton = new JButton("<");
-		moveLeftButton.addActionListener(moveLeftActionListener);
-		moveRightButton = new JButton(">");
-		moveRightButton.addActionListener(moveRightActionListener);
-		moveSec.registerFeature(moveLeftButton);
-		moveSec.registerFeature(moveRightButton);
+        final JTapeSection moveSec = new JTapeFeatureStack(Type.VERTICAL_STACK);
+        moveLeftButton = new JButton("<");
+        moveLeftButton.addActionListener(moveLeftActionListener);
+        moveRightButton = new JButton(">");
+        moveRightButton.addActionListener(moveRightActionListener);
+        moveSec.registerFeature(moveLeftButton);
+        moveSec.registerFeature(moveRightButton);
 
-		effectsGroup.registerSection(moveSec);
+        effectsGroup.registerSection(moveSec);
 
-		stackSec = new JTapeFeatureStack(Type.HORIZONTAL_STACK);
-		stackSec.setBorder(new LineBorder(Color.BLACK, 1, false));
+        stackSec = new JTapeFeatureStack(Type.HORIZONTAL_STACK);
+        stackSec.setBorder(new LineBorder(Color.BLACK, 1, false));
 
-		effectsGroup.registerSection(stackSec);
+        effectsGroup.registerSection(stackSec);
 
-		registerGroup(showGroup);
-		registerGroup(effectsGroup);
+        registerGroup(showGroup);
+        registerGroup(effectsGroup);
 
-		addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				if (main != null) {
-					main.setEffectStack(getEffects());
-					main.repaint();
-				}
-			}
-		});
+        addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                if (main != null) {
+                    main.setEffectStack(getEffects());
+                    main.repaint();
+                }
+            }
+        });
 
-		final Effect defaultEffect = EffectFactory.buildDefaultEffect();
+        final Effect defaultEffect = EffectFactory.buildDefaultEffect();
 
-		addEffect(defaultEffect);
-		genEvents();
-	}
+        addEffect(defaultEffect);
+        genEvents();
+    }
 
-	/**
-	 * See {@link AbstractButton#addActionListener(ActionListener)}.
-	 * 
-	 * @param al
-	 *            the {@link ActionListener} to add
-	 */
-	public void addActionListener(final ActionListener al) {
-		listeners.add(al);
-	}
+    /**
+     * See {@link AbstractButton#addActionListener(ActionListener)}.
+     * 
+     * @param al
+     *            the {@link ActionListener} to add
+     */
+    public void addActionListener(final ActionListener al) {
+        listeners.add(al);
+    }
 
-	/**
-	 * Adds a new {@link Effect} to this stack.
-	 * 
-	 * @param e
-	 *            the {@link Effect} to add
-	 */
-	public void addEffect(final Effect e) {
-		final JEffectRepresentation<T> er = new JEffectRepresentation<>(e, main);
-		registerItemSelectable(er);
-		stackSec.registerFeature(er);
-	}
+    /**
+     * Adds a new {@link Effect} to this stack.
+     * 
+     * @param e
+     *            the {@link Effect} to add
+     */
+    public void addEffect(final Effect e) {
+        final JEffectRepresentation<T> er = new JEffectRepresentation<>(e, main);
+        registerItemSelectable(er);
+        stackSec.registerFeature(er);
+    }
 
-	/**
-	 * Adds listener to the toggle button that enables/disables links.
-	 * 
-	 * @param l
-	 *            is the {@link ActionListener}
-	 */
-	public void addLinksToggleActionListener(final ActionListener l) {
-		paintLinksButton.addActionListener(l);
-	}
+    /**
+     * Adds listener to the toggle button that enables/disables links.
+     * 
+     * @param l
+     *            is the {@link ActionListener}
+     */
+    public void addLinksToggleActionListener(final ActionListener l) {
+        paintLinksButton.addActionListener(l);
+    }
 
-	/**
-	 * Removes every effect.
-	 */
-	public void clearEffects() {
-		stackSec.removeAll();
-	}
+    /**
+     * Removes every effect.
+     */
+    public void clearEffects() {
+        stackSec.removeAll();
+    }
 
-	private void genEvents() {
-		revalidate();
-		final ActionEvent event = new ActionEvent(this, 0, "");
-		for (final ActionListener al : listeners) {
-			al.actionPerformed(event);
-		}
-	}
+    private void genEvents() {
+        revalidate();
+        final ActionEvent event = new ActionEvent(this, 0, "");
+        for (final ActionListener al : listeners) {
+            al.actionPerformed(event);
+        }
+    }
 
-	/**
-	 * @return The list of currently active {@link Effect}s.
-	 */
-	public List<Effect> getEffects() {
-		final List<Component> l = stackSec.getOrderedComponents();
-		final List<Effect> l1 = new ArrayList<>(l.size());
-		for (final Component c : l) {
-			l1.add(((JEffectRepresentation<?>) c).getEffect());
-		}
-		return l1;
-	}
+    /**
+     * @return The list of currently active {@link Effect}s.
+     */
+    public List<Effect> getEffects() {
+        final List<Component> l = stackSec.getOrderedComponents();
+        final List<Effect> l1 = new ArrayList<>(l.size());
+        for (final Component c : l) {
+            l1.add(((JEffectRepresentation<?>) c).getEffect());
+        }
+        return l1;
+    }
 
-	/**
-	 * @return true if the links are currently drawn
-	 */
-	public boolean isDrawingLinks() {
-		return paintLinksButton.isSelected();
-	}
+    /**
+     * @return true if the links are currently drawn
+     */
+    public boolean isDrawingLinks() {
+        return paintLinksButton.isSelected();
+    }
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public void itemStateChanged(final ItemEvent e) {
-		if (e.getStateChange() == ItemEvent.SELECTED) {
-			selected = (JEffectRepresentation<T>) e.getItem();
-			for (final Component c : stackSec.getComponents()) {
-				final JEffectRepresentation<T> er = (JEffectRepresentation<T>) c;
-				if (!er.equals(selected) && er.isSelected()) {
-					er.setSelected(false);
-				}
-			}
-		}
-	}
+    @SuppressWarnings("unchecked")
+    @Override
+    public void itemStateChanged(final ItemEvent e) {
+        if (e.getStateChange() == ItemEvent.SELECTED) {
+            selected = (JEffectRepresentation<T>) e.getItem();
+            for (final Component c : stackSec.getComponents()) {
+                final JEffectRepresentation<T> er = (JEffectRepresentation<T>) c;
+                if (!er.equals(selected) && er.isSelected()) {
+                    er.setSelected(false);
+                }
+            }
+        }
+    }
 
-	/**
-	 * Decreases the priority of the selected effect.
-	 */
-	protected void moveSelectedLeft() {
-		if (selected != null) {
-			final List<Component> l = stackSec.getOrderedComponents();
-			final int index = l.indexOf(selected);
-			if (index > 0) {
-				stackSec.setComponentOrder(selected, index - 1);
-				genEvents();
-			}
-		}
-	}
+    /**
+     * Decreases the priority of the selected effect.
+     */
+    protected void moveSelectedLeft() {
+        if (selected != null) {
+            final List<Component> l = stackSec.getOrderedComponents();
+            final int index = l.indexOf(selected);
+            if (index > 0) {
+                stackSec.setComponentOrder(selected, index - 1);
+                genEvents();
+            }
+        }
+    }
 
-	/**
-	 * Increases the priority of the selected effect.
-	 */
-	protected void moveSelectedRight() {
-		if (selected != null) {
-			final List<Component> l = stackSec.getOrderedComponents();
-			final int index = l.indexOf(selected);
-			final int last = l.size() - 1;
-			if (index < last) {
-				stackSec.setComponentOrder(selected, index + 1);
-				genEvents();
-			}
-		}
-	}
+    /**
+     * Increases the priority of the selected effect.
+     */
+    protected void moveSelectedRight() {
+        if (selected != null) {
+            final List<Component> l = stackSec.getOrderedComponents();
+            final int index = l.indexOf(selected);
+            final int last = l.size() - 1;
+            if (index < last) {
+                stackSec.setComponentOrder(selected, index + 1);
+                genEvents();
+            }
+        }
+    }
 
-	private void registerItemSelectable(final ItemSelectable is) {
-		is.addItemListener(this);
-	}
+    private void registerItemSelectable(final ItemSelectable is) {
+        is.addItemListener(this);
+    }
 
-	/**
-	 * Sets a new effect stack.
-	 * 
-	 * @param effects
-	 *            is a {@link List} of effects
-	 */
-	public void setEffects(final List<Effect> effects) {
-		for (final Effect e : effects) {
-			addEffect(e);
-		}
-		genEvents();
-	}
+    /**
+     * Sets a new effect stack.
+     * 
+     * @param effects
+     *            is a {@link List} of effects
+     */
+    public void setEffects(final List<Effect> effects) {
+        for (final Effect e : effects) {
+            addEffect(e);
+        }
+        genEvents();
+    }
 
-	@Override
-	public void setEnabled(final boolean value) {
-		super.setEnabled(value);
-		addEffectButton.setEnabled(value);
-		remEffectButton.setEnabled(value);
-		saveButton.setEnabled(value);
-		loadButton.setEnabled(value);
-		moveLeftButton.setEnabled(value);
-		moveRightButton.setEnabled(value);
-		for (final Component c : stackSec.getComponents()) {
-			c.setEnabled(value);
-		}
-	}
+    @Override
+    public void setEnabled(final boolean value) {
+        super.setEnabled(value);
+        addEffectButton.setEnabled(value);
+        remEffectButton.setEnabled(value);
+        saveButton.setEnabled(value);
+        loadButton.setEnabled(value);
+        moveLeftButton.setEnabled(value);
+        moveRightButton.setEnabled(value);
+        for (final Component c : stackSec.getComponents()) {
+            c.setEnabled(value);
+        }
+    }
 
-	/**
-	 * Sets the {@link GraphicalOutputMonitor} to use.
-	 * 
-	 * @param d
-	 *            the {@link GraphicalOutputMonitor} to use
-	 */
-	@SuppressWarnings("unchecked")
-	public void setMonitor(final GraphicalOutputMonitor<T> d) {
-		main = d;
-		if (main != null) {
-			main.setEffectStack(getEffects());
-		}
-		for (final Component c : stackSec.getOrderedComponents()) {
-			if (c instanceof JEffectRepresentation) {
-				((JEffectRepresentation<T>) c).setMonitor(main);
-			}
-		}
-	}
+    /**
+     * Sets the {@link GraphicalOutputMonitor} to use.
+     * 
+     * @param d
+     *            the {@link GraphicalOutputMonitor} to use
+     */
+    @SuppressWarnings("unchecked")
+    public void setMonitor(final GraphicalOutputMonitor<T> d) {
+        main = d;
+        if (main != null) {
+            main.setEffectStack(getEffects());
+        }
+        for (final Component c : stackSec.getOrderedComponents()) {
+            if (c instanceof JEffectRepresentation) {
+                ((JEffectRepresentation<T>) c).setMonitor(main);
+            }
+        }
+    }
 
 }

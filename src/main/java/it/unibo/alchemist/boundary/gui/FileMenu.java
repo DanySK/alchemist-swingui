@@ -27,67 +27,65 @@ import javax.swing.filechooser.FileFilter;
 import org.danilopianini.view.GUIUtilities;
 
 /**
- * @author Danilo Pianini
- * 
  */
 public class FileMenu extends AbstractMenu {
 
-	private static final long serialVersionUID = 5209455686362711386L;
-	private static final JMenuItem[] ITEMS = { new JMenuItem(Res.get(Res.QUIT)), new JMenuItem(Res.get(Res.LOAD_JAR)), new JMenuItem("Logging Perspective") };
-	private static int n = 1;
+    private static final long serialVersionUID = 5209455686362711386L;
+    private static final JMenuItem[] ITEMS = { new JMenuItem(Res.get(Res.QUIT)), new JMenuItem(Res.get(Res.LOAD_JAR)), new JMenuItem("Logging Perspective") };
+    private static int n = 1;
 
-	/**
-	 * Builds the File menu.
-	 */
-	public FileMenu() {
-		super(Res.get(Res.FILE), ITEMS);
-	}
+    /**
+     * Builds the File menu.
+     */
+    public FileMenu() {
+        super(Res.get(Res.FILE), ITEMS);
+    }
 
-	@Override
-	public void actionPerformed(final ActionEvent e) {
-		if (e.getSource().equals(ITEMS[0])) {
-			System.exit(0);
-		} else if (e.getSource().equals(ITEMS[1])) {
-			final JFileChooser fc = new JFileChooser();
-			fc.setFileFilter(new FileFilter() {
-				@Override
-				public boolean accept(final File f) {
-					return f.isDirectory() || f.getName().toLowerCase().endsWith(".jar");
-				}
+    @Override
+    public void actionPerformed(final ActionEvent e) {
+        if (e.getSource().equals(ITEMS[0])) {
+            System.exit(0);
+        } else if (e.getSource().equals(ITEMS[1])) {
+            final JFileChooser fc = new JFileChooser();
+            fc.setFileFilter(new FileFilter() {
+                @Override
+                public boolean accept(final File f) {
+                    return f.isDirectory() || f.getName().toLowerCase().endsWith(".jar");
+                }
 
-				@Override
-				public String getDescription() {
-					return Res.get(Res.JAR_FILE);
-				}
-			});
-			final int response = fc.showOpenDialog(null);
-			if (response == JFileChooser.APPROVE_OPTION) {
-				final File chosen = fc.getSelectedFile();
-				Method method;
-				try {
-					/*
-					 * This horrible hack won't work if a SecurityManager is
-					 * attached.
-					 */
-					method = URLClassLoader.class.getDeclaredMethod("addURL", new Class[] { URL.class });
-					method.setAccessible(true);
-					method.invoke(ClassLoader.getSystemClassLoader(), new Object[] { chosen.toURI().toURL() });
-					GUIUtilities.alertMessage(Res.get(Res.LOAD_JAR), chosen + " " + Res.get(Res.JAR_LOAD_SUCCESSFULL));
-				} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | MalformedURLException e1) {
-					GUIUtilities.errorMessage(e1);
-					L.error(e1);
-				}
-			}
-		} else if (e.getSource().equals(ITEMS[2])) {
-			final StringBuilder sb = new StringBuilder("Logging Perspective");
-			if (n > 1) {
-				sb.append(' ');
-				sb.append(n);
-			}
-			n++;
-			final String name = sb.toString();
-			AlchemistSwingUI.addTab(new LoggerPerspective(), name, name);
-		}
-	}
+                @Override
+                public String getDescription() {
+                    return Res.get(Res.JAR_FILE);
+                }
+            });
+            final int response = fc.showOpenDialog(null);
+            if (response == JFileChooser.APPROVE_OPTION) {
+                final File chosen = fc.getSelectedFile();
+                Method method;
+                try {
+                    /*
+                     * This horrible hack won't work if a SecurityManager is
+                     * attached.
+                     */
+                    method = URLClassLoader.class.getDeclaredMethod("addURL", new Class[] { URL.class });
+                    method.setAccessible(true);
+                    method.invoke(ClassLoader.getSystemClassLoader(), new Object[] { chosen.toURI().toURL() });
+                    GUIUtilities.alertMessage(Res.get(Res.LOAD_JAR), chosen + " " + Res.get(Res.JAR_LOAD_SUCCESSFULL));
+                } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | MalformedURLException e1) {
+                    GUIUtilities.errorMessage(e1);
+                    L.error(e1);
+                }
+            }
+        } else if (e.getSource().equals(ITEMS[2])) {
+            final StringBuilder sb = new StringBuilder("Logging Perspective");
+            if (n > 1) {
+                sb.append(' ');
+                sb.append(n);
+            }
+            n++;
+            final String name = sb.toString();
+            AlchemistSwingUI.addTab(new LoggerPerspective(), name, name);
+        }
+    }
 
 }
