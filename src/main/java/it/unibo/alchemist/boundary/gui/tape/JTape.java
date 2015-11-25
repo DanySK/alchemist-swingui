@@ -14,7 +14,6 @@ import javax.swing.JTabbedPane;
  * JTape is a container for a commands bar that should expose the whole set of
  * features of an application that may concern the user.
  * 
- * @author Giovanni Ciatto
  */
 public class JTape extends JTabbedPane {
 

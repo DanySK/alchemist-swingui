@@ -16,7 +16,6 @@ import javax.swing.JPanel;
  * A {@link JTapeSection} is a set of one or more feature that should appear
  * close to each other because of stylistic or semantic reasons.
  * 
- * @author Giovanni Ciatto
  */
 public abstract class JTapeSection extends JPanel {
 

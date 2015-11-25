@@ -31,7 +31,6 @@ import javax.swing.border.LineBorder;
 import org.danilopianini.view.ObjectModFrame;
 
 /**
- * @author Giovanni Ciatto
  * @param <T>
  */
 public class JOutputMonitorRepresentation<T> extends JPanel implements ItemSelectable {

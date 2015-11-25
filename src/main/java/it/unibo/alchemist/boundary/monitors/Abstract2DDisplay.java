@@ -64,7 +64,6 @@ import javax.swing.event.MouseInputListener;
  * Abstract base-class for each display able a graphically represent a 2D space
  * and simulation.
  * 
- * @author Giovanni Ciatto
  * @param <T>
  */
 public abstract class Abstract2DDisplay<T> extends JPanel implements GraphicalOutputMonitor<T> {

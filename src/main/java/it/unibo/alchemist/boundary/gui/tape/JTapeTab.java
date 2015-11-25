@@ -23,7 +23,6 @@ import net.miginfocom.swing.MigLayout;
  * with a common context should appear into the same tab. E.g. Common operations
  * like New, Open, Close, Save, etc. should stay togheter.
  * 
- * @author Giovanni Ciatto
  */
 public class JTapeTab extends JPanel {
     /**

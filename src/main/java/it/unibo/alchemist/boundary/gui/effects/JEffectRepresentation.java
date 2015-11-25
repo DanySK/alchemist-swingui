@@ -35,7 +35,6 @@ import org.danilopianini.view.ObjectModFrame;
  * effect (create/edit). Effects are relative to a
  * {@link GraphicalOutputMonitor} instance.
  * 
- * @author Giovanni Ciatto
  * @param <T>
  *            is the type for the concentration
  */

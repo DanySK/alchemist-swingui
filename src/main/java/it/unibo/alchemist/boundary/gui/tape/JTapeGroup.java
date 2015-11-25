@@ -21,7 +21,6 @@ import net.miginfocom.swing.MigLayout;
  * A {@link JTapeGroup} is a set of {@link JTapeSection} identified by a common
  * description.
  * 
- * @author Giovanni Ciatto
  */
 public class JTapeGroup extends JPanel {
     /**

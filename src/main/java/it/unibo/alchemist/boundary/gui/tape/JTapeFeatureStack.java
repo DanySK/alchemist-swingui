@@ -17,7 +17,6 @@ import java.util.List;
 
 /**
  * 
- * @author Giovanni Ciatto
  * 
  */
 public class JTapeFeatureStack extends JTapeSection {
@@ -28,7 +27,6 @@ public class JTapeFeatureStack extends JTapeSection {
 
     /**
      * 
-     * @author Giovanni Ciatto
      * 
      */
     public enum Type {
