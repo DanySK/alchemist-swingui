@@ -41,18 +41,22 @@ configurations {
 substitutions {
     substitute 'asm:asm' up_to '6' with 'org.ow2.asm:asm' at '+'
     substitute 'com.google.guava:guava' up_to '14.0.1' with 'com.google.guava:guava-jdk5' at '+'
+    substitute 'it.unibo.alchemist:alchemist-maps' up_to '14.0.1' with 'org.jfree:jfreechart' at "$jfreechartVersion"
 }
 
 dependencies {
     compile "org.apache.commons:commons-math3:[3, 4)"
 
-    compile "it.unibo.alchemist:alchemist-maps:$mapsVersion"
     compile "it.unibo.alchemist:alchemist-implementationbase:$implbaseVersion"
-    compile "it.unibo.alchemist:alchemist-incarnations:$incarnationsVersion"
+    compile "it.unibo.alchemist:alchemist-engine:$engineVersion"
+    compile 'org.mapsforge:mapsforge-map-awt:0.6.0'
+    compile 'org.mapsforge:SwingMapViewer:0.6.0'
     compile "org.jfree:jfreesvg:$jfreesvgVersion"
     compile "com.miglayout:miglayout-swing:$miglayoutVersion"
     compile "org.jfree:jfreechart:$jfreechartVersion"
-
+    compile "it.unibo.alchemist:alchemist-maps:$mapsVersion"
+    compile "it.unibo.alchemist:alchemist-incarnations:$incarnationsVersion"
+    
     testCompile "junit:junit:$junitVersion"
 
     doclet "org.jboss.apiviz:apiviz:$apivizVersion"
