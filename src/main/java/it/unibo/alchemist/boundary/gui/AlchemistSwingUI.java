@@ -28,9 +28,9 @@ import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Level;
+//import org.apache.log4j.LogManager;
+//import org.apache.log4j.Logger;
 import org.danilopianini.view.ButtonTabComponent;
 import org.danilopianini.view.GUIUtilities;
 
@@ -182,14 +182,14 @@ public final class AlchemistSwingUI extends JFrame {
         /*
          * Disable Log4j.
          */
-        @SuppressWarnings("unchecked")
-        final Enumeration<Logger> loggers = LogManager.getCurrentLoggers();
-        while (loggers.hasMoreElements()) {
-            loggers.nextElement().setLevel(Level.OFF);
-        }
-        LogManager.getRootLogger().setLevel(Level.OFF);
+//        @SuppressWarnings("unchecked")
+//        final Enumeration<Logger> loggers = LogManager.getCurrentLoggers();
+//        while (loggers.hasMoreElements()) {
+//            loggers.nextElement().setLevel(Level.OFF);
+//        }
+//        LogManager.getRootLogger().setLevel(Level.OFF);
 
-        L.setGUIEnabled(true);
+//        L.setGUIEnabled(true);
         try {
             // Set System L&F
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
