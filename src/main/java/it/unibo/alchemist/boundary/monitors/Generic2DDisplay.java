@@ -55,10 +55,10 @@ public class Generic2DDisplay<T> extends Abstract2DDisplay<T> {
         getZoomManager().setZoom(getWormhole().getZoom());
     }
 
-    @Override
-    protected void paintComponent(final Graphics g) {
-        super.paintComponent(g);
-        drawEnvOnView((Graphics2D) g);
-    }
-
+//    @Override
+//    protected void paintComponent(final Graphics g) {
+//        super.paintComponent(g);
+//        drawEnvOnView((Graphics2D) g);
+//    }
+//
 }

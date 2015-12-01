@@ -8,13 +8,17 @@
  */
 package it.unibo.alchemist.boundary.wormhole.implementation;
 
+import it.unibo.alchemist.boundary.monitors.MapDisplay;
 import it.unibo.alchemist.boundary.wormhole.interfaces.IWormhole2D;
 import it.unibo.alchemist.utils.MathUtils;
 
 import java.awt.geom.Point2D;
+import java.util.function.BiFunction;
 
+import org.danilopianini.lang.TriFunction;
 import org.mapsforge.core.model.LatLong;
 import org.mapsforge.core.util.MercatorProjection;
+import org.mapsforge.map.model.DisplayModel;
 import org.mapsforge.map.model.MapViewPosition;
 import org.mapsforge.map.model.Model;
 
@@ -35,9 +39,8 @@ public class MapWormhole extends AbstractNSEWormhole2D {
      * @param m
      *            is the {@link Model} object used to handle the map
      */
-    public MapWormhole(final IWormhole2D w, final MapViewPosition m) {
+    public MapWormhole(final IWormhole2D w, final MapViewPosition m, final DisplayModel dm) {
         super(w.getViewSize(), w.getEnvSize(), w.getEnvOffset());
-
         mapModel = m;
         super.setMode(Mode.MAP);
         super.setViewPosition(new Point2D.Double(getViewSize().getWidth() / 2, getViewSize().getHeight() / 2));
@@ -46,15 +49,35 @@ public class MapWormhole extends AbstractNSEWormhole2D {
     @Override
     public Point2D getEnvPoint(final Point2D viewPoint) {
         final LatLong l = mapModel.getCenter();
-        final Point2D c = new Point2D.Double(
-                MercatorProjection.longitudeToPixelX(l.longitude, mapModel.getZoomLevel()),
-                MercatorProjection.latitudeToPixelY(l.latitude, mapModel.getZoomLevel()));
+        final Point2D c = new Point2D.Double(lonToPxX(l.longitude), latToPxY(l.latitude));
+//                MercatorProjection.longitudeToPixelX(l.longitude, mapModel.getZoomLevel()),
+//                MercatorProjection.latitudeToPixelY(l.latitude, mapModel.getZoomLevel()));
         final Point2D vc = getViewPosition();
         final Point2D d = NSEAlg2DHelper.subtract(viewPoint, vc);
         final Point2D p = NSEAlg2DHelper.sum(d, c);
-        return new Point2D.Double(
-                MercatorProjection.pixelXToLongitude(p.getX(), mapModel.getZoomLevel()),
-                MercatorProjection.pixelYToLatitude(p.getY(), mapModel.getZoomLevel()));
+        return new Point2D.Double(pxXToLon(p.getX()), pxYToLat(p.getY()));
+//                MercatorProjection.pixelXToLongitude(p.getX(), mapModel.getZoomLevel()),
+//                MercatorProjection.pixelYToLatitude(p.getY(), mapModel.getZoomLevel()));
+    }
+
+    private double lonToPxX(final double lon) {
+        return mercatorApplier(MercatorProjection::longitudeToPixelX, lon);
+    }
+
+    private double pxXToLon(final double pxx) {
+        return mercatorApplier(MercatorProjection::pixelXToLongitude, pxx);
+    }
+
+    private double latToPxY(final double lat) {
+        return mercatorApplier(MercatorProjection::latitudeToPixelY, lat);
+    }
+
+    private double pxYToLat(final double pxy) {
+        return mercatorApplier(MercatorProjection::pixelYToLatitude, pxy);
+    }
+
+    private double mercatorApplier(final BiFunction<Double, Long, Double> fun, final double arg) {
+        return fun.apply(arg, (long) 256 << mapModel.getZoomLevel());
     }
 
     @Override
@@ -66,12 +89,12 @@ public class MapWormhole extends AbstractNSEWormhole2D {
     @Override
     public Point2D getViewPoint(final Point2D envPoint) {
         final LatLong l = mapModel.getCenter();
-        final Point2D p = new Point2D.Double(
-                MercatorProjection.longitudeToPixelX(envPoint.getX(), mapModel.getZoomLevel()),
-                MercatorProjection.latitudeToPixelY(envPoint.getY(), mapModel.getZoomLevel()));
-        final Point2D c = new Point2D.Double(
-                MercatorProjection.longitudeToPixelX(l.longitude, mapModel.getZoomLevel()),
-                MercatorProjection.latitudeToPixelY(l.latitude, mapModel.getZoomLevel()));
+        final Point2D p = new Point2D.Double(lonToPxX(envPoint.getX()), latToPxY(envPoint.getY()));
+//                MercatorProjection.longitudeToPixelX(envPoint.getX(), mapModel.getZoomLevel()),
+//                MercatorProjection.latitudeToPixelY(envPoint.getY(), mapModel.getZoomLevel()));
+        final Point2D c = new Point2D.Double(lonToPxX(l.longitude), latToPxY(l.latitude));
+//                MercatorProjection.longitudeToPixelX(l.longitude, mapModel.getZoomLevel()),
+//                MercatorProjection.latitudeToPixelY(l.latitude, mapModel.getZoomLevel()));
         final Point2D d = NSEAlg2DHelper.subtract(p, c);
         final Point2D vc = getViewPosition();
         return new Point2D.Double(vc.getX() + d.getX(), vc.getY() + d.getY());

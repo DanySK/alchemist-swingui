@@ -16,13 +16,32 @@ import it.unibo.alchemist.model.interfaces.ITime;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
 import java.io.File;
+import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import org.mapsforge.map.model.MapViewPosition;
 import org.mapsforge.map.model.Model;
+import org.mapsforge.map.rendertheme.InternalRenderTheme;
 import org.mapsforge.map.swing.MapViewer;
-import org.mapsforge.map.swing.view.MapView;
+import org.mapsforge.core.graphics.Canvas;
+import org.mapsforge.core.graphics.GraphicFactory;
+import org.mapsforge.core.model.BoundingBox;
+import org.mapsforge.core.model.Point;
+import org.mapsforge.map.awt.graphics.AwtGraphicFactory;
+import org.mapsforge.map.awt.view.MapView;
+import org.mapsforge.map.layer.Layer;
+import org.mapsforge.map.layer.cache.FileSystemTileCache;
+import org.mapsforge.map.layer.cache.InMemoryTileCache;
+import org.mapsforge.map.layer.cache.TileCache;
+import org.mapsforge.map.layer.cache.TwoLevelTileCache;
+import org.mapsforge.map.layer.download.TileDownloadLayer;
+import org.mapsforge.map.layer.download.tilesource.OpenStreetMapMapnik;
+import org.mapsforge.map.layer.download.tilesource.TileSource;
+import org.mapsforge.map.layer.renderer.TileRendererLayer;
 
 /**
  * 
@@ -31,21 +50,9 @@ import org.mapsforge.map.swing.view.MapView;
 public class MapDisplay<T> extends Abstract2DDisplay<T> {
     private static final String MAPS_FORGE_EXTENSION = ".map";
     private static final long serialVersionUID = 8593507198560560646L;
+    private static final GraphicFactory GRAPHIC_FACTORY = AwtGraphicFactory.INSTANCE;
+    private static final AtomicInteger IDGEN = new AtomicInteger();
     private MapView mapView;
-
-    private class MapDisplayView extends MapView {
-        private static final long serialVersionUID = -5055412016973925447L;
-
-        public MapDisplayView(final Model model) {
-            super(model);
-        }
-    
-        @Override
-        public void drawOnMap(final Graphics2D g) {
-            drawEnvOnView(g);
-            drawZoomLevel(g);
-        }
-    }
 
     /**
      * 
@@ -60,7 +67,7 @@ public class MapDisplay<T> extends Abstract2DDisplay<T> {
         super.dispose();
         this.removeAll();
         if (mapView != null) {
-            mapView.dispose();
+//            mapView.dispose();
             remove(mapView);
         }
         mapView = null;
@@ -68,40 +75,53 @@ public class MapDisplay<T> extends Abstract2DDisplay<T> {
 
     @Override
     protected void drawBackground(final Graphics2D g) {
-
     }
-
-    private void drawZoomLevel(final Graphics2D g) {
-        g.setColor(Color.BLACK);
-        g.drawString("LOD: " + getWormhole().getZoom(), 0f, g.getFont().getSize2D());
-    }
-
-    private File getMapFile(final File f) {
-        final StringBuilder sb = new StringBuilder(f.getPath());
-        final String dot = ".";
-        sb.delete(sb.lastIndexOf(dot), sb.length());
-        sb.append(MAPS_FORGE_EXTENSION);
-        return new File(sb.toString());
-    }
+    
+    @Override
+    public void paint(Graphics g) {
+        super.paint(g);
+        if (mapView != null) {
+            mapView.paint(g);
+        }
+          drawEnvOnView((Graphics2D) g);
+    };
 
     @Override
     public void initialized(final IEnvironment<T> env) {
         super.initialized(env);
         final IMapEnvironment<T> e = (IMapEnvironment<T>) env;
-        final Model mapModel = new Model();
-        mapView = new MapDisplayView(mapModel);
-        setWormhole(new MapWormhole(getWormhole(), mapModel));
+        mapView = new MapView();
+        Arrays.stream(getMouseListeners()).forEach(mapView::addMouseListener);
+        Arrays.stream(getMouseMotionListeners()).forEach(mapView::addMouseMotionListener);
+        Arrays.stream(getMouseWheelListeners()).forEach(mapView::addMouseWheelListener);
+        TileDownloadLayer tdl = createTileDownloadLayer(createTileCache(), mapView.getModel());
+        mapView.addLayer(tdl);
+        tdl.start();
+        setWormhole(new MapWormhole(getWormhole(), mapView.getModel().mapViewPosition, mapView.getModel().displayModel));
         setZoomManager(new LinZoomManager(1, 1));
         getWormhole().setEnvPosition(new Point2D.Double(getWormhole().getEnvOffset().getX() + getWormhole().getEnvSize().getWidth() / 2, getWormhole().getEnvOffset().getY() + getWormhole().getEnvSize().getHeight() / 2));
         getWormhole().setOptimalZoomRate();
         getZoomManager().setZoom(getWormhole().getZoom());
 //        add(MapViewer.createMapView(mapView, mapModel, getMapFile(e.getMapFile())), BorderLayout.CENTER);
-        add(MapViewer.createMapView(mapView, mapModel, null), BorderLayout.CENTER);
+        mapView.getMapScaleBar().setVisible(true);
+        add(mapView);
         revalidate();
         super.initialized(env);
     }
 
+    private static TileCache createTileCache() {
+        TileCache firstLevelTileCache = new InMemoryTileCache(128);
+        File cacheDirectory = new File(System.getProperty("java.io.tmpdir"), "mapsforge" + IDGEN.getAndIncrement());
+        TileCache secondLevelTileCache = new FileSystemTileCache(1024, cacheDirectory, GRAPHIC_FACTORY);
+        return new TwoLevelTileCache(firstLevelTileCache, secondLevelTileCache);
+    }
 
+    private static TileDownloadLayer createTileDownloadLayer(final TileCache tileCache, final Model model) {
+        TileSource tileSource = OpenStreetMapMapnik.INSTANCE;
+        TileDownloadLayer tileDownloadLayer = new TileDownloadLayer(tileCache, model.mapViewPosition, tileSource, GRAPHIC_FACTORY);
+        tileDownloadLayer.setDisplayModel(model.displayModel);
+        return tileDownloadLayer;
+    }
 
     @Override
     protected void onFirstResizing() {
@@ -117,14 +137,12 @@ public class MapDisplay<T> extends Abstract2DDisplay<T> {
         }
     }
 
-    @Override
-    protected void updateView() {
-        try {
-            mapView.repaint();
-        } catch (final NullPointerException e) {
-            return;
-        }
-    }
+//    @Override
+//    protected void updateView() {
+//        if (mapView != null) {
+//            mapView.repaint();
+//        }
+//    }
 
     @Override
     public void finished(final IEnvironment<T> env, final ITime time, final long step) {
