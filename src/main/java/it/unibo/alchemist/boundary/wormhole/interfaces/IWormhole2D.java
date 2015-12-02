@@ -65,13 +65,6 @@ public interface IWormhole2D {
     };
 
     /**
-     * Gets the offset vector.
-     * 
-     * @return a {@link Point2D} object representing the offset vector
-     */
-    Point2D getEnvOffset();
-
-    /**
      * Converts a point from the view-space to the env-space.
      * 
      * @param viewPoint
@@ -189,7 +182,7 @@ public interface IWormhole2D {
      *            is the {@link Dimension2D} object containing the view's width
      *            and height
      */
-    void setViewSize(Dimension2D size);
+//    void setViewSize(Dimension2D size);
 
     /**
      * Changes the zoom factor.

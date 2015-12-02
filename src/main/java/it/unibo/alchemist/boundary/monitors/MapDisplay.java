@@ -96,7 +96,7 @@ public class MapDisplay<T> extends Abstract2DDisplay<T> {
         TileDownloadLayer tdl = createTileDownloadLayer(createTileCache(), mapView.getModel());
         mapView.addLayer(tdl);
         tdl.start();
-        setWormhole(new MapWormhole(getSize(), env, mapView.getModel().mapViewPosition));
+        setWormhole(new MapWormhole(env, this, mapView.getModel().mapViewPosition));
         setZoomManager(new LinearZoomManager(1, 1, 2, 18));
         getWormhole().setEnvPosition(new Point2D.Double(env.getOffset()[0] + env.getSize()[0] / 2, env.getOffset()[1] + env.getSize()[1] / 2));
         getWormhole().optimalZoom();

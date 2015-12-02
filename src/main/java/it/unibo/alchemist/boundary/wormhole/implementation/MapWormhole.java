@@ -8,6 +8,7 @@
  */
 package it.unibo.alchemist.boundary.wormhole.implementation;
 
+import java.awt.Component;
 import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 import java.util.function.BiFunction;
@@ -26,7 +27,7 @@ import it.unibo.alchemist.model.interfaces.IEnvironment;
  * 
 
  */
-public class MapWormhole extends AbstractWormhole2D {
+public class MapWormhole extends Wormhole2D {
     private final MapViewPosition mapModel;
 
     /**
@@ -38,10 +39,8 @@ public class MapWormhole extends AbstractWormhole2D {
      * @param m
      *            is the {@link Model} object used to handle the map
      */
-    public MapWormhole(final Dimension2D size, final IEnvironment<?> env, final MapViewPosition m) {
-        super(size,
-                new DoubleDimension(env.getSize()[0], env.getSize()[1]),
-                new Point2D.Double(env.getOffset()[0], env.getOffset()[1]));
+    public MapWormhole(final IEnvironment<?> env, final Component comp, final MapViewPosition m) {
+        super(env, comp);
         mapModel = m;
         super.setMode(Mode.MAP);
         super.setViewPosition(new Point2D.Double(getViewSize().getWidth() / 2, getViewSize().getHeight() / 2));
@@ -125,7 +124,7 @@ public class MapWormhole extends AbstractWormhole2D {
 
     @Override
     public void optimalZoom() {
-        final Point2D e = (Point2D) getOriginalOffset().clone();
+        final Point2D e = new Point2D.Double(0, 0);
         Point2D v;
         if (getZoom() > 1) {
             setZoom(1);

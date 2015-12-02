@@ -332,9 +332,9 @@ public abstract class Abstract2DDisplay<T> extends JPanel implements Graphical2D
      *            the current simulation step
      */
     private void initAll(final IReaction<T> r, final ITime time, final long step) {
-        final double[] envSize = env.getSize();
-        final double[] offset = env.getOffset();
-        wormhole = new NSEWormhole(getSize(), new DoubleDimension(envSize), new Point2D.Double(offset[0], offset[1]));
+//        final double[] envSize = env.getSize();
+//        final double[] offset = env.getOffset();
+        wormhole = new NSEWormhole(env, this);
         angleManager = new AngleManagerImpl(AngleManagerImpl.DEF_DEG_PER_PIXEL);
         zoomManager = new ExponentialZoomManager(wormhole.getZoom(), ExponentialZoomManager.DEF_BASE);
         computeNodes();
@@ -613,7 +613,7 @@ public abstract class Abstract2DDisplay<T> extends JPanel implements Graphical2D
         @Override
         public void componentResized(final ComponentEvent e) {
             if (wormhole != null) {
-                wormhole.setViewSize(getSize());
+//                wormhole.setViewSize(getSize());
                 if (!inited) {
                     onFirstResizing();
                     inited = true;

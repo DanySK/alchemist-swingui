@@ -8,11 +8,15 @@
  */
 package it.unibo.alchemist.boundary.wormhole.implementation;
 
-import it.unibo.alchemist.boundary.wormhole.interfaces.IWormhole2D;
-
+import java.awt.Component;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Dimension2D;
+import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
-import java.util.Objects;
+
+import it.unibo.alchemist.boundary.wormhole.interfaces.IWormhole2D;
+import it.unibo.alchemist.model.interfaces.IEnvironment;
+import it.unibo.alchemist.utils.L;
 
 /**
  * Partial implementation for the interface {@link IWormhole2D}.<br>
@@ -20,17 +24,21 @@ import java.util.Objects;
  * sceern-space: the y-axis grows on the bottom side of the screen.
  * 
  */
-public abstract class AbstractWormhole2D implements IWormhole2D {
-    private Dimension2D viewSize;
-    private final Dimension2D envSize;
+public class Wormhole2D implements IWormhole2D {
+//    private Dimension2D viewSize;
+//    private final Dimension2D envSize;
     private Point2D position;
-    private Point2D offset = new Point2D.Double(0d, 0d);
-    private final Point2D originalOffset;
+    private Point2D effectCenter = new Point2D.Double(0, 0);
+//    private Point2D offset = new Point2D.Double(0d, 0d);
+//    private final Point2D originalOffset;
     private double zoom = 1d;
     private double angle;
     private double hRate = 1d;
     private double vRate = 1d;
     private Mode mode = Mode.ISOMETRIC;
+    
+    private final IEnvironment<?> model;
+    private final Component view;
 
     /**
      * Initializes a new instance directly setting the size of both view and
@@ -45,24 +53,22 @@ public abstract class AbstractWormhole2D implements IWormhole2D {
      * 
      * @see IWormhole2D
      */
-    public AbstractWormhole2D(final Dimension2D vSize, final Dimension2D eSize, final Point2D o) {
-        Objects.requireNonNull(vSize);
-        Objects.requireNonNull(eSize);
-        Objects.requireNonNull(o);
-        viewSize = new DoubleDimension(vSize.getWidth(), vSize.getHeight());
-        envSize = new DoubleDimension(eSize.getWidth(), eSize.getHeight());
-        position = new Point2D.Double(0d, vSize.getHeight());
-        offset = new Point2D.Double(o.getX(), o.getY());
-        originalOffset = new Point2D.Double(o.getX(), o.getY());
-    }
-
-    @Override
-    public Point2D getEnvOffset() {
-        return offset;
+    public Wormhole2D(final IEnvironment<?> env, final Component comp) {
+        model = env;
+        view = comp;
+//        Objects.requireNonNull(vSize);
+//        Objects.requireNonNull(eSize);
+//        Objects.requireNonNull(o);
+//        viewSize = new DoubleDimension(vSize.getWidth(), vSize.getHeight());
+//        envSize = new DoubleDimension(eSize.getWidth(), eSize.getHeight());
+        position = new Point2D.Double(0d, comp.getHeight());
+//        offset = new Point2D.Double(o.getX(), o.getY());
+//        originalOffset = new Point2D.Double(o.getX(), o.getY());
     }
 
     private double getEnvRatio() {
-        return envSize.getWidth() / envSize.getHeight();
+        final double[] size = model.getSize();
+        return size[0] / size[1];
     }
 
     /**
@@ -88,7 +94,7 @@ public abstract class AbstractWormhole2D implements IWormhole2D {
         if (mode == Mode.ISOMETRIC) {
             return 1d;
         } else if (mode == Mode.ADAPT_TO_VIEW) {
-            return viewSize.getWidth() / envSize.getWidth();
+            return view.getWidth() / model.getSize()[0];
         } else {
             return hRate;
         }
@@ -105,7 +111,7 @@ public abstract class AbstractWormhole2D implements IWormhole2D {
         if (mode == Mode.ISOMETRIC) {
             return 1d;
         } else if (mode == Mode.ADAPT_TO_VIEW) {
-            return viewSize.getHeight() / envSize.getHeight();
+            return view.getHeight() / model.getSize()[1];
         } else {
             return vRate;
         }
@@ -116,9 +122,9 @@ public abstract class AbstractWormhole2D implements IWormhole2D {
      * 
      * @return a {@link Point2D}
      */
-    protected Point2D getOriginalOffset() {
-        return originalOffset;
-    }
+//    protected Point2D getOriginalOffset() {
+//        return originalOffset;
+//    }
 
     /**
      * Gets the rotation angle, in radians.
@@ -138,7 +144,7 @@ public abstract class AbstractWormhole2D implements IWormhole2D {
 
     @Override
     public Dimension2D getViewSize() {
-        return (Dimension2D) viewSize.clone();
+        return view.getSize();
     }
 
     /**
@@ -180,7 +186,7 @@ public abstract class AbstractWormhole2D implements IWormhole2D {
      * @param envPoint
      *            is a {@link Point2D} into the env-space
      */
-    protected void setEnvPositionWithoutMoving(final Point2D envPoint) {
+    private void setEnvPositionWithoutMoving(final Point2D envPoint) {
         setViewPositionWithoutMoving(getViewPoint(new Point2D.Double(envPoint.getX(), envPoint.getY())));
     }
 
@@ -201,9 +207,9 @@ public abstract class AbstractWormhole2D implements IWormhole2D {
     @Override
     public void optimalZoom() {
         if (getEnvRatio() <= 1) {
-            zoom = viewSize.getHeight() / envSize.getHeight();
+            zoom = view.getHeight() / model.getSize()[1];
         } else {
-            zoom = viewSize.getWidth() / envSize.getWidth();
+            zoom = view.getWidth() / model.getSize()[0];
         }
 
     }
@@ -224,15 +230,31 @@ public abstract class AbstractWormhole2D implements IWormhole2D {
      * @param viewPoint
      *            is a {@link Point2D} into the view-space
      */
-    protected void setViewPositionWithoutMoving(final Point2D viewPoint) {
+    private void setViewPositionWithoutMoving(final Point2D viewPoint) {
         final Point2D envDelta = NSEAlg2DHelper.variation(getEnvPoint(new Point2D.Double(viewPoint.getX(), viewPoint.getY())), getEnvPoint(position));
         position = new Point2D.Double(viewPoint.getX(), viewPoint.getY());
-        offset = NSEAlg2DHelper.sum(offset, envDelta);
+        effectCenter = NSEAlg2DHelper.sum(effectCenter, envDelta);
+    }
+
+//    @Override
+//    public void setViewSize(final Dimension2D size) {
+//        viewSize = new DoubleDimension(size.getWidth(), size.getHeight());
+//    }
+
+    @Override
+    public void rotateAroundPoint(final Point2D p, final double a) {
+        final Point2D orig = effectCenter;
+        setViewPositionWithoutMoving(p);
+        setRotation(a);
+        setEnvPositionWithoutMoving(orig);
     }
 
     @Override
-    public void setViewSize(final Dimension2D size) {
-        viewSize = new DoubleDimension(size.getWidth(), size.getHeight());
+    public void zoomOnPoint(final Point2D p, final double z) {
+        final Point2D orig = effectCenter;
+        setViewPositionWithoutMoving(p);
+        setZoom(z);
+        setEnvPositionWithoutMoving(orig);
     }
 
     @Override
@@ -242,4 +264,46 @@ public abstract class AbstractWormhole2D implements IWormhole2D {
         }
         zoom = value;
     }
+    
+    /**
+     * Calculates the {@link AffineTransform} that allows the wormhole to
+     * convert points from env-space to view-space.
+     * 
+     * @return an {@link AffineTransform} object
+     */
+    protected AffineTransform calculateTransform() {
+        final AffineTransform t;
+        if (getMode() == Mode.ISOMETRIC) {
+            t = new AffineTransform(getZoom(), 0d, 0d, -getZoom(), getViewPosition().getX(), getViewPosition().getY());
+        } else {
+            t = new AffineTransform(getZoom() * getHRate(), 0d, 0d, -getZoom() * getVRate(), getViewPosition().getX(), getViewPosition().getY());
+        }
+        t.concatenate(AffineTransform.getRotateInstance(getRotation()));
+        return t;
+    }
+
+    @Override
+    public Point2D getEnvPoint(final Point2D viewPoint) {
+        final Point2D vp = new Point2D.Double(viewPoint.getX(), viewPoint.getY());
+        final AffineTransform t = calculateTransform();
+        try {
+            t.inverseTransform(vp, vp);
+        } catch (final NoninvertibleTransformException e) {
+            L.error(e.getMessage());
+        }
+        return NSEAlg2DHelper.sum(vp, getEffectApplicationCenter());
+    }
+
+    @Override
+    public Point2D getViewPoint(final Point2D envPoint) {
+        final Point2D ep = NSEAlg2DHelper.subtract(envPoint, getEffectApplicationCenter());
+        final AffineTransform t = calculateTransform();
+        t.transform(ep, ep);
+        return ep;
+    }
+
+    private Point2D getEffectApplicationCenter() {
+        return effectCenter;
+    }
+
 }
