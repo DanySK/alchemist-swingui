@@ -194,17 +194,6 @@ public abstract class AbstractWormhole2D implements IWormhole2D {
         envSize = new DoubleDimension(size);
     }
 
-    @Override
-    public void setHRate(final double value) {
-        if (mode == Mode.ISOMETRIC) {
-            hRate = 1d;
-        } else if (mode == Mode.ADAPT_TO_VIEW) {
-            hRate = getNIHorizontalRatio();
-        } else {
-            hRate = value;
-        }
-    }
-
     /**
      * Allows child-classes to modify the {@link #mode} field.
      * 

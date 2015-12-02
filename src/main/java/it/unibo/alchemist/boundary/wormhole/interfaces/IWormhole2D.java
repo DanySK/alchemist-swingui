@@ -176,15 +176,6 @@ public interface IWormhole2D {
     void setEnvSize(Dimension2D size);
 
     /**
-     * Sets the horizontal stretch rate.
-     * 
-     * @param value
-     *            is the <code>double</code> value representing the new
-     *            horizontal stretch rate
-     */
-    void setHRate(double value);
-
-    /**
      * Automatically sets the zoom rate in order to make the environment
      * entirely visible on the view.
      */
