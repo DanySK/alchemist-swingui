@@ -82,14 +82,6 @@ public interface IWormhole2D {
     Point2D getEnvPoint(Point2D viewPoint);
 
     /**
-     * Gets the horizontal stretch rate.
-     * 
-     * @return a <code>double</code> value representing the horizontal stretch
-     *         rate
-     */
-    double getHRate();
-
-    /**
      * Gets the rendering mode.
      * 
      * @return a {@link IWormhole2D#Mode} value

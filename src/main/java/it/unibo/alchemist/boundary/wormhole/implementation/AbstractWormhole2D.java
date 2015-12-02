@@ -65,8 +65,10 @@ public abstract class AbstractWormhole2D implements IWormhole2D {
         return envSize.getWidth() / envSize.getHeight();
     }
 
-    @Override
-    public double getHRate() {
+    /**
+     * @return the horizontal stretch rate
+     */
+    protected double getHRate() {
         return hRate;
     }
 
