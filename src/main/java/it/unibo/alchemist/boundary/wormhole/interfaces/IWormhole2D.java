@@ -176,15 +176,6 @@ public interface IWormhole2D {
     void setViewPosition(Point2D viewPoint);
 
     /**
-     * Stores the view's size.
-     * 
-     * @param size
-     *            is the {@link Dimension2D} object containing the view's width
-     *            and height
-     */
-//    void setViewSize(Dimension2D size);
-
-    /**
      * Changes the zoom factor.
      * 
      * @param value
