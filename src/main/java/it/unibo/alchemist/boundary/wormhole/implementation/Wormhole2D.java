@@ -303,7 +303,8 @@ public class Wormhole2D implements IWormhole2D {
         return model.getSize();
     }
 
-    protected void center() {
+    @Override
+    public void center() {
         final double[] off = getEnvironmentOffset();
         final double[] size = getEnvironmentSize();
         setEnvPosition(new Point2D.Double(off[0] + size[0] / 2, off[1] + size[1] / 2));

@@ -134,14 +134,6 @@ public interface IWormhole2D {
     void rotateAroundPoint(Point2D p, double a);
 
     /**
-     * Equivalent to: Position = Position + delta.
-     * 
-     * @param delta
-     *            is a {@link Point2D} object representing the variation vector
-     */
-//    void setDeltaViewPosition(Point2D delta);
-
-    /**
      * Sets the position to the view-point corresponding to
      * <code>envPoint</code>.
      * 
@@ -193,4 +185,6 @@ public interface IWormhole2D {
      *            is the absolute zoom rate
      */
     void zoomOnPoint(Point2D p, double z);
+
+    void center();
 }

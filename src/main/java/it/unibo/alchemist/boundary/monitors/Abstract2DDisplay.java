@@ -337,6 +337,7 @@ public abstract class Abstract2DDisplay<T> extends JPanel implements Graphical2D
 //        final double[] envSize = env.getSize();
 //        final double[] offset = env.getOffset();
         wormhole = new NSEWormhole(env, this);
+        wormhole.center();
         wormhole.optimalZoom();
         angleManager = new AngleManagerImpl(AngleManagerImpl.DEF_DEG_PER_PIXEL);
         zoomManager = new ExponentialZoomManager(wormhole.getZoom(), ExponentialZoomManager.DEF_BASE);
