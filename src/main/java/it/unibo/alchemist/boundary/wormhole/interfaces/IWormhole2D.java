@@ -82,13 +82,6 @@ public interface IWormhole2D {
     Point2D getEnvPoint(Point2D viewPoint);
 
     /**
-     * Gets the enviroment's ratio i.e. envWidth / envHeight.
-     * 
-     * @return a <code>double</code> value representing the enviroment's ratio
-     */
-    double getEnvRatio();
-
-    /**
      * Gets the horizontal stretch rate.
      * 
      * @return a <code>double</code> value representing the horizontal stretch

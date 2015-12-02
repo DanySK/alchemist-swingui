@@ -61,8 +61,7 @@ public abstract class AbstractWormhole2D implements IWormhole2D {
         return offset;
     }
 
-    @Override
-    public double getEnvRatio() {
+    private double getEnvRatio() {
         return envSize.getWidth() / envSize.getHeight();
     }
 
