@@ -9,13 +9,11 @@
 package it.unibo.alchemist.boundary.wormhole.implementation;
 
 import java.awt.Component;
-import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 import java.util.function.BiFunction;
 
 import org.mapsforge.core.model.LatLong;
 import org.mapsforge.core.util.MercatorProjection;
-import org.mapsforge.map.model.DisplayModel;
 import org.mapsforge.map.model.MapViewPosition;
 import org.mapsforge.map.model.Model;
 
@@ -27,8 +25,13 @@ import it.unibo.alchemist.model.interfaces.IEnvironment;
  * 
 
  */
-public class MapWormhole extends Wormhole2D {
+public final class MapWormhole extends Wormhole2D {
     private final MapViewPosition mapModel;
+    /**
+     * Maximum zoom.
+     */
+    public static final byte MAX_ZOOM = 18;
+    private static final long MAPSFORGE_TILE_SIZE = 256;
 
     /**
      * Initializes a new {@link MapWormhole} copying the state of the one in
@@ -81,9 +84,9 @@ public class MapWormhole extends Wormhole2D {
     private double mercatorApplier(final BiFunction<Double, Long, Double> fun, final double arg) {
         return fun.apply(arg, mapSize());
     }
-    
+
     private long mapSize() {
-        return (long) 256 << mapModel.getZoomLevel();
+        return MAPSFORGE_TILE_SIZE << mapModel.getZoomLevel();
     }
 
     @Override
@@ -124,15 +127,23 @@ public class MapWormhole extends Wormhole2D {
 
     @Override
     public void optimalZoom() {
-        final Point2D e = new Point2D.Double(0, 0);
-        Point2D v;
-        if (getZoom() > 1) {
-            setZoom(1);
-        }
-        for (v = getViewPoint(e); isInsideView(v) && getZoom() < 14; v = getViewPoint(e)) {
-            setZoom(getZoom() + 1);
-        }
-        setZoom(getZoom() - 1);
+        final double startLong = getEnvironmentOffset()[0];
+        final double startLat = getEnvironmentOffset()[1];
+        final double endLong = startLong + getEnvironmentSize()[0];
+        final double endLat = startLat + getEnvironmentSize()[1];
+        center();
+        Point2D startScreen;
+        Point2D endScreen;
+        byte zoom = MAX_ZOOM;
+        do {
+            setZoom(zoom);
+            final Point2D start = new Point2D.Double(startLong, startLat);
+            final Point2D end = new Point2D.Double(endLong, endLat);
+            startScreen = getViewPoint(start);
+            endScreen = getViewPoint(end);
+            zoom--;
+        } while(zoom > 1 && !isInsideView(startScreen) && !isInsideView(endScreen));
+        setZoom(zoom);
     }
 
     @Override
@@ -142,7 +153,6 @@ public class MapWormhole extends Wormhole2D {
 
     @Override
     public void setZoom(final double z) {
-//        final double zoom = MathUtils.forceRange(z, 0, 15);
         super.setZoom(z);
         mapModel.setZoomLevel((byte) getZoom());
     }
