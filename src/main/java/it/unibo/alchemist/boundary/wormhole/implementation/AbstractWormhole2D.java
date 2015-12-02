@@ -67,11 +67,6 @@ public abstract class AbstractWormhole2D implements IWormhole2D {
     }
 
     @Override
-    public Dimension2D getEnvSize() {
-        return (Dimension2D) envSize.clone();
-    }
-
-    @Override
     public double getHRate() {
         return hRate;
     }

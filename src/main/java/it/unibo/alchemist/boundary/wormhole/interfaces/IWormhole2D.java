@@ -89,14 +89,6 @@ public interface IWormhole2D {
     double getEnvRatio();
 
     /**
-     * Gets the environment's size.
-     * 
-     * @return a {@link Dimension2D} object containing the enviroment's width
-     *         and height
-     */
-    Dimension2D getEnvSize();
-
-    /**
      * Gets the horizontal stretch rate.
      * 
      * @return a <code>double</code> value representing the horizontal stretch

@@ -8,6 +8,7 @@
  */
 package it.unibo.alchemist.boundary.wormhole.implementation;
 
+import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 import java.util.function.BiFunction;
 
@@ -18,6 +19,7 @@ import org.mapsforge.map.model.MapViewPosition;
 import org.mapsforge.map.model.Model;
 
 import it.unibo.alchemist.boundary.wormhole.interfaces.IWormhole2D;
+import it.unibo.alchemist.model.interfaces.IEnvironment;
 
 /**
  * Wormhole used for maps rendering.
@@ -36,8 +38,10 @@ public class MapWormhole extends AbstractWormhole2D {
      * @param m
      *            is the {@link Model} object used to handle the map
      */
-    public MapWormhole(final IWormhole2D w, final MapViewPosition m, final DisplayModel dm) {
-        super(w.getViewSize(), w.getEnvSize(), w.getEnvOffset());
+    public MapWormhole(final Dimension2D size, final IEnvironment<?> env, final MapViewPosition m) {
+        super(size,
+                new DoubleDimension(env.getSize()[0], env.getSize()[1]),
+                new Point2D.Double(env.getOffset()[0], env.getOffset()[1]));
         mapModel = m;
         super.setMode(Mode.MAP);
         super.setViewPosition(new Point2D.Double(getViewSize().getWidth() / 2, getViewSize().getHeight() / 2));
