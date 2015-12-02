@@ -153,10 +153,10 @@ public class Wormhole2D implements IWormhole2D {
         return x >= 0 && x <= vs.getWidth() && y >= 0 && y <= vs.getHeight();
     }
 
-    @Override
-    public void setDeltaViewPosition(final Point2D delta) {
-        position = NSEAlg2DHelper.sum(position, delta);
-    }
+//    @Override
+//    public void setDeltaViewPosition(final Point2D delta) {
+//        position = NSEAlg2DHelper.sum(position, delta);
+//    }
 
     @Override
     public void setEnvPosition(final Point2D pos) {

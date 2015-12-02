@@ -109,10 +109,10 @@ public final class MapWormhole extends Wormhole2D {
         throw new IllegalStateException();
     }
 
-    @Override
-    public void setDeltaViewPosition(final Point2D delta) {
-        mapModel.moveCenter(delta.getX(), delta.getY());
-    }
+//    @Override
+//    public void setDeltaViewPosition(final Point2D delta) {
+//        mapModel.moveCenter(delta.getX(), delta.getY());
+//    }
 
     @Override
     public void setEnvPosition(final Point2D ep) {
@@ -148,7 +148,10 @@ public final class MapWormhole extends Wormhole2D {
 
     @Override
     public void setViewPosition(final Point2D p) {
-        setDeltaViewPosition(NSEAlg2DHelper.subtract(p, getViewPosition()));
+        final Point2D delta = NSEAlg2DHelper.subtract(p, getViewPosition());
+        mapModel.moveCenter(delta.getX(), delta.getY());
+//        final Point2D coord = getEnvPoint(p);
+//        mapModel.setCenter(new LatLong(coord.getY(), coord.getX()));
     }
 
     @Override
@@ -158,11 +161,13 @@ public final class MapWormhole extends Wormhole2D {
     }
 
     @Override
-    public void zoomOnPoint(final Point2D p, final double z) {
-        final Point2D ep = getEnvPoint(p);
+    public void zoomOnPoint(final Point2D zoomPoint, final double z) {
+        final Point2D endPoint = getEnvPoint(zoomPoint);
         setZoom(z);
-        final Point2D nvp = getViewPoint(ep);
-        setDeltaViewPosition(NSEAlg2DHelper.subtract(p, nvp));
+        final Point2D newViewCenter = getViewPoint(endPoint);
+        final Point2D delta = NSEAlg2DHelper.subtract(zoomPoint, newViewCenter);
+        setViewPosition(NSEAlg2DHelper.sum(getViewPosition(), delta));
+//        setDeltaViewPosition(NSEAlg2DHelper.subtract(p, nvp));
     }
 
 }

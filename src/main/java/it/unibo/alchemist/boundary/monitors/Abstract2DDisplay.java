@@ -37,6 +37,7 @@ import it.unibo.alchemist.model.interfaces.ITime;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Shape;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
@@ -215,7 +216,8 @@ public abstract class Abstract2DDisplay<T> extends JPanel implements Graphical2D
             final IPosition hcoor = positions.get(hooked.get());
             final Point2D hp = wormhole.getViewPoint(new Point2D.Double(hcoor.getCoordinate(0), hcoor.getCoordinate(1)));
             if (hp.distance(getCenter()) > FREEDOM_RADIUS) {
-                wormhole.setDeltaViewPosition(NSEAlg2DHelper.variation(getCenter(), hp));
+                wormhole.setViewPosition(hp);
+//                wormhole.setDeltaViewPosition(NSEAlg2DHelper.variation(getCenter(), hp));
             }
         }
 
@@ -552,7 +554,8 @@ public abstract class Abstract2DDisplay<T> extends JPanel implements Graphical2D
             }
             if (SwingUtilities.isLeftMouseButton(e)) {
                 if (mouseVelocity != null && !hooked.isPresent()) {
-                    wormhole.setDeltaViewPosition(mouseVelocity.getVariation());
+                    final Point2D previous = wormhole.getViewPosition();
+                    wormhole.setViewPosition(NSEAlg2DHelper.sum(previous, mouseVelocity.getVariation()));
                 }
             } else if (SwingUtilities.isRightMouseButton(e) && mouseVelocity != null && angleManager != null && wormhole.getMode() != Mode.MAP) {
                 angleManager.inc(mouseVelocity.getVariation().getX());

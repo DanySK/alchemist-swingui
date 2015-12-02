@@ -139,7 +139,7 @@ public interface IWormhole2D {
      * @param delta
      *            is a {@link Point2D} object representing the variation vector
      */
-    void setDeltaViewPosition(Point2D delta);
+//    void setDeltaViewPosition(Point2D delta);
 
     /**
      * Sets the position to the view-point corresponding to
