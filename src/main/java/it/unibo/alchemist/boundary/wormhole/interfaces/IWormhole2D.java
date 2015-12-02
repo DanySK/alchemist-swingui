@@ -159,15 +159,6 @@ public interface IWormhole2D {
     void setEnvPosition(Point2D envPoint);
 
     /**
-     * Stores the enviroment's size.
-     * 
-     * @param size
-     *            is the {@link Dimension2D} object containing the enviroment's
-     *            width and height
-     */
-    void setEnvSize(Dimension2D size);
-
-    /**
      * Automatically sets the zoom rate in order to make the environment
      * entirely visible on the view.
      */

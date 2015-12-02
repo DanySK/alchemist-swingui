@@ -22,7 +22,7 @@ import java.util.Objects;
  */
 public abstract class AbstractWormhole2D implements IWormhole2D {
     private Dimension2D viewSize;
-    private Dimension2D envSize;
+    private final Dimension2D envSize;
     private Point2D position;
     private Point2D offset = new Point2D.Double(0d, 0d);
     private final Point2D originalOffset;
@@ -182,11 +182,6 @@ public abstract class AbstractWormhole2D implements IWormhole2D {
      */
     protected void setEnvPositionWithoutMoving(final Point2D envPoint) {
         setViewPositionWithoutMoving(getViewPoint(new Point2D.Double(envPoint.getX(), envPoint.getY())));
-    }
-
-    @Override
-    public void setEnvSize(final Dimension2D size) {
-        envSize = new DoubleDimension(size);
     }
 
     /**
