@@ -13,10 +13,8 @@ import it.unibo.alchemist.boundary.wormhole.interfaces.PointerSpeed;
 import java.awt.geom.Point2D;
 
 /**
- * Implementation for {@link PointerSpeed} interface.<br>
- * NSE = No Side Effects.
+ * Implementation for {@link PointerSpeed} interface.
  * 
-
  */
 public class PointerSpeedImpl implements PointerSpeed {
     private Point2D oldPosition = new Point2D.Double();
