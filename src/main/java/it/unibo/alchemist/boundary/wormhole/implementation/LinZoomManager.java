@@ -16,7 +16,7 @@ import it.unibo.alchemist.utils.MathUtils;
  * device/control into a zoom rate through a linear function.<br>
  * Zoom = amount of slides * rate.
  * 
-
+ * 
  */
 public class LinZoomManager extends AbstractSlideInputManager implements IZoomManager {
     private final double rate;
@@ -39,6 +39,10 @@ public class LinZoomManager extends AbstractSlideInputManager implements IZoomMa
      *            is the desired initial zoom
      * @param rate
      *            is the linear factor
+     * @param min
+     *            minimum allowed zoom
+     * @param max
+     *            maximum allowed zoom
      */
     public LinZoomManager(final double zoom, final double rate, final double min, final double max) {
         super(zoom / rate, min, max);
