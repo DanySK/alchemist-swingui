@@ -89,15 +89,6 @@ public interface IWormhole2D {
     Mode getMode();
 
     /**
-     * Gets the rotation angle, in radians.
-     * 
-     * @return a <code>double</code> value representing an angle expressed with
-     *         radians
-     * @see #setRotation(double)
-     */
-    double getRotation();
-
-    /**
      * Converts a point from the env-space to the view-space.
      * 
      * @param envPoint

@@ -120,8 +120,14 @@ public abstract class AbstractWormhole2D implements IWormhole2D {
         return originalOffset;
     }
 
-    @Override
-    public double getRotation() {
+    /**
+     * Gets the rotation angle, in radians.
+     * 
+     * @return a <code>double</code> value representing an angle expressed with
+     *         radians
+     * @see #setRotation(double)
+     */
+    protected double getRotation() {
         return angle;
     }
 
