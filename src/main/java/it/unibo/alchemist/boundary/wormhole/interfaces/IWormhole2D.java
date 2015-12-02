@@ -114,14 +114,6 @@ public interface IWormhole2D {
     Dimension2D getViewSize();
 
     /**
-     * Gets the vertical stretch rate.
-     * 
-     * @return a <code>double</code> value representing the vertical stretch
-     *         rate
-     */
-    double getVRate();
-
-    /**
      * Gets the zoom factor.
      * 
      * @return a <code>double</code> representing the zoom factor

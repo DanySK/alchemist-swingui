@@ -141,8 +141,13 @@ public abstract class AbstractWormhole2D implements IWormhole2D {
         return (Dimension2D) viewSize.clone();
     }
 
-    @Override
-    public double getVRate() {
+    /**
+     * Gets the vertical stretch rate.
+     * 
+     * @return a <code>double</code> value representing the vertical stretch
+     *         rate
+     */
+    protected double getVRate() {
         return vRate;
     }
 
