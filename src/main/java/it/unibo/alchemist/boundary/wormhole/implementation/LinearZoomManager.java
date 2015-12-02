@@ -8,7 +8,7 @@
  */
 package it.unibo.alchemist.boundary.wormhole.implementation;
 
-import it.unibo.alchemist.boundary.wormhole.interfaces.IZoomManager;
+import it.unibo.alchemist.boundary.wormhole.interfaces.ZoomManager;
 
 /**
  * An <code>LinZoomManager</code> converts the sliding of any physical/virtual
@@ -17,7 +17,7 @@ import it.unibo.alchemist.boundary.wormhole.interfaces.IZoomManager;
  * 
  * 
  */
-public class LinZoomManager extends AbstractSlideInputManager implements IZoomManager {
+public class LinearZoomManager extends AbstractSlideInputManager implements ZoomManager {
     private final double rate;
 
     /**
@@ -26,7 +26,7 @@ public class LinZoomManager extends AbstractSlideInputManager implements IZoomMa
      * @param z
      *            is the desired initial zoom
      */
-    public LinZoomManager(final double z) {
+    public LinearZoomManager(final double z) {
         this(z, 1d, -Double.MAX_VALUE, Double.MAX_VALUE);
     }
 
@@ -43,7 +43,7 @@ public class LinZoomManager extends AbstractSlideInputManager implements IZoomMa
      * @param max
      *            maximum allowed zoom
      */
-    public LinZoomManager(final double zoom, final double rate, final double min, final double max) {
+    public LinearZoomManager(final double zoom, final double rate, final double min, final double max) {
         super(zoom / rate, min, max);
         if (rate == 0 || rate < Double.MIN_NORMAL) {
             throw new IllegalStateException();

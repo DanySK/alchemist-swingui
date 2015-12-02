@@ -8,7 +8,7 @@
  */
 package it.unibo.alchemist.boundary.wormhole.implementation;
 
-import it.unibo.alchemist.boundary.wormhole.interfaces.IAngleManager;
+import it.unibo.alchemist.boundary.wormhole.interfaces.AngleManager;
 import it.unibo.alchemist.utils.MathUtils;
 
 import java.awt.Toolkit;
@@ -19,7 +19,7 @@ import java.awt.Toolkit;
  * 
 
  */
-public class AngleManager extends AbstractSlideInputManager implements IAngleManager {
+public class AngleManagerImpl extends AbstractSlideInputManager implements AngleManager {
     /**
      * <code>DEF_DEG_PER_WHEEL_CLICK</code> =
      * "DEFault amount of DEGrees PER WHEEL CLICK".<br>
@@ -47,7 +47,7 @@ public class AngleManager extends AbstractSlideInputManager implements IAngleMan
      * 
      * @see #AngleManager(double, double)
      */
-    public AngleManager() {
+    public AngleManagerImpl() {
         this(1d);
     }
 
@@ -60,7 +60,7 @@ public class AngleManager extends AbstractSlideInputManager implements IAngleMan
      *            <code>inc(1);</code>)
      * @see #AngleManager(double, double)
      */
-    public AngleManager(final double dUnit) {
+    public AngleManagerImpl(final double dUnit) {
         this(dUnit, 0d);
     }
 
@@ -74,7 +74,7 @@ public class AngleManager extends AbstractSlideInputManager implements IAngleMan
      * @param dPhase
      *            is the initial rotation expressed with degrees
      */
-    public AngleManager(final double dUnit, final double dPhase) {
+    public AngleManagerImpl(final double dUnit, final double dPhase) {
         super(0, Double.MIN_VALUE, Double.MAX_VALUE);
         degUnit = dUnit;
         degPhase = dPhase;

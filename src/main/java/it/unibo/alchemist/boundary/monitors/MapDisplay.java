@@ -8,7 +8,7 @@
  */
 package it.unibo.alchemist.boundary.monitors;
 
-import it.unibo.alchemist.boundary.wormhole.implementation.LinZoomManager;
+import it.unibo.alchemist.boundary.wormhole.implementation.LinearZoomManager;
 import it.unibo.alchemist.boundary.wormhole.implementation.MapWormhole;
 import it.unibo.alchemist.model.interfaces.IEnvironment;
 import it.unibo.alchemist.model.interfaces.IMapEnvironment;
@@ -97,7 +97,7 @@ public class MapDisplay<T> extends Abstract2DDisplay<T> {
         mapView.addLayer(tdl);
         tdl.start();
         setWormhole(new MapWormhole(getSize(), env, mapView.getModel().mapViewPosition));
-        setZoomManager(new LinZoomManager(1, 1, 2, 18));
+        setZoomManager(new LinearZoomManager(1, 1, 2, 18));
         getWormhole().setEnvPosition(new Point2D.Double(env.getOffset()[0] + env.getSize()[0] / 2, env.getOffset()[1] + env.getSize()[1] / 2));
         getWormhole().optimalZoom();
         getZoomManager().setZoom(getWormhole().getZoom());

@@ -12,17 +12,17 @@ import it.unibo.alchemist.boundary.gui.AlchemistSwingUI;
 import it.unibo.alchemist.boundary.gui.effects.Effect;
 import it.unibo.alchemist.boundary.interfaces.Graphical2DOutputMonitor;
 import it.unibo.alchemist.boundary.l10n.Res;
-import it.unibo.alchemist.boundary.wormhole.implementation.AngleManager;
+import it.unibo.alchemist.boundary.wormhole.implementation.AngleManagerImpl;
 import it.unibo.alchemist.boundary.wormhole.implementation.DoubleDimension;
-import it.unibo.alchemist.boundary.wormhole.implementation.ExpZoomManager;
+import it.unibo.alchemist.boundary.wormhole.implementation.ExponentialZoomManager;
 import it.unibo.alchemist.boundary.wormhole.implementation.NSEAlg2DHelper;
 import it.unibo.alchemist.boundary.wormhole.implementation.PointerSpeedImpl;
 import it.unibo.alchemist.boundary.wormhole.implementation.NSEWormhole;
-import it.unibo.alchemist.boundary.wormhole.interfaces.IAngleManager;
+import it.unibo.alchemist.boundary.wormhole.interfaces.AngleManager;
 import it.unibo.alchemist.boundary.wormhole.interfaces.PointerSpeed;
 import it.unibo.alchemist.boundary.wormhole.interfaces.IWormhole2D;
 import it.unibo.alchemist.boundary.wormhole.interfaces.IWormhole2D.Mode;
-import it.unibo.alchemist.boundary.wormhole.interfaces.IZoomManager;
+import it.unibo.alchemist.boundary.wormhole.interfaces.ZoomManager;
 import it.unibo.alchemist.core.implementations.Simulation;
 import it.unibo.alchemist.model.implementations.times.DoubleTime;
 import it.unibo.alchemist.model.interfaces.IEnvironment;
@@ -101,8 +101,8 @@ public abstract class Abstract2DDisplay<T> extends JPanel implements Graphical2D
     private final Map<INode<T>, IPosition> positions = new ConcurrentHashMap<>();
     private Optional<INode<T>> hooked = Optional.empty();
     private IWormhole2D wormhole;
-    private IAngleManager angleManager;
-    private IZoomManager zoomManager;
+    private AngleManagerImpl angleManager;
+    private ZoomManager zoomManager;
     private final PointerSpeed mouseVelocity = new PointerSpeedImpl();
     private double dist = java.lang.Double.POSITIVE_INFINITY, lasttime;
     private boolean firstTime = true, paintLinks;
@@ -315,9 +315,9 @@ public abstract class Abstract2DDisplay<T> extends JPanel implements Graphical2D
     /**
      * Lets child-classes access the zoom manager.
      * 
-     * @return an {@link IZoomManager}
+     * @return an {@link ZoomManager}
      */
-    protected IZoomManager getZoomManager() {
+    protected ZoomManager getZoomManager() {
         return zoomManager;
     }
 
@@ -335,8 +335,8 @@ public abstract class Abstract2DDisplay<T> extends JPanel implements Graphical2D
         final double[] envSize = env.getSize();
         final double[] offset = env.getOffset();
         wormhole = new NSEWormhole(getSize(), new DoubleDimension(envSize), new Point2D.Double(offset[0], offset[1]));
-        angleManager = new AngleManager(AngleManager.DEF_DEG_PER_PIXEL);
-        zoomManager = new ExpZoomManager(wormhole.getZoom(), ExpZoomManager.DEF_BASE);
+        angleManager = new AngleManagerImpl(AngleManagerImpl.DEF_DEG_PER_PIXEL);
+        zoomManager = new ExponentialZoomManager(wormhole.getZoom(), ExponentialZoomManager.DEF_BASE);
         computeNodes();
         if (env instanceof IEnvironment2DWithObstacles) {
             loadObstacles();
@@ -462,9 +462,9 @@ public abstract class Abstract2DDisplay<T> extends JPanel implements Graphical2D
      * Lets child-classes change the zoom manager.
      * 
      * @param zm
-     *            an {@link IZoomManager}
+     *            an {@link ZoomManager}
      */
-    protected void setZoomManager(final IZoomManager zm) {
+    protected void setZoomManager(final ZoomManager zm) {
         zoomManager = zm;
         wormhole.setZoom(zoomManager.getZoom());
     }

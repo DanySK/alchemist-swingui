@@ -15,7 +15,7 @@ package it.unibo.alchemist.boundary.wormhole.interfaces;
  * 
 
  */
-public interface IAngleManager extends ISlideInputManager {
+public interface AngleManager extends ISlideInputManager {
     /**
      * Gets the angle.
      * 

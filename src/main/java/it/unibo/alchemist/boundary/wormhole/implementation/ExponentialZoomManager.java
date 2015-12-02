@@ -8,7 +8,7 @@
  */
 package it.unibo.alchemist.boundary.wormhole.implementation;
 
-import it.unibo.alchemist.boundary.wormhole.interfaces.IZoomManager;
+import it.unibo.alchemist.boundary.wormhole.interfaces.ZoomManager;
 
 /**
  * An <code>ExpZoomManager</code> converts the sliding of any physical/virtual
@@ -18,7 +18,7 @@ import it.unibo.alchemist.boundary.wormhole.interfaces.IZoomManager;
  * 
 
  */
-public class ExpZoomManager extends AbstractSlideInputManager implements IZoomManager {
+public class ExponentialZoomManager extends AbstractSlideInputManager implements ZoomManager {
     /**
      * DEF_BASE = "DEFault BASE".<br>
      * It is the default base for the exponential function. It is meant to be
@@ -56,7 +56,7 @@ public class ExpZoomManager extends AbstractSlideInputManager implements IZoomMa
      * @param z
      *            is the desired initial zoom rate
      */
-    public ExpZoomManager(final double z, final double b) {
+    public ExponentialZoomManager(final double z, final double b) {
         this(z, b, 1d);
     }
 
@@ -71,7 +71,7 @@ public class ExpZoomManager extends AbstractSlideInputManager implements IZoomMa
      * @param n
      *            is the normalization value
      */
-    public ExpZoomManager(final double z, final double b, final double n) {
+    public ExponentialZoomManager(final double z, final double b, final double n) {
         super(getSlideValueFromZoom(z, b, n), -Double.MAX_VALUE, Double.MAX_VALUE);
         normal = Math.abs(n);
         base = Math.abs(b);

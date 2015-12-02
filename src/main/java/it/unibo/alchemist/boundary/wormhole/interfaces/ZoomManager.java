@@ -15,7 +15,7 @@ package it.unibo.alchemist.boundary.wormhole.interfaces;
  * 
 
  */
-public interface IZoomManager extends ISlideInputManager {
+public interface ZoomManager extends ISlideInputManager {
     /**
      * Gets the zoom rate.
      * 
