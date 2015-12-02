@@ -9,6 +9,7 @@
 package it.unibo.alchemist.boundary.wormhole.implementation;
 
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Dimension2D;
 import java.awt.geom.NoninvertibleTransformException;
@@ -61,6 +62,11 @@ public class Wormhole2D implements IWormhole2D {
     private double getEnvRatio() {
         final double[] size = model.getSize();
         return size[0] / size[1];
+    }
+
+    private double getViewRatio() {
+        final Dimension size = view.getSize();
+        return size.getWidth() / size.getHeight();
     }
 
     /**
@@ -189,7 +195,7 @@ public class Wormhole2D implements IWormhole2D {
 
     @Override
     public void optimalZoom() {
-        if (getEnvRatio() <= 1) {
+        if (getEnvRatio() <= getViewRatio()) {
             zoom = view.getHeight() / model.getSize()[1];
         } else {
             zoom = view.getWidth() / model.getSize()[0];
