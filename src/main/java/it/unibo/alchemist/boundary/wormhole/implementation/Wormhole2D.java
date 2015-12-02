@@ -14,9 +14,11 @@ import java.awt.geom.Dimension2D;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import it.unibo.alchemist.boundary.wormhole.interfaces.IWormhole2D;
 import it.unibo.alchemist.model.interfaces.IEnvironment;
-import it.unibo.alchemist.utils.L;
 
 /**
  * Partial implementation for the interface {@link IWormhole2D}.<br>
@@ -25,20 +27,17 @@ import it.unibo.alchemist.utils.L;
  * 
  */
 public class Wormhole2D implements IWormhole2D {
-//    private Dimension2D viewSize;
-//    private final Dimension2D envSize;
+
+    private final IEnvironment<?> model;
+    private final Component view;
     private Point2D position;
     private Point2D effectCenter = new Point2D.Double(0, 0);
-//    private Point2D offset = new Point2D.Double(0d, 0d);
-//    private final Point2D originalOffset;
     private double zoom = 1d;
     private double angle;
     private double hRate = 1d;
     private double vRate = 1d;
     private Mode mode = Mode.ISOMETRIC;
-    
-    private final IEnvironment<?> model;
-    private final Component view;
+    private static final Logger L = LoggerFactory.getLogger(Wormhole2D.class);
 
     /**
      * Initializes a new instance directly setting the size of both view and
