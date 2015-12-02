@@ -16,10 +16,10 @@ import it.unibo.alchemist.boundary.wormhole.implementation.AngleManager;
 import it.unibo.alchemist.boundary.wormhole.implementation.DoubleDimension;
 import it.unibo.alchemist.boundary.wormhole.implementation.ExpZoomManager;
 import it.unibo.alchemist.boundary.wormhole.implementation.NSEAlg2DHelper;
-import it.unibo.alchemist.boundary.wormhole.implementation.NSEPointerVelocityHandler;
+import it.unibo.alchemist.boundary.wormhole.implementation.PointerSpeedImpl;
 import it.unibo.alchemist.boundary.wormhole.implementation.NSEWormhole;
 import it.unibo.alchemist.boundary.wormhole.interfaces.IAngleManager;
-import it.unibo.alchemist.boundary.wormhole.interfaces.IPointerVelocityManager;
+import it.unibo.alchemist.boundary.wormhole.interfaces.PointerSpeed;
 import it.unibo.alchemist.boundary.wormhole.interfaces.IWormhole2D;
 import it.unibo.alchemist.boundary.wormhole.interfaces.IWormhole2D.Mode;
 import it.unibo.alchemist.boundary.wormhole.interfaces.IZoomManager;
@@ -103,7 +103,7 @@ public abstract class Abstract2DDisplay<T> extends JPanel implements Graphical2D
     private IWormhole2D wormhole;
     private IAngleManager angleManager;
     private IZoomManager zoomManager;
-    private IPointerVelocityManager mouseVelocity;
+    private final PointerSpeed mouseVelocity = new PointerSpeedImpl();
     private double dist = java.lang.Double.POSITIVE_INFINITY, lasttime;
     private boolean firstTime = true, paintLinks;
     private long timeInit = System.currentTimeMillis();
@@ -337,7 +337,6 @@ public abstract class Abstract2DDisplay<T> extends JPanel implements Graphical2D
         wormhole = new NSEWormhole(getSize(), new DoubleDimension(envSize), new Point2D.Double(offset[0], offset[1]));
         angleManager = new AngleManager(AngleManager.DEF_DEG_PER_PIXEL);
         zoomManager = new ExpZoomManager(wormhole.getZoom(), ExpZoomManager.DEF_BASE);
-        mouseVelocity = new NSEPointerVelocityHandler();
         computeNodes();
         if (env instanceof IEnvironment2DWithObstacles) {
             loadObstacles();

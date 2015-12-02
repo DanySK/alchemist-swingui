@@ -16,7 +16,7 @@ import java.awt.geom.Point2D;
  * 
 
  */
-public interface IPointerVelocityManager {
+public interface PointerSpeed {
     /**
      * Gets the pointer's current position.
      * 
@@ -40,14 +40,6 @@ public interface IPointerVelocityManager {
      *         cP.y - cP.y]
      */
     Point2D getVariation();
-
-    /**
-     * Gets the vector [current position - old position] / elapsed time.
-     * 
-     * @return a {@link Point2D} instance whose coordinates are [cP.x - oP.x;
-     *         cP.y - cP.y] / dt
-     */
-    Point2D getVelocity();
 
     /**
      * Sets the pointer's current position and, consequently, updates the old

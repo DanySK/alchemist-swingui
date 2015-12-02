@@ -8,17 +8,17 @@
  */
 package it.unibo.alchemist.boundary.wormhole.implementation;
 
-import it.unibo.alchemist.boundary.wormhole.interfaces.IPointerVelocityManager;
+import it.unibo.alchemist.boundary.wormhole.interfaces.PointerSpeed;
 
 import java.awt.geom.Point2D;
 
 /**
- * Implementation for {@link IPointerVelocityManager} interface.<br>
+ * Implementation for {@link PointerSpeed} interface.<br>
  * NSE = No Side Effects.
  * 
 
  */
-public class NSEPointerVelocityHandler implements IPointerVelocityManager {
+public class PointerSpeedImpl implements PointerSpeed {
     private Point2D oldPosition = new Point2D.Double();
     private Point2D position = new Point2D.Double();
 
@@ -35,12 +35,6 @@ public class NSEPointerVelocityHandler implements IPointerVelocityManager {
     @Override
     public Point2D getVariation() {
         return new Point2D.Double(position.getX() - oldPosition.getX(), position.getY() - oldPosition.getY());
-    }
-
-    @Override
-    public Point2D getVelocity() {
-        // TODO implement this method
-        return null;
     }
 
     @Override
