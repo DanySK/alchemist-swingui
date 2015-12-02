@@ -8,14 +8,9 @@
  */
 package it.unibo.alchemist.boundary.gui;
 
-import it.unibo.alchemist.boundary.gui.sapere.SAPEREMenu;
-import it.unibo.alchemist.boundary.l10n.Res;
-import it.unibo.alchemist.utils.L;
-
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.event.ActionListener;
-import java.util.Enumeration;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -33,6 +28,10 @@ import javax.swing.UnsupportedLookAndFeelException;
 //import org.apache.log4j.Logger;
 import org.danilopianini.view.ButtonTabComponent;
 import org.danilopianini.view.GUIUtilities;
+
+import it.unibo.alchemist.boundary.gui.sapere.SAPEREMenu;
+import it.unibo.alchemist.boundary.l10n.Res;
+import it.unibo.alchemist.utils.L;
 
 /**
  * The main frame for the standard Alchemist GUI.
