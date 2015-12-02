@@ -9,18 +9,7 @@
 
 package it.unibo.alchemist.boundary.monitors;
 
-import it.unibo.alchemist.boundary.gui.effects.DrawShape;
-import it.unibo.alchemist.boundary.gui.effects.Effect;
-import it.unibo.alchemist.boundary.interfaces.GraphicalOutputMonitor;
-import it.unibo.alchemist.model.implementations.times.DoubleTime;
-import it.unibo.alchemist.model.interfaces.IEnvironment;
-import it.unibo.alchemist.model.interfaces.IReaction;
-import it.unibo.alchemist.model.interfaces.ITime;
-import it.unibo.alchemist.utils.L;
-
 import java.awt.Component;
-import java.awt.Graphics;
-import java.awt.Point;
 import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -28,7 +17,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -41,11 +29,23 @@ import java.util.concurrent.Semaphore;
 
 import javax.swing.JComponent;
 
-import org.jfree.graphics2d.svg.SVGGraphics2D;
 import org.apache.commons.math3.util.FastMath;
 import org.danilopianini.io.FileUtilities;
 import org.danilopianini.lang.RangedInteger;
 import org.danilopianini.view.ExportForGUI;
+import org.jfree.graphics2d.svg.SVGGraphics2D;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import it.unibo.alchemist.boundary.gui.effects.DrawShape;
+import it.unibo.alchemist.boundary.gui.effects.Effect;
+import it.unibo.alchemist.boundary.interfaces.Graphical2DOutputMonitor;
+import it.unibo.alchemist.model.implementations.positions.Continuous2DEuclidean;
+import it.unibo.alchemist.model.implementations.times.DoubleTime;
+import it.unibo.alchemist.model.interfaces.IEnvironment;
+import it.unibo.alchemist.model.interfaces.IPosition;
+import it.unibo.alchemist.model.interfaces.IReaction;
+import it.unibo.alchemist.model.interfaces.ITime;
 
 /**
  * @param <T>
@@ -62,8 +62,9 @@ public class RecordingMonitor<T> extends EnvironmentInspector<T> {
     }
 
     private static final long serialVersionUID = 1L;
+    private static final Logger L = LoggerFactory.getLogger(RecordingMonitor.class);
     private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS", Locale.getDefault());
-    private GraphicalOutputMonitor<T> source;
+    private Graphical2DOutputMonitor<T> source;
     private JComponent sourceComponent;
     private final Semaphore mutex;
     private String fpCache;
@@ -134,14 +135,14 @@ public class RecordingMonitor<T> extends EnvironmentInspector<T> {
                 | InvocationTargetException
                 | NoSuchMethodException
                 | SecurityException e) {
-            L.warn(e);
+            L.error("Cannot create monitor", e);
         }
     }
 
     @SuppressWarnings("unchecked")
     private void initSource(final Class<?> monitorClass) throws InstantiationException, IllegalAccessException,
             IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
-        source = (GraphicalOutputMonitor<T>) monitorClass.getConstructor().newInstance();
+        source = (Graphical2DOutputMonitor<T>) monitorClass.getConstructor().newInstance();
         sourceComponent = (JComponent) source;
     }
 
@@ -237,11 +238,12 @@ public class RecordingMonitor<T> extends EnvironmentInspector<T> {
             }
 
             final int zoomVal = zoom.getVal();
-//            if (zoomVal == 0) {
-//                source.getWormhole().setOptimalZoomRate();
-//            } else {
-                source.zoomTo();OnPoint(new Point(0, height.getVal()), zoomVal);
-//            }
+            final double[] offset = env.getOffset();
+            final double[] size = env.getSize();
+            offset[0] += size[0] / 2;
+            offset[1] += size[1] / 2;
+            final IPosition center = new Continuous2DEuclidean(offset);
+            source.zoomTo(center, zoomVal);
             sourceComponent.revalidate();
 
 //            source.getWormhole().setViewPosition(new Point(width.getVal() * povX.getVal() / 100,
@@ -257,7 +259,7 @@ public class RecordingMonitor<T> extends EnvironmentInspector<T> {
                 writer = new PrintStream(new File(fpCache + System.getProperty("file.separator") + screenCounter++
                         + currentStep + currentTime + ".svg"), StandardCharsets.UTF_8.name());
             } catch (FileNotFoundException | UnsupportedEncodingException e) {
-                L.error(e);
+                L.error("Cannot create monitor", e);
             }
 
             svgGraphicator = new SVGGraphics2D(width.getVal(), height.getVal());
