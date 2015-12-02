@@ -209,15 +209,6 @@ public interface IWormhole2D {
     void setViewSize(Dimension2D size);
 
     /**
-     * Sets the horizontal stretch rate.
-     * 
-     * @param value
-     *            is the <code>double</code> value representing the new
-     *            horizontal stretch rate
-     */
-    void setVRate(double value);
-
-    /**
      * Changes the zoom factor.
      * 
      * @param value

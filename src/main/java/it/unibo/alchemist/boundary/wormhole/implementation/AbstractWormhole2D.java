@@ -246,17 +246,6 @@ public abstract class AbstractWormhole2D implements IWormhole2D {
     }
 
     @Override
-    public void setVRate(final double value) {
-        if (mode == Mode.ISOMETRIC) {
-            vRate = 1d;
-        } else if (mode == Mode.ADAPT_TO_VIEW) {
-            vRate = getNIVerticalRatio();
-        } else {
-            vRate = value;
-        }
-    }
-
-    @Override
     public void setZoom(final double value) {
         if (value < 0d) {
             zoom = 0d;
