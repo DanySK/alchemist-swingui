@@ -9,7 +9,6 @@
 package it.unibo.alchemist.boundary.wormhole.implementation;
 
 import it.unibo.alchemist.boundary.wormhole.interfaces.IZoomManager;
-import it.unibo.alchemist.utils.MathUtils;
 
 /**
  * An <code>LinZoomManager</code> converts the sliding of any physical/virtual
