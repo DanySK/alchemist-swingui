@@ -72,7 +72,7 @@ public class ExpZoomManager extends AbstractSlideInputManager implements IZoomMa
      *            is the normalization value
      */
     public ExpZoomManager(final double z, final double b, final double n) {
-        super(getSlideValueFromZoom(z, b, n));
+        super(getSlideValueFromZoom(z, b, n), -Double.MAX_VALUE, Double.MAX_VALUE);
         normal = Math.abs(n);
         base = Math.abs(b);
     }

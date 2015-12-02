@@ -48,7 +48,6 @@ import org.mapsforge.map.layer.renderer.TileRendererLayer;
  * @param <T>
  */
 public class MapDisplay<T> extends Abstract2DDisplay<T> {
-    private static final String MAPS_FORGE_EXTENSION = ".map";
     private static final long serialVersionUID = 8593507198560560646L;
     private static final GraphicFactory GRAPHIC_FACTORY = AwtGraphicFactory.INSTANCE;
     private static final AtomicInteger IDGEN = new AtomicInteger();
@@ -76,9 +75,9 @@ public class MapDisplay<T> extends Abstract2DDisplay<T> {
     @Override
     protected void drawBackground(final Graphics2D g) {
     }
-    
+
     @Override
-    public void paint(Graphics g) {
+    public void paint(final Graphics g) {
         super.paint(g);
         if (mapView != null) {
             mapView.paint(g);
@@ -98,7 +97,7 @@ public class MapDisplay<T> extends Abstract2DDisplay<T> {
         mapView.addLayer(tdl);
         tdl.start();
         setWormhole(new MapWormhole(getWormhole(), mapView.getModel().mapViewPosition, mapView.getModel().displayModel));
-        setZoomManager(new LinZoomManager(1, 1));
+        setZoomManager(new LinZoomManager(1, 1, 2, 18));
         getWormhole().setEnvPosition(new Point2D.Double(getWormhole().getEnvOffset().getX() + getWormhole().getEnvSize().getWidth() / 2, getWormhole().getEnvOffset().getY() + getWormhole().getEnvSize().getHeight() / 2));
         getWormhole().setOptimalZoomRate();
         getZoomManager().setZoom(getWormhole().getZoom());
@@ -136,13 +135,6 @@ public class MapDisplay<T> extends Abstract2DDisplay<T> {
             return;
         }
     }
-
-//    @Override
-//    protected void updateView() {
-//        if (mapView != null) {
-//            mapView.repaint();
-//        }
-//    }
 
     @Override
     public void finished(final IEnvironment<T> env, final ITime time, final long step) {

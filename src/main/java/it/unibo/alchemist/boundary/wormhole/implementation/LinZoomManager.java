@@ -9,6 +9,7 @@
 package it.unibo.alchemist.boundary.wormhole.implementation;
 
 import it.unibo.alchemist.boundary.wormhole.interfaces.IZoomManager;
+import it.unibo.alchemist.utils.MathUtils;
 
 /**
  * An <code>LinZoomManager</code> converts the sliding of any physical/virtual
@@ -27,24 +28,24 @@ public class LinZoomManager extends AbstractSlideInputManager implements IZoomMa
      *            is the desired initial zoom
      */
     public LinZoomManager(final double z) {
-        this(z, 1d);
+        this(z, 1d, -Double.MAX_VALUE, Double.MAX_VALUE);
     }
 
     /**
      * Initialize a new <code>LinZoomManager</code> instance with the parameters
      * in input.
      * 
-     * @param z
+     * @param zoom
      *            is the desired initial zoom
-     * @param r
+     * @param rate
      *            is the linear factor
      */
-    public LinZoomManager(final double z, final double r) {
-        super(z / r);
-        if (r == 0 || r < Double.MIN_NORMAL) {
+    public LinZoomManager(final double zoom, final double rate, final double min, final double max) {
+        super(zoom / rate, min, max);
+        if (rate == 0 || rate < Double.MIN_NORMAL) {
             throw new IllegalStateException();
         }
-        rate = r;
+        this.rate = rate;
     }
 
     @Override

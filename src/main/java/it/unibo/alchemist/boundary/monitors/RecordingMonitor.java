@@ -9,7 +9,6 @@
 
 package it.unibo.alchemist.boundary.monitors;
 
-
 import it.unibo.alchemist.boundary.gui.effects.DrawShape;
 import it.unibo.alchemist.boundary.gui.effects.Effect;
 import it.unibo.alchemist.boundary.interfaces.GraphicalOutputMonitor;
@@ -19,6 +18,8 @@ import it.unibo.alchemist.model.interfaces.IReaction;
 import it.unibo.alchemist.model.interfaces.ITime;
 import it.unibo.alchemist.utils.L;
 
+import java.awt.Component;
+import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.event.MouseListener;
 import java.io.File;
@@ -27,6 +28,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -34,7 +36,10 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.concurrent.Semaphore;
+
+import javax.swing.JComponent;
 
 import org.jfree.graphics2d.svg.SVGGraphics2D;
 import org.apache.commons.math3.util.FastMath;
@@ -42,22 +47,15 @@ import org.danilopianini.io.FileUtilities;
 import org.danilopianini.lang.RangedInteger;
 import org.danilopianini.view.ExportForGUI;
 
-
-
 /**
- * @author Gianluca Turin
- * 
  * @param <T>
  */
 @ExportInspector
 public class RecordingMonitor<T> extends EnvironmentInspector<T> {
 
-
     /**
      * The source reactivity.
      * 
-     * @author Gianluca Turin
-     *
      */
     protected enum ReactivityMode {
         REALTIME, MAX
@@ -65,20 +63,22 @@ public class RecordingMonitor<T> extends EnvironmentInspector<T> {
 
     private static final long serialVersionUID = 1L;
     private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS", Locale.getDefault());
-    private Generic2DDisplay<T> source;
+    private GraphicalOutputMonitor<T> source;
+    private JComponent sourceComponent;
     private final Semaphore mutex;
     private String fpCache;
     private String efCache;
-    private final String defaultFilePath = System.getProperty("user.home") + System.getProperty("file.separator") + sdf.format(new Date()) + "-alchemist_screenshots";
-    private final String defaultEffectsFile = System.getProperty("user.home") + System.getProperty("file.separator") + "???";
-    private PrintStream writer;
-    private int screenCounter = 0;
+    private final String defaultFilePath = System.getProperty("user.home") + System.getProperty("file.separator")
+            + sdf.format(new Date()) + "-alchemist_screenshots";
+    private final String defaultEffectsFile = System.getProperty("user.home") + System.getProperty("file.separator")
+            + "???";
+    private transient PrintStream writer;
+    private int screenCounter;
     private final List<Effect> defEffects = new ArrayList<Effect>(Collections.singletonList(new DrawShape()));
-    private SVGGraphics2D svgGraphicator;
+    private transient SVGGraphics2D svgGraphicator;
     private long lastStep = Long.MIN_VALUE;
     private double lastUpdate = Long.MIN_VALUE;
-    @SuppressWarnings("rawtypes")
-    private static final Class< ? extends GraphicalOutputMonitor> DEFAULT_MONITOR_CLASS = Generic2DDisplay.class;
+    private static final String DEFAULT_MONITOR_CLASS = Generic2DDisplay.class.getName();
     private static final String DEFAULT_MONITOR_PACKAGE = "it.unibo.alchemist.boundary.monitors.";
     private static final int MIN_WIDTH = 800;
     private static final int DEF_WIDTH = 1000;
@@ -105,7 +105,6 @@ public class RecordingMonitor<T> extends EnvironmentInspector<T> {
     @ExportForGUI(nameToExport = "POV dy (%)")
     private RangedInteger povY = new RangedInteger(-100, 100, 0);
 
-
     /**
      * RecordingMonitor<T> empty constructor.
      */
@@ -117,26 +116,33 @@ public class RecordingMonitor<T> extends EnvironmentInspector<T> {
 
     @SuppressWarnings("unchecked")
     private void createMonitor(final IEnvironment<T> env) {
-        String monitorClassName = env.getPreferredMonitor();
-        Class< ? extends GraphicalOutputMonitor<T>> monitorClass;
-        if (monitorClassName == null) {
-            monitorClass = (Class< ? extends GraphicalOutputMonitor<T>>) DEFAULT_MONITOR_CLASS;
-        } else {
-            if (!monitorClassName.contains(".")) {
-                monitorClassName = DEFAULT_MONITOR_PACKAGE + monitorClassName;
-            }
-            try {
-                monitorClass = (Class<GraphicalOutputMonitor<T>>) Class.forName(monitorClassName);
-            } catch (final ClassNotFoundException e) {
-                L.warn(e);
-                monitorClass = (Class< ? extends GraphicalOutputMonitor<T>>) DEFAULT_MONITOR_CLASS;
-            }
+        String monitorClassName = Optional.ofNullable(env.getPreferredMonitor()).orElse(DEFAULT_MONITOR_CLASS);
+        if (!monitorClassName.contains(".")) {
+            monitorClassName = DEFAULT_MONITOR_PACKAGE + monitorClassName;
         }
         try {
-            source = (Generic2DDisplay<T>) monitorClass.getConstructor().newInstance();
-        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-            L.error(e);
+            final Class<?> monitorClass = Class.forName(monitorClassName);
+            if (Component.class.isAssignableFrom(monitorClass)) {
+                initSource(monitorClass);
+            } else {
+                initSource(Class.forName(DEFAULT_MONITOR_CLASS));
+            }
+        } catch (final ClassNotFoundException
+                | InstantiationException
+                | IllegalAccessException
+                | IllegalArgumentException
+                | InvocationTargetException
+                | NoSuchMethodException
+                | SecurityException e) {
+            L.warn(e);
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void initSource(final Class<?> monitorClass) throws InstantiationException, IllegalAccessException,
+            IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
+        source = (GraphicalOutputMonitor<T>) monitorClass.getConstructor().newInstance();
+        sourceComponent = (JComponent) source;
     }
 
     @Override
@@ -153,25 +159,28 @@ public class RecordingMonitor<T> extends EnvironmentInspector<T> {
     }
 
     @Override
-    public void initialized(final IEnvironment<T> env) {    
+    public void initialized(final IEnvironment<T> env) {
+        assert source == sourceComponent; // NOPMD
         createMonitor(env);
-        source.setVisible(true);
-        source.setEnabled(true);
+        sourceComponent.setVisible(true);
+        sourceComponent.setEnabled(true);
+        sourceComponent.setSize(width.getVal(), height.getVal());
         source.setRealTime(reactMode.equals(ReactivityMode.REALTIME));
-        source.setSize(width.getVal(), height.getVal());
         source.initialized(env);
-        for (MouseListener listener : source.getMouseListeners()) {
-            source.removeMouseListener(listener);
+        for (MouseListener listener : sourceComponent.getMouseListeners()) {
+            sourceComponent.removeMouseListener(listener);
         }
-        //avoid nearest node circle
-        source.setDist(0, 0);
-    
+        // avoid nearest node circle
+        source.setMarkCloserNode(false);
+
         saveScreenshot(env, null, new DoubleTime(), 0);
     }
 
     /**
      * Set the effects file path.
-     * @param ef new file path
+     * 
+     * @param ef
+     *            new file path
      */
     public void setEffectsFile(final String ef) {
         effectsFile = ef;
@@ -181,7 +190,8 @@ public class RecordingMonitor<T> extends EnvironmentInspector<T> {
     public void stepDone(final IEnvironment<T> env, final IReaction<T> r, final ITime time, final long step) {
         mutex.acquireUninterruptibly();
         final double sample = getInterval().getVal() * FastMath.pow(10, getIntervalOrderOfMagnitude().getVal());
-        final boolean log = getMode().equals(Mode.TIME) ?  time.toDouble() - lastUpdate >= sample : step - lastStep >= sample;
+        final boolean log = getMode().equals(Mode.TIME) ? time.toDouble() - lastUpdate >= sample
+                : step - lastStep >= sample;
         if (log) {
             lastUpdate = time.toDouble();
             lastStep = step;
@@ -192,65 +202,79 @@ public class RecordingMonitor<T> extends EnvironmentInspector<T> {
 
     /**
      * Save in a svg file a screenshot of the current source.
-     * @param env unused
-     * @param r unused
-     * @param time the current time of the simulation that could be added to the file name
-     * @param step the current step of the simulation that could be added to the file name
+     * 
+     * @param env
+     *            unused
+     * @param r
+     *            unused
+     * @param time
+     *            the current time of the simulation that could be added to the
+     *            file name
+     * @param step
+     *            the current step of the simulation that could be added to the
+     *            file name
      */
     @SuppressWarnings("unchecked")
     private void saveScreenshot(final IEnvironment<T> env, final IReaction<T> r, final ITime time, final long step) {
+        assert source == sourceComponent; // NOPMD
         if (source != null) {
             source.stepDone(env, r, time, step);
             if (System.identityHashCode(fpCache) != System.identityHashCode(getFilePath())) {
                 fpCache = getFilePath();
             }
-        
+
             if (System.identityHashCode(efCache) != System.identityHashCode(getEffectsFile())) {
                 efCache = getEffectsFile();
                 List<Effect> effects = null;
-                try {    
+                try {
                     effects = (List<Effect>) FileUtilities.fileToObject(getEffectsFile());
                 } catch (IOException | ClassNotFoundException e1) {
                     effects = defEffects;
                 } finally {
                     source.setEffectStack(effects);
-                    source.revalidate();
+                    sourceComponent.revalidate();
                 }
             }
-        
+
             final int zoomVal = zoom.getVal();
-            if (zoomVal == 0) {
-                source.getWormhole().setOptimalZoomRate();
-            } else {
-                source.getWormhole().zoomOnPoint(new Point(0, height.getVal()), zoomVal);
-            }
-            source.revalidate();
-        
-            source.getWormhole().setViewPosition(new Point(width.getVal() * povX.getVal() / 100, (height.getVal() * povY.getVal() / 100) + height.getVal()));
-        
+//            if (zoomVal == 0) {
+//                source.getWormhole().setOptimalZoomRate();
+//            } else {
+                source.zoomTo();OnPoint(new Point(0, height.getVal()), zoomVal);
+//            }
+            sourceComponent.revalidate();
+
+//            source.getWormhole().setViewPosition(new Point(width.getVal() * povX.getVal() / 100,
+//                    (height.getVal() * povY.getVal() / 100) + height.getVal()));
+
             lastStep = step;
             lastUpdate = time.toDouble();
             String currentStep = isLoggingStep() ? getSeparator() + step : "";
-            String currentTime = isLoggingTime() ? getSeparator() + time : "";        
-            
+            String currentTime = isLoggingTime() ? getSeparator() + time : "";
+
             try {
                 new File(fpCache).mkdirs();
-                writer = new PrintStream(new File(fpCache + System.getProperty("file.separator") + screenCounter++ + currentStep + currentTime + ".svg"), StandardCharsets.UTF_8.name());
+                writer = new PrintStream(new File(fpCache + System.getProperty("file.separator") + screenCounter++
+                        + currentStep + currentTime + ".svg"), StandardCharsets.UTF_8.name());
             } catch (FileNotFoundException | UnsupportedEncodingException e) {
                 L.error(e);
             }
-        
+
             svgGraphicator = new SVGGraphics2D(width.getVal(), height.getVal());
             source.setDrawLinks(drawLinks);
-            source.paintComponent(svgGraphicator);
+//            final Method paintComponent = sourceComponent.getClass().getMethod("paintComponent", Graphics.class);
+//            paintComponent.setAccessible(true);
+//            paintComponent.invoke(sourceComponent, svgGraphicator);
+            sourceComponent.paint(svgGraphicator);
             writer.print(svgGraphicator.getSVGDocument());
             writer.close();
         }
-    
+
     }
 
     @Override
-    protected double[] extractValues(final IEnvironment<T> env, final IReaction<T> r, final ITime time, final long step) {
+    protected double[] extractValues(final IEnvironment<T> env, final IReaction<T> r, final ITime time,
+            final long step) {
         /**
          * Unused.
          */

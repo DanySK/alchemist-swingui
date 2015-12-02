@@ -33,7 +33,6 @@ import it.unibo.alchemist.model.interfaces.IObstacle2D;
 import it.unibo.alchemist.model.interfaces.IPosition;
 import it.unibo.alchemist.model.interfaces.IReaction;
 import it.unibo.alchemist.model.interfaces.ITime;
-import it.unibo.alchemist.utils.L;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -60,6 +59,9 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.event.MouseInputListener;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Abstract base-class for each display able a graphically represent a 2D space
  * and simulation.
@@ -85,9 +87,11 @@ public abstract class Abstract2DDisplay<T> extends JPanel implements GraphicalOu
 
     private static final double FREEDOM_RADIUS = 1d;
     private static final double TIME_STEP = 1d / DEFAULT_FRAME_RATE;
+    private static final Logger L = LoggerFactory.getLogger(Abstract2DDisplay.class);
 
     private boolean realTime;
-    private boolean initialized;
+    private boolean inited;
+    private boolean markCloser = true;
     private int st;
     private List<Effect> effectStack;
     private IEnvironment<T> env;
@@ -139,7 +143,7 @@ public abstract class Abstract2DDisplay<T> extends JPanel implements GraphicalOu
         super();
         st = step;
         setBackground(Color.WHITE);
-        initialized = false;
+        inited = false;
     }
 
     /**
@@ -155,7 +159,7 @@ public abstract class Abstract2DDisplay<T> extends JPanel implements GraphicalOu
                 neighbors.put(n, env.getNeighborhood(n).clone());
             }
         } catch (final CloneNotSupportedException e) {
-            L.error(e);
+            L.error("Error cloning", e);
         }
     }
 
@@ -259,7 +263,7 @@ public abstract class Abstract2DDisplay<T> extends JPanel implements GraphicalOu
                 }
             }
         }
-        if (nearest != null) {
+        if (isCloserNodeMarked() && nearest != null) {
             g.setColor(Color.RED);
             g.fillOval(nearestx - SELECTED_NODE_DRAWING_SIZE / 2, nearesty - SELECTED_NODE_DRAWING_SIZE / 2, SELECTED_NODE_DRAWING_SIZE, SELECTED_NODE_DRAWING_SIZE);
             g.setColor(Color.YELLOW);
@@ -322,7 +326,7 @@ public abstract class Abstract2DDisplay<T> extends JPanel implements GraphicalOu
      * @param step
      *            the current simulation step
      */
-    protected void initAll(final IReaction<T> r, final ITime time, final long step) {
+    private void initAll(final IReaction<T> r, final ITime time, final long step) {
         final double[] envSize = env.getSize();
         final double[] offset = env.getOffset();
         wormhole = new NSEWormhole(getSize(), new DoubleDimension(envSize), new Point2D.Double(offset[0], offset[1]));
@@ -352,7 +356,7 @@ public abstract class Abstract2DDisplay<T> extends JPanel implements GraphicalOu
      * @return a <code>boolean</code> value
      */
     protected boolean isInitilized() {
-        return initialized;
+        return inited;
     }
 
     /**
@@ -495,7 +499,6 @@ public abstract class Abstract2DDisplay<T> extends JPanel implements GraphicalOu
                         Thread.sleep(Math.min(timeSimulated - timePassed, MS_PER_SECOND / DEFAULT_FRAME_RATE));
                     } catch (final InterruptedException e) {
                         L.warn("Damn spurious wakeups.");
-                        L.error(e);
                     }
                 }
             }
@@ -522,7 +525,7 @@ public abstract class Abstract2DDisplay<T> extends JPanel implements GraphicalOu
     }
 
     private class MouseManager implements MouseInputListener, MouseWheelListener, MouseMotionListener {
-    
+
         @Override
         public void mouseClicked(final MouseEvent e) {
             setDist(e.getX(), e.getY());
@@ -540,7 +543,7 @@ public abstract class Abstract2DDisplay<T> extends JPanel implements GraphicalOu
         @Override
         public void mouseDragged(final MouseEvent e) {
             setDist(e.getX(), e.getY());
-            if (wormhole == null) {
+            if (wormhole == null || mouseVelocity == null) {
                 return;
             }
             if (SwingUtilities.isLeftMouseButton(e)) {
@@ -578,16 +581,10 @@ public abstract class Abstract2DDisplay<T> extends JPanel implements GraphicalOu
 
         @Override
         public void mousePressed(final MouseEvent e) {
-            /*
-             * Unused
-             */
         }
 
         @Override
         public void mouseReleased(final MouseEvent e) {
-            /*
-             * Unused
-             */
         }
 
         @Override
@@ -605,36 +602,36 @@ public abstract class Abstract2DDisplay<T> extends JPanel implements GraphicalOu
     private class ComponentManager implements ComponentListener {
         @Override
         public void componentHidden(final ComponentEvent e) {
-            /*
-             * Unused
-             */
         }
-
         @Override
         public void componentMoved(final ComponentEvent e) {
-            /*
-             * Unused
-             */
         }
-
         @Override
         public void componentResized(final ComponentEvent e) {
             if (wormhole != null) {
                 wormhole.setViewSize(getSize());
-                if (!initialized) {
+                if (!inited) {
                     onFirstResizing();
-                    initialized = true;
+                    inited = true;
                 }
             }
             updateView();
         }
-
         @Override
         public void componentShown(final ComponentEvent e) {
-            /*
-             * Unused
-             */
         }
+    }
+
+    @Override
+    public void setMarkCloserNode(final boolean mark) {
+        markCloser = mark;
+    }
+
+    /**
+     * @return true if the closer node is marked
+     */
+    protected boolean isCloserNodeMarked() {
+        return markCloser;
     }
 
 }

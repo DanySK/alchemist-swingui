@@ -67,4 +67,12 @@ public interface GraphicalOutputMonitor<T> extends OutputMonitor<T> {
      */
     void setStep(int step);
 
+    /**
+     * If set, the node closer to the mouse will be put in evidence.
+     * 
+     * @param mark
+     *            true if the node closer to the mouse should be marked
+     */
+    void setMarkCloserNode(boolean mark);
+
 }

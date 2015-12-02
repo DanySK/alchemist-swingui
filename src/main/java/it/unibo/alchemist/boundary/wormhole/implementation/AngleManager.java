@@ -75,7 +75,7 @@ public class AngleManager extends AbstractSlideInputManager implements IAngleMan
      *            is the initial rotation expressed with degrees
      */
     public AngleManager(final double dUnit, final double dPhase) {
-        super(0);
+        super(0, Double.MIN_VALUE, Double.MAX_VALUE);
         degUnit = dUnit;
         degPhase = dPhase;
     }

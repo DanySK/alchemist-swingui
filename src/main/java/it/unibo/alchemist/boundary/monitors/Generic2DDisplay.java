@@ -8,7 +8,6 @@
  */
 package it.unibo.alchemist.boundary.monitors;
 
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
 
@@ -55,10 +54,4 @@ public class Generic2DDisplay<T> extends Abstract2DDisplay<T> {
         getZoomManager().setZoom(getWormhole().getZoom());
     }
 
-//    @Override
-//    protected void paintComponent(final Graphics g) {
-//        super.paintComponent(g);
-//        drawEnvOnView((Graphics2D) g);
-//    }
-//
 }

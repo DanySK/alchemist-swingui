@@ -9,31 +9,40 @@
 package it.unibo.alchemist.boundary.wormhole.implementation;
 
 import it.unibo.alchemist.boundary.wormhole.interfaces.ISlideInputManager;
+import it.unibo.alchemist.utils.MathUtils;
 
 /**
  * <code>ASlideInputManager</code> is the base class for any class whose aim is
  * to handle the the sliding of any physical/virtual device/control.
  * 
-
+ * 
  */
 public class AbstractSlideInputManager implements ISlideInputManager {
 
     private double value;
+    private final double min, max;
 
     /**
-     * Creates a new <code>ASlideInputManager</code> with the value in input.<br>
+     * Creates a new <code>ASlideInputManager</code> with the value in input.
+     * <br>
      * This is useful if you want to have an initial output.
      * 
      * @param initialValue
      *            is the hypothetical initial amound of 'slides'
+     * @param min
+     *            the minimum allowed
+     * @param max
+     *            the maximum allowed
      */
-    public AbstractSlideInputManager(final double initialValue) {
+    public AbstractSlideInputManager(final double initialValue, final double min, final double max) {
         value = initialValue;
+        this.min = min;
+        this.max = max;
     }
 
     @Override
     public void dec(final double val) {
-        value -= val;
+        setValue(value - val);
     }
 
     /**
@@ -47,7 +56,7 @@ public class AbstractSlideInputManager implements ISlideInputManager {
 
     @Override
     public void inc(final double val) {
-        value += val;
+        setValue(value + val);
     }
 
     /**
@@ -57,7 +66,7 @@ public class AbstractSlideInputManager implements ISlideInputManager {
      *            is the new value
      */
     protected void setValue(final double val) {
-        value = val;
+        value = MathUtils.forceRange(val, min, max);
     }
 
 }
