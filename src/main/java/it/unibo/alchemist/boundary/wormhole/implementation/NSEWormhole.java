@@ -18,11 +18,11 @@ import java.awt.geom.Point2D;
 
 /**
  * <code>NSEWormhole2D</code> = No Side Effects Wormhole2D.<br>
- * Complete implementation for the {@link AbstractNSEWormhole2D} class.
+ * Complete implementation for the {@link AbstractWormhole2D} class.
  * 
 
  */
-public class NSEWormhole extends AbstractNSEWormhole2D {
+public class NSEWormhole extends AbstractWormhole2D {
 
     /**
      * Initializes a new <code>NSEWormhole2D</code> instance directly setting

@@ -50,7 +50,7 @@ public class Generic2DDisplay<T> extends Abstract2DDisplay<T> {
     @Override
     protected void onFirstResizing() {
         getWormhole().setViewPosition(new Point2D.Double(0, getSize().getHeight()));
-        getWormhole().setOptimalZoomRate();
+        getWormhole().optimalZoom();
         getZoomManager().setZoom(getWormhole().getZoom());
     }
 

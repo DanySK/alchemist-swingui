@@ -15,14 +15,12 @@ import java.awt.geom.Point2D;
 import java.util.Objects;
 
 /**
- * <code>AbstractNSEWormhole2D</code> = Abstract with No Side Effects
- * Wormhole2D.<br>
  * Partial implementation for the interface {@link IWormhole2D}.<br>
  * I am considering the particular case of the view as an entity into the
  * sceern-space: the y-axis grows on the bottom side of the screen.
  * 
  */
-public abstract class AbstractNSEWormhole2D implements IWormhole2D {
+public abstract class AbstractWormhole2D implements IWormhole2D {
     private Dimension2D viewSize;
     private Dimension2D envSize;
     private Point2D position;
@@ -47,7 +45,7 @@ public abstract class AbstractNSEWormhole2D implements IWormhole2D {
      * 
      * @see IWormhole2D
      */
-    public AbstractNSEWormhole2D(final Dimension2D vSize, final Dimension2D eSize, final Point2D o) {
+    public AbstractWormhole2D(final Dimension2D vSize, final Dimension2D eSize, final Point2D o) {
         Objects.requireNonNull(vSize);
         Objects.requireNonNull(eSize);
         Objects.requireNonNull(o);
@@ -108,7 +106,6 @@ public abstract class AbstractNSEWormhole2D implements IWormhole2D {
         } else {
             return vRate;
         }
-
     }
 
     /**
@@ -214,7 +211,7 @@ public abstract class AbstractNSEWormhole2D implements IWormhole2D {
     }
 
     @Override
-    public void setOptimalZoomRate() {
+    public void optimalZoom() {
         if (getEnvRatio() <= 1) {
             zoom = viewSize.getHeight() / envSize.getHeight();
         } else {

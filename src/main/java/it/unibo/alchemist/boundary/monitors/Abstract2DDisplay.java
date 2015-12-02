@@ -35,6 +35,7 @@ import it.unibo.alchemist.model.interfaces.IReaction;
 import it.unibo.alchemist.model.interfaces.ITime;
 
 import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.event.ComponentEvent;
@@ -233,15 +234,19 @@ public abstract class Abstract2DDisplay<T> extends JPanel implements Graphical2D
         }
         if (paintLinks) {
             g.setColor(Color.GRAY);
-            for (final Entry<INode<T>, INeighborhood<T>> entry : neighbors.entrySet()) {
+            neighbors.entrySet().parallelStream().forEach(entry -> {
                 final IPosition coord = positions.get(entry.getKey());
                 final Point2D s = wormhole.getViewPoint(new Point2D.Double(coord.getCoordinate(0), coord.getCoordinate(1)));
-                for (final INode<?> n : entry.getValue()) {
-                    final IPosition coorddest = positions.get(n);
-                    final Point2D d = wormhole.getViewPoint(new Point2D.Double(coorddest.getCoordinate(0), coorddest.getCoordinate(1)));
-                    g.drawLine((int) s.getX(), (int) s.getY(), (int) d.getX(), (int) d.getY());
+                if (wormhole.isInsideView(s)) {
+                    for (final INode<?> n : entry.getValue()) {
+                        final IPosition coorddest = positions.get(n);
+                        final Point2D d = wormhole.getViewPoint(new Point2D.Double(coorddest.getCoordinate(0), coorddest.getCoordinate(1)));
+                        g.drawLine((int) s.getX(), (int) s.getY(), (int) d.getX(), (int) d.getY());
+                    }
                 }
-            }
+            });
+//            for (final Entry<INode<T>, INeighborhood<T>> entry : neighbors.entrySet()) {
+//            }
         }
         g.setColor(Color.GREEN);
         if (effectStack != null) {
@@ -638,6 +643,13 @@ public abstract class Abstract2DDisplay<T> extends JPanel implements Graphical2D
     public void zoomTo(final IPosition center, final double zoomLevel) {
         assert center.getDimensions() == 2;
         wormhole.zoomOnPoint(new Point2D.Double(center.getCoordinate(0), center.getCoordinate(1)), zoomLevel);
+    }
+    
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        drawBackground((Graphics2D) g);
+        drawEnvOnView((Graphics2D) g);
     }
 
 }

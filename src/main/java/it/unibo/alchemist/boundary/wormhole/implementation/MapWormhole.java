@@ -24,7 +24,7 @@ import it.unibo.alchemist.boundary.wormhole.interfaces.IWormhole2D;
  * 
 
  */
-public class MapWormhole extends AbstractNSEWormhole2D {
+public class MapWormhole extends AbstractWormhole2D {
     private final MapViewPosition mapModel;
 
     /**
@@ -126,7 +126,7 @@ public class MapWormhole extends AbstractNSEWormhole2D {
     }
 
     @Override
-    public void setOptimalZoomRate() {
+    public void optimalZoom() {
         final Point2D e = (Point2D) getOriginalOffset().clone();
         Point2D v;
         if (getZoom() > 1) {

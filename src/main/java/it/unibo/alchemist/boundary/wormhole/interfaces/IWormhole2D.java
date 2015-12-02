@@ -248,18 +248,6 @@ public interface IWormhole2D {
      */
     void setEnvSize(Dimension2D size);
 
-    /*
-     * TODO fix doc
-     */
-    /**
-     * Activates/deactivates isometric mode.
-     * 
-     * @param value
-     *            is the <code>boolean</code> value that activates/deactivates
-     *            isometric mode
-     */
-    /* void setMode(Mode m); */
-
     /**
      * Sets the horizontal stretch rate.
      * 
@@ -273,7 +261,7 @@ public interface IWormhole2D {
      * Automatically sets the zoom rate in order to make the environment
      * entirely visible on the view.
      */
-    void setOptimalZoomRate();
+    void optimalZoom();
 
     /**
      * Rotates the environment around the Position.
