@@ -94,8 +94,14 @@ public abstract class AbstractWormhole2D implements IWormhole2D {
         }
     }
 
-    @Override
-    public double getNIVerticalRatio() {
+    /**
+     * Gets the viewHeight / envHeight ratio.<br>
+     * NI = Not Isometric.
+     * 
+     * @return a <code>double</code> value representing the vertical ratio for
+     *         Not Isometric mode
+     */
+    private double getNIVerticalRatio() {
         if (mode == Mode.ISOMETRIC) {
             return 1d;
         } else if (mode == Mode.ADAPT_TO_VIEW) {
