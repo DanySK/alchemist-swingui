@@ -137,11 +137,6 @@ public abstract class AbstractWormhole2D implements IWormhole2D {
     }
 
     @Override
-    public double getViewRatio() {
-        return viewSize.getWidth() / viewSize.getHeight();
-    }
-
-    @Override
     public Dimension2D getViewSize() {
         return (Dimension2D) viewSize.clone();
     }

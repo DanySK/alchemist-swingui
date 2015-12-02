@@ -106,13 +106,6 @@ public interface IWormhole2D {
     Point2D getViewPosition();
 
     /**
-     * Gets the view's ratio i.e. viewWidth / viewHeight.
-     * 
-     * @return a <code>double</code> value representing the view's ratio
-     */
-    double getViewRatio();
-
-    /**
      * Gets the view's size.
      * 
      * @return a {@link Dimension2D} object containing the view's width and
