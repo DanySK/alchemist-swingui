@@ -62,11 +62,6 @@ public abstract class AbstractWormhole2D implements IWormhole2D {
     }
 
     @Override
-    public Point2D getEnvPosition() {
-        return getEnvPoint(getViewPosition());
-    }
-
-    @Override
     public double getEnvRatio() {
         return envSize.getWidth() / envSize.getHeight();
     }

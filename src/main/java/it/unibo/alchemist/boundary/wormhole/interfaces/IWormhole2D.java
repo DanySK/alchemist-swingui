@@ -82,14 +82,6 @@ public interface IWormhole2D {
     Point2D getEnvPoint(Point2D viewPoint);
 
     /**
-     * Converts the Position into env-coordinates.
-     * 
-     * @return a {@link Point2D} object representing the Position into
-     *         env-coordinates
-     */
-    Point2D getEnvPosition();
-
-    /**
      * Gets the enviroment's ratio i.e. envWidth / envHeight.
      * 
      * @return a <code>double</code> value representing the enviroment's ratio

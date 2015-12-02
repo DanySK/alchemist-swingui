@@ -84,12 +84,6 @@ public class MapWormhole extends AbstractWormhole2D {
     }
 
     @Override
-    public Point2D getEnvPosition() {
-        final LatLong c = mapModel.getCenter();
-        return new Point2D.Double(c.longitude, c.latitude);
-    }
-
-    @Override
     public Point2D getViewPoint(final Point2D envPoint) {
         final LatLong l = mapModel.getCenter();
         final Point2D p = new Point2D.Double(lonToPxX(envPoint.getX()), latToPxY(envPoint.getY()));
