@@ -10,7 +10,7 @@ package it.unibo.alchemist.boundary.monitors;
 
 import it.unibo.alchemist.boundary.gui.AlchemistSwingUI;
 import it.unibo.alchemist.boundary.gui.effects.Effect;
-import it.unibo.alchemist.boundary.interfaces.GraphicalOutputMonitor;
+import it.unibo.alchemist.boundary.interfaces.Graphical2DOutputMonitor;
 import it.unibo.alchemist.boundary.l10n.Res;
 import it.unibo.alchemist.boundary.wormhole.implementation.AngleManager;
 import it.unibo.alchemist.boundary.wormhole.implementation.DoubleDimension;
@@ -68,7 +68,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @param <T>
  */
-public abstract class Abstract2DDisplay<T> extends JPanel implements GraphicalOutputMonitor<T> {
+public abstract class Abstract2DDisplay<T> extends JPanel implements Graphical2DOutputMonitor<T> {
     /**
      * The default frame rate.
      */
@@ -632,6 +632,12 @@ public abstract class Abstract2DDisplay<T> extends JPanel implements GraphicalOu
      */
     protected boolean isCloserNodeMarked() {
         return markCloser;
+    }
+
+    @Override
+    public void zoomTo(final IPosition center, final double zoomLevel) {
+        assert center.getDimensions() == 2;
+        wormhole.zoomOnPoint(new Point2D.Double(center.getCoordinate(0), center.getCoordinate(1)), zoomLevel);
     }
 
 }
