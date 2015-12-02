@@ -89,15 +89,6 @@ public interface IWormhole2D {
     Mode getMode();
 
     /**
-     * Gets the viewWidth / envWidth ratio.<br>
-     * NI = Not Isometric.
-     * 
-     * @return a <code>double</code> value representing the horizontal ratio for
-     *         Not Isometric mode
-     */
-    double getNIHorizontalRatio();
-
-    /**
      * Gets the viewHeight / envHeight ratio.<br>
      * NI = Not Isometric.
      * 
