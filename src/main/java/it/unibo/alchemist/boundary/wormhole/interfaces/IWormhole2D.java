@@ -149,14 +149,6 @@ public interface IWormhole2D {
     void setDeltaViewPosition(Point2D delta);
 
     /**
-     * Sets the offset vector.
-     * 
-     * @param point
-     *            is the {@link Point2D} object representing the offset vector
-     */
-    void setEnvOffset(Point2D point);
-
-    /**
      * Sets the position to the view-point corresponding to
      * <code>envPoint</code>.
      * 

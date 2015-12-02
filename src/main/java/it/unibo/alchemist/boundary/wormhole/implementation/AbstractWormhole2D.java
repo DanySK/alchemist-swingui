@@ -170,11 +170,6 @@ public abstract class AbstractWormhole2D implements IWormhole2D {
     }
 
     @Override
-    public void setEnvOffset(final Point2D point) {
-        offset = new Point2D.Double(point.getX(), point.getY());
-    }
-
-    @Override
     public void setEnvPosition(final Point2D pos) {
         setViewPosition(getViewPoint(new Point2D.Double(pos.getX(), pos.getY())));
     }
