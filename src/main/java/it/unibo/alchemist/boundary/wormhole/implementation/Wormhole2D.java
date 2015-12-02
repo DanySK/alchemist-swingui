@@ -55,14 +55,7 @@ public class Wormhole2D implements IWormhole2D {
     public Wormhole2D(final IEnvironment<?> env, final Component comp) {
         model = env;
         view = comp;
-//        Objects.requireNonNull(vSize);
-//        Objects.requireNonNull(eSize);
-//        Objects.requireNonNull(o);
-//        viewSize = new DoubleDimension(vSize.getWidth(), vSize.getHeight());
-//        envSize = new DoubleDimension(eSize.getWidth(), eSize.getHeight());
         position = new Point2D.Double(0d, comp.getHeight());
-//        offset = new Point2D.Double(o.getX(), o.getY());
-//        originalOffset = new Point2D.Double(o.getX(), o.getY());
     }
 
     private double getEnvRatio() {
@@ -115,15 +108,6 @@ public class Wormhole2D implements IWormhole2D {
             return vRate;
         }
     }
-
-    /**
-     * Gets the original offset.
-     * 
-     * @return a {@link Point2D}
-     */
-//    protected Point2D getOriginalOffset() {
-//        return originalOffset;
-//    }
 
     /**
      * Gets the rotation angle, in radians.
@@ -263,7 +247,7 @@ public class Wormhole2D implements IWormhole2D {
         }
         zoom = value;
     }
-    
+
     /**
      * Calculates the {@link AffineTransform} that allows the wormhole to
      * convert points from env-space to view-space.
