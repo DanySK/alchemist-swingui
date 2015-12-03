@@ -202,21 +202,16 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
             final Point2D hp = wormhole.getViewPoint(new Point2D.Double(hcoor.getCoordinate(0), hcoor.getCoordinate(1)));
             if (hp.distance(getCenter()) > FREEDOM_RADIUS) {
                 wormhole.setViewPosition(hp);
-//                wormhole.setDeltaViewPosition(NSEAlg2DHelper.variation(getCenter(), hp));
             }
         }
 
         g.setColor(Color.BLACK);
         if (obstacles != null) {
             for (final IObstacle2D o : obstacles) {
-//                final Rectangle2D b = o.getBounds2D();
-//                final Point2D.Double pt1 = new Point2D.Double(b.getMinX(), b.getMinY());
-//                final Point2D.Double pt2 = new Point2D.Double(b.getMinX(), b.getMaxY());
-//                final Point2D.Double pt3 = new Point2D.Double(b.getMaxX(), b.getMinY());
-//                final Point2D.Double pt4 = new Point2D.Double(b.getMaxX(), b.getMaxY());
-//                if (wormhole.isInsideView(pt1) || wormhole.isInsideView(pt2) || wormhole.isInsideView(pt3) || wormhole.isInsideView(pt4)) {
-                    g.fill(convertObstacle(o));
-//                }
+                /*
+                 * TODO: only draw obstacles if on view
+                 */
+                g.fill(convertObstacle(o));
             }
         }
         if (paintLinks) {
@@ -232,8 +227,6 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
                     }
                 }
             });
-//            for (final Entry<INode<T>, INeighborhood<T>> entry : neighbors.entrySet()) {
-//            }
         }
         g.setColor(Color.GREEN);
         if (effectStack != null) {
@@ -318,9 +311,7 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
      * @param step
      *            the current simulation step
      */
-    private void initAll(final IReaction<T> r, final ITime time, final long step) {
-//        final double[] envSize = env.getSize();
-//        final double[] offset = env.getOffset();
+    private void initAll() {
         wormhole = new NSEWormhole(env, this);
         wormhole.center();
         wormhole.optimalZoom();
@@ -367,11 +358,6 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
     protected void loadObstacles() {
         obstacles = ((IEnvironment2DWithObstacles<?, ?>) env).getObstacles();
     }
-
-//    /**
-//     * 
-//     */
-//    protected abstract void onFirstResizing();
 
     /**
      * Call this method if you want this monitor to be bound to a new
@@ -466,7 +452,7 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
              * Thread safety: need to double-check 
              */
             if (firstTime) {
-                initAll(r, time, step);
+                initAll();
                 lasttime = -TIME_STEP;
                 firstTime = false;
                 timeInit = System.currentTimeMillis();
