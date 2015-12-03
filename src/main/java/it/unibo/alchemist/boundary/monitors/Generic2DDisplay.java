@@ -11,6 +11,7 @@ package it.unibo.alchemist.boundary.monitors;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Shape;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
@@ -18,7 +19,6 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Path2D;
-import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.List;
 import java.util.Map;
@@ -41,14 +41,15 @@ import it.unibo.alchemist.boundary.interfaces.Graphical2DOutputMonitor;
 import it.unibo.alchemist.boundary.l10n.Res;
 import it.unibo.alchemist.boundary.wormhole.implementation.AngleManagerImpl;
 import it.unibo.alchemist.boundary.wormhole.implementation.ExponentialZoomManager;
-import it.unibo.alchemist.boundary.wormhole.implementation.NSEAlg2DHelper;
 import it.unibo.alchemist.boundary.wormhole.implementation.NSEWormhole;
+import it.unibo.alchemist.boundary.wormhole.implementation.PointAdapter;
 import it.unibo.alchemist.boundary.wormhole.implementation.PointerSpeedImpl;
 import it.unibo.alchemist.boundary.wormhole.interfaces.IWormhole2D;
 import it.unibo.alchemist.boundary.wormhole.interfaces.IWormhole2D.Mode;
 import it.unibo.alchemist.boundary.wormhole.interfaces.PointerSpeed;
 import it.unibo.alchemist.boundary.wormhole.interfaces.ZoomManager;
 import it.unibo.alchemist.core.implementations.Simulation;
+import it.unibo.alchemist.model.implementations.positions.Continuous2DEuclidean;
 import it.unibo.alchemist.model.implementations.times.DoubleTime;
 import it.unibo.alchemist.model.interfaces.IEnvironment;
 import it.unibo.alchemist.model.interfaces.IEnvironment2DWithObstacles;
@@ -161,14 +162,18 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
 
     private Shape convertObstacle(final IObstacle2D o) {
         final Rectangle2D r = o.getBounds2D();
-        final Point2D[] points = new Point2D.Double[] { new Point2D.Double(r.getX(), r.getY()), new Point2D.Double(r.getX() + r.getWidth(), r.getY()), new Point2D.Double(r.getX() + r.getWidth(), r.getY() + r.getHeight()), new Point2D.Double(r.getX(), r.getY() + r.getHeight()) };
+        final IPosition[] points = new IPosition[] {
+                new Continuous2DEuclidean(r.getX(), r.getY()),
+                new Continuous2DEuclidean(r.getX() + r.getWidth(), r.getY()),
+                new Continuous2DEuclidean(r.getX() + r.getWidth(), r.getY() + r.getHeight()),
+                new Continuous2DEuclidean(r.getX(), r.getY() + r.getHeight()) };
         final Path2D path = new GeneralPath();
         for (int i = 0; i < points.length; i++) {
-            points[i] = wormhole.getViewPoint(points[i]);
+            final Point pt = wormhole.getViewPoint(points[i]);
             if (i == 0) {
-                path.moveTo(points[i].getX(), points[i].getY());
+                path.moveTo(pt.getX(), pt.getY());
             }
-            path.lineTo(points[i].getX(), points[i].getY());
+            path.lineTo(pt.getX(), pt.getY());
         }
         path.closePath();
         return path;
@@ -199,7 +204,7 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
 
         if (hooked.isPresent()) {
             final IPosition hcoor = positions.get(hooked.get());
-            final Point2D hp = wormhole.getViewPoint(new Point2D.Double(hcoor.getCoordinate(0), hcoor.getCoordinate(1)));
+            final Point hp = wormhole.getViewPoint(hcoor);
             if (hp.distance(getCenter()) > FREEDOM_RADIUS) {
                 wormhole.setViewPosition(hp);
             }
@@ -218,11 +223,11 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
             g.setColor(Color.GRAY);
             neighbors.entrySet().parallelStream().forEach(entry -> {
                 final IPosition coord = positions.get(entry.getKey());
-                final Point2D s = wormhole.getViewPoint(new Point2D.Double(coord.getCoordinate(0), coord.getCoordinate(1)));
+                final Point s = wormhole.getViewPoint(coord);
                 if (wormhole.isInsideView(s)) {
                     for (final INode<?> n : entry.getValue()) {
                         final IPosition coorddest = positions.get(n);
-                        final Point2D d = wormhole.getViewPoint(new Point2D.Double(coorddest.getCoordinate(0), coorddest.getCoordinate(1)));
+                        final Point d = wormhole.getViewPoint(coorddest);
                         g.drawLine((int) s.getX(), (int) s.getY(), (int) d.getX(), (int) d.getY());
                     }
                 }
@@ -231,11 +236,20 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
         g.setColor(Color.GREEN);
         if (effectStack != null) {
             for (final Effect effect : effectStack) {
+//                positions.entrySet().parallelStream()
+//                    .map(e -> new Pair<>(e.getKey(), wormhole.getViewPoint(new Point2D.Double(coords.getCoordinate(0), coords.getCoordinate(1)))))
+//                    .filter(entry -> {
+//                        final IPosition coords = entry.getValue();
+//                        final Point2D s = wormhole.getViewPoint(new Point2D.Double(coords.getCoordinate(0), coords.getCoordinate(1)));
+//                        return wormhole.isInsideView(s);
+//                    })
+//                    .forEachOrdered(entry ->);
+//                    
                 for (final Entry<INode<T>, IPosition> entry : positions.entrySet()) {
                     final IPosition coords = entry.getValue();
-                    final INode<T> node = entry.getKey();
-                    final Point2D s = wormhole.getViewPoint(new Point2D.Double(coords.getCoordinate(0), coords.getCoordinate(1)));
+                    final Point s = wormhole.getViewPoint(coords);
                     if (wormhole.isInsideView(s)) {
+                        final INode<T> node = entry.getKey();
                         final double cd = Math.hypot(s.getX() - mousex, s.getY() - mousey);
                         if (cd <= dist) {
                             nearest = node;
@@ -267,8 +281,8 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
      * 
      * @return the center
      */
-    protected Point2D getCenter() {
-        return new Point2D.Double(getWidth() / 2d, getHeight() / 2d);
+    protected Point getCenter() {
+        return new Point(getWidth() / 2, getHeight() / 2);
     }
 
     /**
@@ -375,14 +389,10 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
     protected void setDist(final int x, final int y) {
         mousex = x;
         mousey = y;
-        final Point2D envMouse = wormhole.getEnvPoint(new Point2D.Double(mousex, mousey));
+        final IPosition envMouse = wormhole.getEnvPoint(new Point(mousex, mousey));
         dist = Math.hypot(mousex - nearestx, mousey - nearesty);
         final StringBuilder sb = new StringBuilder();
-        sb.append('[');
-        sb.append(envMouse.getX());
-        sb.append(", ");
-        sb.append(envMouse.getY());
-        sb.append(']');
+        sb.append(envMouse);
         if (nearest != null) {
             sb.append(" -- ");
             sb.append(Res.get(Res.NEAREST_NODE_IS));
@@ -526,8 +536,11 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
             }
             if (SwingUtilities.isLeftMouseButton(e)) {
                 if (mouseVelocity != null && !hooked.isPresent()) {
-                    final Point2D previous = wormhole.getViewPosition();
-                    wormhole.setViewPosition(NSEAlg2DHelper.sum(previous, mouseVelocity.getVariation()));
+                    final Point previous = wormhole.getViewPosition();
+                    wormhole.setViewPosition(
+                            PointAdapter.from(previous)
+                                .sum(PointAdapter.from(mouseVelocity.getVariation())).toPoint());
+//                    wormhole.setViewPosition(NSEAlg2DHelper.sum(previous, mouseVelocity.getVariation()));
                 }
             } else if (SwingUtilities.isRightMouseButton(e) && mouseVelocity != null && angleManager != null && wormhole.getMode() != Mode.MAP) {
                 angleManager.inc(mouseVelocity.getVariation().getX());
@@ -593,7 +606,7 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
     @Override
     public void zoomTo(final IPosition center, final double zoomLevel) {
         assert center.getDimensions() == 2;
-        wormhole.zoomOnPoint(new Point2D.Double(center.getCoordinate(0), center.getCoordinate(1)), zoomLevel);
+        wormhole.zoomOnPoint(wormhole.getViewPoint(center), zoomLevel);
     }
 
     @Override

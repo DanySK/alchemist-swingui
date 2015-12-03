@@ -8,37 +8,39 @@
  */
 package it.unibo.alchemist.boundary.wormhole.implementation;
 
-import it.unibo.alchemist.boundary.wormhole.interfaces.PointerSpeed;
+import java.awt.Point;
 
-import java.awt.geom.Point2D;
+import it.unibo.alchemist.boundary.wormhole.interfaces.PointerSpeed;
 
 /**
  * Implementation for {@link PointerSpeed} interface.
  * 
  */
 public class PointerSpeedImpl implements PointerSpeed {
-    private Point2D oldPosition = new Point2D.Double();
-    private Point2D position = new Point2D.Double();
+    private Point oldPosition = new Point();
+    private Point position = new Point();
 
     @Override
-    public Point2D getCurrentPosition() {
-        return (Point2D) position.clone();
+    public Point getCurrentPosition() {
+        return (Point) position.clone();
     }
 
     @Override
-    public Point2D getOldPosition() {
-        return (Point2D) oldPosition.clone();
+    public Point getOldPosition() {
+        return (Point) oldPosition.clone();
     }
 
     @Override
-    public Point2D getVariation() {
-        return new Point2D.Double(position.getX() - oldPosition.getX(), position.getY() - oldPosition.getY());
+    public Point getVariation() {
+        return new Point(
+                (int) (position.getX() - oldPosition.getX()),
+                (int) (position.getY() - oldPosition.getY()));
     }
 
     @Override
-    public void setCurrentPosition(final Point2D point) {
+    public void setCurrentPosition(final Point point) {
         oldPosition = position;
-        position = (Point2D) point.clone();
+        position = (Point) point.clone();
     }
 
 }

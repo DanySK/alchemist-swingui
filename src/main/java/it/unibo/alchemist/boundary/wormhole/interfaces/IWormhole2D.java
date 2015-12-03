@@ -8,8 +8,11 @@
  */
 package it.unibo.alchemist.boundary.wormhole.interfaces;
 
+import java.awt.Point;
 import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
+
+import it.unibo.alchemist.model.interfaces.IPosition;
 
 /**
  * A Wormhole (in this context) is an entity that "connects" two worlds: the
@@ -68,11 +71,11 @@ public interface IWormhole2D {
      * Converts a point from the view-space to the env-space.
      * 
      * @param viewPoint
-     *            is the {@link Point2D} object whose coordinates are from
+     *            is the {@link Point} object whose coordinates are from
      *            view-space
-     * @return a {@link Point2D} object whose coordinates are from env-space
+     * @return a {@link IPosition} object whose coordinates are from env-space
      */
-    Point2D getEnvPoint(Point2D viewPoint);
+    IPosition getEnvPoint(Point viewPoint);
 
     /**
      * Gets the rendering mode.
@@ -85,18 +88,18 @@ public interface IWormhole2D {
      * Converts a point from the env-space to the view-space.
      * 
      * @param envPoint
-     *            is the {@link Point2D} object whose coordinates are from
+     *            is the {@link IPosition} object whose coordinates are from
      *            env-space
-     * @return a {@link Point2D} object whose coordinates are from view-space
+     * @return a {@link Point} object whose coordinates are from view-space
      */
-    Point2D getViewPoint(Point2D envPoint);
+    Point getViewPoint(IPosition envPoint);
 
     /**
      * Gets the Position.
      * 
-     * @return a {@link Point2D} object representing the Position
+     * @return a {@link Point} object representing the Position
      */
-    Point2D getViewPosition();
+    Point getViewPosition();
 
     /**
      * Gets the view's size.
@@ -118,30 +121,30 @@ public interface IWormhole2D {
      * view.
      * 
      * @param viewPoint
-     *            is the {@link Point2D} to check
+     *            is the {@link Point} to check
      * @return <code>true</code> if it is visible, <code>false</code> instead
      */
-    boolean isInsideView(Point2D viewPoint);
+    boolean isInsideView(Point viewPoint);
 
     /**
      * Rotates around a point into the view-space.
      * 
      * @param p
-     *            is the {@link Point2D}
+     *            is the {@link Point}
      * @param a
      *            is the absolute angle (in radians)
      */
-    void rotateAroundPoint(Point2D p, double a);
+    void rotateAroundPoint(Point p, double a);
 
     /**
      * Sets the position to the view-point corresponding to
      * <code>envPoint</code>.
      * 
      * @param envPoint
-     *            is the {@link Point2D} object representing the new position
+     *            is the {@link IPosition} object representing the new position
      *            with env-coordinates
      */
-    void setEnvPosition(Point2D envPoint);
+    void setEnvPosition(IPosition envPoint);
 
     /**
      * Automatically sets the zoom rate in order to make the environment
@@ -162,10 +165,10 @@ public interface IWormhole2D {
      * Sets the Position to <code>viewPoint</code>.
      * 
      * @param viewPoint
-     *            is the {@link Point2D} object representing the new position
+     *            is the {@link Point} object representing the new position
      *            with view-coordinates
      */
-    void setViewPosition(Point2D viewPoint);
+    void setViewPosition(Point viewPoint);
 
     /**
      * Changes the zoom factor.
@@ -180,11 +183,14 @@ public interface IWormhole2D {
      * Zooms on a point into the view-space.
      * 
      * @param p
-     *            is the {@link Point2D}
+     *            is the {@link Point}
      * @param z
      *            is the absolute zoom rate
      */
-    void zoomOnPoint(Point2D p, double z);
+    void zoomOnPoint(Point p, double z);
 
+    /**
+     * Points the center of the view on the center of the environment.
+     */
     void center();
 }

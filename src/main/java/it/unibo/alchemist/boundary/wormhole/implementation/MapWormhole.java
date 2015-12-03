@@ -9,6 +9,7 @@
 package it.unibo.alchemist.boundary.wormhole.implementation;
 
 import java.awt.Component;
+import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.util.function.BiFunction;
 
@@ -18,7 +19,11 @@ import org.mapsforge.map.model.MapViewPosition;
 import org.mapsforge.map.model.Model;
 
 import it.unibo.alchemist.boundary.wormhole.interfaces.IWormhole2D;
+import it.unibo.alchemist.model.implementations.positions.LatLongPosition;
 import it.unibo.alchemist.model.interfaces.IEnvironment;
+import it.unibo.alchemist.model.interfaces.IPosition;
+
+import static it.unibo.alchemist.boundary.wormhole.implementation.PointAdapter.from;
 
 /**
  * Wormhole used for maps rendering.
@@ -46,23 +51,22 @@ public final class MapWormhole extends Wormhole2D {
         super(env, comp);
         mapModel = m;
         super.setMode(Mode.MAP);
-        super.setViewPosition(new Point2D.Double(getViewSize().getWidth() / 2, getViewSize().getHeight() / 2));
     }
 
+    
     @Override
-    public Point2D getEnvPoint(final Point2D viewPoint) {
+    public IPosition getEnvPoint(final Point viewPoint) {
         final LatLong l = mapModel.getCenter();
-        final Point2D c = new Point2D.Double(lonToPxX(l.longitude), latToPxY(l.latitude));
-        final Point2D vc = getViewPosition();
-        final Point2D d = NSEAlg2DHelper.subtract(viewPoint, vc);
-        final Point2D p = NSEAlg2DHelper.sum(d, c);
+        final PointAdapter c = coordToPx(from(l.longitude, l.latitude));
+        final PointAdapter d = from(viewPoint).diff(from(getViewPosition()));
+        final PointAdapter p = d.sum(c);
         if (p.getX() < 0 || p.getY() < 0 || p.getX() > mapSize() || p.getY() > mapSize()) {
             /*
              * The point is OUTSIDE the map.
              */
-            return new Point2D.Double(l.longitude, l.latitude);
+            return new LatLongPosition(l.latitude, l.longitude);
         }
-        return new Point2D.Double(pxXToLon(p.getX()), pxYToLat(p.getY()));
+        return new LatLongPosition(pxYToLat(p.getY()), pxXToLon(p.getX()));
     }
 
     private double lonToPxX(final double lon) {
@@ -88,37 +92,40 @@ public final class MapWormhole extends Wormhole2D {
     private long mapSize() {
         return MAPSFORGE_TILE_SIZE << mapModel.getZoomLevel();
     }
+    
+    private PointAdapter coordToPx(PointAdapter pt) {
+        return from(lonToPxX(pt.getX()), latToPxY(pt.getY()));
+    }
+
+    private PointAdapter pxToCoord(PointAdapter pt) {
+        return from(pxXToLon(pt.getX()), pxYToLat(pt.getY()));
+    }
 
     @Override
-    public Point2D getViewPoint(final Point2D envPoint) {
+    public Point getViewPoint(final IPosition envPoint) {
         final LatLong l = mapModel.getCenter();
-        final Point2D p = new Point2D.Double(lonToPxX(envPoint.getX()), latToPxY(envPoint.getY()));
-        final Point2D c = new Point2D.Double(lonToPxX(l.longitude), latToPxY(l.latitude));
-        final Point2D d = NSEAlg2DHelper.subtract(p, c);
-        final Point2D vc = getViewPosition();
-        return new Point2D.Double(vc.getX() + d.getX(), vc.getY() + d.getY());
+        final PointAdapter viewPoint = coordToPx(from(envPoint));
+        final PointAdapter centerView = coordToPx(from(l.longitude, l.latitude));
+        final PointAdapter diff = viewPoint.diff(centerView);
+        final PointAdapter vc = from(getViewPosition());
+        return vc.sum(diff).toPoint();// new Point2D.Double(vc.getX() + diff.getX(), vc.getY() + diff.getY());
     }
 
     @Override
-    public Point2D getViewPosition() {
-        return new Point2D.Double(getViewSize().getWidth() / 2, getViewSize().getHeight() / 2);
+    public Point getViewPosition() {
+        return from(getViewSize().getWidth() / 2, getViewSize().getHeight() / 2).toPoint();
     }
 
     @Override
-    public void rotateAroundPoint(final Point2D p, final double a) {
-        throw new IllegalStateException();
+    public void rotateAroundPoint(final Point p, final double a) {
+        throw new UnsupportedOperationException();
     }
 
-//    @Override
-//    public void setDeltaViewPosition(final Point2D delta) {
-//        mapModel.moveCenter(delta.getX(), delta.getY());
-//    }
-
     @Override
-    public void setEnvPosition(final Point2D ep) {
+    public void setEnvPosition(final IPosition ep) {
         LatLong center;
         try {
-            center = new LatLong(ep.getY(), ep.getX());
+            center = new LatLong(ep.getCoordinate(1), ep.getCoordinate(0));
         } catch (IllegalArgumentException e) {
             center = new LatLong(0, 0);
         }
@@ -127,31 +134,22 @@ public final class MapWormhole extends Wormhole2D {
 
     @Override
     public void optimalZoom() {
-        final double startLong = getEnvironmentOffset()[0];
-        final double startLat = getEnvironmentOffset()[1];
-        final double endLong = startLong + getEnvironmentSize()[0];
-        final double endLat = startLat + getEnvironmentSize()[1];
-        center();
-        Point2D startScreen;
-        Point2D endScreen;
         byte zoom = MAX_ZOOM;
+        @SuppressWarnings("unchecked")
+        final IEnvironment<Object> env = (IEnvironment<Object>) getEnvironment();
         do {
             setZoom(zoom);
-            final Point2D start = new Point2D.Double(startLong, startLat);
-            final Point2D end = new Point2D.Double(endLong, endLat);
-            startScreen = getViewPoint(start);
-            endScreen = getViewPoint(end);
             zoom--;
-        } while(zoom > 1 && !isInsideView(startScreen) && !isInsideView(endScreen));
-        setZoom(zoom);
+        } while (zoom > 1 && !env.getNodes().parallelStream()
+                .map(env::getPosition)
+                .map(this::getViewPoint)
+                .allMatch(this::isInsideView));
     }
 
     @Override
-    public void setViewPosition(final Point2D p) {
-        final Point2D delta = NSEAlg2DHelper.subtract(p, getViewPosition());
-        mapModel.moveCenter(delta.getX(), delta.getY());
-//        final Point2D coord = getEnvPoint(p);
-//        mapModel.setCenter(new LatLong(coord.getY(), coord.getX()));
+    public void setViewPosition(final Point p) {
+        final PointAdapter pt = from(p).diff(from(getViewPosition()));
+        mapModel.moveCenter(pt.getX(), pt.getY());
     }
 
     @Override
@@ -161,13 +159,12 @@ public final class MapWormhole extends Wormhole2D {
     }
 
     @Override
-    public void zoomOnPoint(final Point2D zoomPoint, final double z) {
-        final Point2D endPoint = getEnvPoint(zoomPoint);
+    public void zoomOnPoint(final Point zoomPoint, final double z) {
+        final PointAdapter endPoint = envPointFromView(from(zoomPoint));
         setZoom(z);
-        final Point2D newViewCenter = getViewPoint(endPoint);
-        final Point2D delta = NSEAlg2DHelper.subtract(zoomPoint, newViewCenter);
-        setViewPosition(NSEAlg2DHelper.sum(getViewPosition(), delta));
-//        setDeltaViewPosition(NSEAlg2DHelper.subtract(p, nvp));
+        final PointAdapter newViewCenter = viewPointFromEnv(endPoint);
+        final PointAdapter delta = from(zoomPoint).diff(newViewCenter);
+        setViewPosition(from(getViewPosition()).sum(delta).toPoint());
     }
 
 }

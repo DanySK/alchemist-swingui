@@ -8,6 +8,7 @@
  */
 package it.unibo.alchemist.boundary.wormhole.interfaces;
 
+import java.awt.Point;
 import java.awt.geom.Point2D;
 
 /**
@@ -23,7 +24,7 @@ public interface PointerSpeed {
      * @return a {@link Point2D} instance representing the pointer's current
      *         position
      */
-    Point2D getCurrentPosition();
+    Point getCurrentPosition();
 
     /**
      * Gets the pointer's old position.
@@ -31,7 +32,7 @@ public interface PointerSpeed {
      * @return a {@link Point2D} instance representing the pointer's old
      *         position
      */
-    Point2D getOldPosition();
+    Point getOldPosition();
 
     /**
      * Gets the vector [current position - old position].
@@ -39,7 +40,7 @@ public interface PointerSpeed {
      * @return a {@link Point2D} instance whose coordinates are [cP.x - oP.x;
      *         cP.y - cP.y]
      */
-    Point2D getVariation();
+    Point getVariation();
 
     /**
      * Sets the pointer's current position and, consequently, updates the old
@@ -49,5 +50,5 @@ public interface PointerSpeed {
      *            is the {@link Point2D} instance representing the pointer's
      *            current position
      */
-    void setCurrentPosition(Point2D point);
+    void setCurrentPosition(Point point);
 }

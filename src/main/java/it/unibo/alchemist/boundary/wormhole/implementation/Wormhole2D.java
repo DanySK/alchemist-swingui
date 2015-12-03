@@ -10,6 +10,7 @@ package it.unibo.alchemist.boundary.wormhole.implementation;
 
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Dimension2D;
 import java.awt.geom.NoninvertibleTransformException;
@@ -20,7 +21,9 @@ import org.slf4j.LoggerFactory;
 
 import it.unibo.alchemist.boundary.wormhole.interfaces.IWormhole2D;
 import it.unibo.alchemist.model.interfaces.IEnvironment;
+import it.unibo.alchemist.model.interfaces.IPosition;
 
+import static it.unibo.alchemist.boundary.wormhole.implementation.PointAdapter.from;
 /**
  * Partial implementation for the interface {@link IWormhole2D}.<br>
  * I am considering the particular case of the view as an entity into the
@@ -31,8 +34,8 @@ public class Wormhole2D implements IWormhole2D {
 
     private final IEnvironment<?> model;
     private final Component view;
-    private Point2D position;
-    private Point2D effectCenter = new Point2D.Double(0, 0);
+    private PointAdapter position;
+    private PointAdapter effectCenter = from(0, 0);
     private double zoom = 1d;
     private double angle;
     private double hRate = 1d;
@@ -56,7 +59,7 @@ public class Wormhole2D implements IWormhole2D {
     public Wormhole2D(final IEnvironment<?> env, final Component comp) {
         model = env;
         view = comp;
-        position = new Point2D.Double(0d, comp.getHeight());
+        position = from(0, comp.getHeight());
     }
 
     private double getEnvRatio() {
@@ -127,8 +130,8 @@ public class Wormhole2D implements IWormhole2D {
     }
 
     @Override
-    public Point2D getViewPosition() {
-        return (Point2D) position.clone();
+    public Point getViewPosition() {
+        return position.toPoint();
     }
 
     @Override
@@ -152,7 +155,7 @@ public class Wormhole2D implements IWormhole2D {
     }
 
     @Override
-    public boolean isInsideView(final Point2D viewPoint) {
+    public boolean isInsideView(final Point viewPoint) {
         final double x = viewPoint.getX();
         final double y = viewPoint.getY();
         final Dimension2D vs = getViewSize();
@@ -165,8 +168,8 @@ public class Wormhole2D implements IWormhole2D {
 //    }
 
     @Override
-    public void setEnvPosition(final Point2D pos) {
-        setViewPosition(getViewPoint(new Point2D.Double(pos.getX(), pos.getY())));
+    public void setEnvPosition(final IPosition pos) {
+        setViewPosition(getViewPoint(pos));
     }
 
     /**
@@ -175,8 +178,8 @@ public class Wormhole2D implements IWormhole2D {
      * @param envPoint
      *            is a {@link Point2D} into the env-space
      */
-    private void setEnvPositionWithoutMoving(final Point2D envPoint) {
-        setViewPositionWithoutMoving(getViewPoint(new Point2D.Double(envPoint.getX(), envPoint.getY())));
+    private void setEnvPositionWithoutMoving(final PointAdapter envPoint) {
+        setViewPositionWithoutMoving(viewPointFromEnv(envPoint));
     }
 
     /**
@@ -205,12 +208,12 @@ public class Wormhole2D implements IWormhole2D {
 
     @Override
     public void setRotation(final double rad) {
-        angle = rad % NSEAlg2DHelper.PI2;
+        angle = rad % (Math.PI * 2d);
     }
 
     @Override
-    public void setViewPosition(final Point2D point) {
-        position = new Point2D.Double(point.getX(), point.getY());
+    public void setViewPosition(final Point point) {
+        position = from(point);
     }
 
     /**
@@ -219,29 +222,24 @@ public class Wormhole2D implements IWormhole2D {
      * @param viewPoint
      *            is a {@link Point2D} into the view-space
      */
-    private void setViewPositionWithoutMoving(final Point2D viewPoint) {
-        final Point2D envDelta = NSEAlg2DHelper.variation(getEnvPoint(new Point2D.Double(viewPoint.getX(), viewPoint.getY())), getEnvPoint(position));
-        position = new Point2D.Double(viewPoint.getX(), viewPoint.getY());
-        effectCenter = NSEAlg2DHelper.sum(effectCenter, envDelta);
+    private void setViewPositionWithoutMoving(final PointAdapter viewPoint) {
+        final PointAdapter envDelta = envPointFromView(viewPoint).diff(envPointFromView(position));
+        position = viewPoint;
+        effectCenter = effectCenter.sum(envDelta);
     }
 
-//    @Override
-//    public void setViewSize(final Dimension2D size) {
-//        viewSize = new DoubleDimension(size.getWidth(), size.getHeight());
-//    }
-
     @Override
-    public void rotateAroundPoint(final Point2D p, final double a) {
-        final Point2D orig = effectCenter;
-        setViewPositionWithoutMoving(p);
+    public void rotateAroundPoint(final Point p, final double a) {
+        final PointAdapter orig = effectCenter;
+        setViewPositionWithoutMoving(from(p));
         setRotation(a);
         setEnvPositionWithoutMoving(orig);
     }
 
     @Override
-    public void zoomOnPoint(final Point2D p, final double z) {
-        final Point2D orig = effectCenter;
-        setViewPositionWithoutMoving(p);
+    public void zoomOnPoint(final Point p, final double z) {
+        final PointAdapter orig = effectCenter;
+        setViewPositionWithoutMoving(from(p));
         setZoom(z);
         setEnvPositionWithoutMoving(orig);
     }
@@ -272,42 +270,57 @@ public class Wormhole2D implements IWormhole2D {
     }
 
     @Override
-    public Point2D getEnvPoint(final Point2D viewPoint) {
-        final Point2D vp = new Point2D.Double(viewPoint.getX(), viewPoint.getY());
+    public IPosition getEnvPoint(final Point viewPoint) {
+//        final Point2D vp = new Point2D.Double(viewPoint.getX(), viewPoint.getY());
+//        final AffineTransform t = calculateTransform();
+//        try {
+//            t.inverseTransform(vp, vp);
+//        } catch (final NoninvertibleTransformException e) {
+//            L.error(e.getMessage());
+//        }
+//        return toIPosition(NSEAlg2DHelper.sum(vp, getEffectApplicationCenter()));
+        return envPointFromView(from(viewPoint)).toPosition();
+    }
+    
+    protected PointAdapter envPointFromView(PointAdapter viewPoint) {
+        final Point vp = viewPoint.toPoint();
         final AffineTransform t = calculateTransform();
         try {
             t.inverseTransform(vp, vp);
         } catch (final NoninvertibleTransformException e) {
             L.error(e.getMessage());
         }
-        return NSEAlg2DHelper.sum(vp, getEffectApplicationCenter());
+        return from(vp);
+    }
+
+    protected PointAdapter viewPointFromEnv(PointAdapter envPoint) {
+        final PointAdapter envp = envPoint.diff(effectCenter);
+        final Point2D ep = envp.toPoint2D();
+        final AffineTransform t = calculateTransform();
+        t.transform(ep, ep);
+        return from(ep);
     }
 
     @Override
-    public Point2D getViewPoint(final Point2D envPoint) {
-        final Point2D ep = NSEAlg2DHelper.subtract(envPoint, getEffectApplicationCenter());
-        final AffineTransform t = calculateTransform();
-        t.transform(ep, ep);
-        return ep;
+    public Point getViewPoint(final IPosition envPoint) {
+//        final Point2D ep = PointAdapter.subtract(envPoint, effectCenter);
+//        final AffineTransform t = calculateTransform();
+//        t.transform(ep, ep);
+//        return toPoint(ep);
+        return viewPointFromEnv(from(envPoint)).toPoint();
     }
 
-    private Point2D getEffectApplicationCenter() {
-        return effectCenter;
-    }
-
-    protected final double[] getEnvironmentOffset() {
-        return model.getOffset();
-    }
-
-    protected final double[] getEnvironmentSize() {
-        return model.getSize();
+    protected final IEnvironment<?> getEnvironment() {
+        return model;
     }
 
     @Override
     public void center() {
-        final double[] off = getEnvironmentOffset();
-        final double[] size = getEnvironmentSize();
-        setEnvPosition(new Point2D.Double(off[0] + size[0] / 2, off[1] + size[1] / 2));
+        System.out.println(position);
+        final double[] off = getEnvironment().getOffset();
+        final double[] size = getEnvironment().getSize();
+        setEnvPosition(from(off[0] + size[0] / 2, off[1] + size[1] / 2).toPosition());
+        System.out.println(position);
     }
 
 }
