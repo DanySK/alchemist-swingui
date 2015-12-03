@@ -112,7 +112,6 @@ public abstract class Abstract2DDisplay<T> extends JPanel implements Graphical2D
     private final Semaphore mutex = new Semaphore(1);
     private INode<T> nearest;
     private final MouseManager mouseManager = new MouseManager();
-    private final ComponentManager componentManager = new ComponentManager();
 
     /**
      * @param env
@@ -185,7 +184,6 @@ public abstract class Abstract2DDisplay<T> extends JPanel implements Graphical2D
         removeMouseListener(mouseManager);
         removeMouseMotionListener(mouseManager);
         removeMouseWheelListener(mouseManager);
-        removeComponentListener(componentManager);
         removeAll();
         this.setVisible(false);
     }
@@ -350,7 +348,6 @@ public abstract class Abstract2DDisplay<T> extends JPanel implements Graphical2D
         addMouseListener(mouseManager);
         addMouseMotionListener(mouseManager);
         addMouseWheelListener(mouseManager);
-        addComponentListener(componentManager);
     }
 
     @Override
@@ -606,25 +603,6 @@ public abstract class Abstract2DDisplay<T> extends JPanel implements Graphical2D
             }
         }
 
-    }
-
-    private class ComponentManager implements ComponentListener {
-        @Override
-        public void componentHidden(final ComponentEvent e) {
-        }
-        @Override
-        public void componentMoved(final ComponentEvent e) {
-        }
-        @Override
-        public void componentResized(final ComponentEvent e) {
-            if (wormhole != null) {
-                inited = true;
-            }
-            updateView();
-        }
-        @Override
-        public void componentShown(final ComponentEvent e) {
-        }
     }
 
     @Override
