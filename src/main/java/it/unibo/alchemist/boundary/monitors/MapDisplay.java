@@ -62,16 +62,6 @@ public class MapDisplay<T> extends Abstract2DDisplay<T> {
     }
 
     @Override
-    public void dispose() {
-        super.dispose();
-        this.removeAll();
-        if (mapView != null) {
-            remove(mapView);
-        }
-        mapView = null;
-    }
-
-    @Override
     protected void drawBackground(final Graphics2D g) {
     }
 

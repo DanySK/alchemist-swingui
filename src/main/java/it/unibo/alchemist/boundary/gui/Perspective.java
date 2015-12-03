@@ -95,7 +95,6 @@ public class Perspective<T> extends JPanel implements ChangeListener, ActionList
 
     private void dispose() {
         if (main != null) {
-            main.dispose();
             if (sim != null) {
                 sim.removeOutputMonitor(main);
             }
@@ -245,7 +244,6 @@ public class Perspective<T> extends JPanel implements ChangeListener, ActionList
             gom.setStep(main.getStep());
             gom.setRealTime(main.isRealTime());
             remove((Component) main);
-            main.dispose();
         }
         main = gom;
         if (sim != null) {

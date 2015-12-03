@@ -18,11 +18,6 @@ import java.util.List;
 public interface GraphicalOutputMonitor<T> extends OutputMonitor<T> {
 
     /**
-     * 
-     */
-    void dispose();
-
-    /**
      * @return how many simulation steps this monitor updates the graphics
      */
     int getStep();

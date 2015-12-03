@@ -174,15 +174,6 @@ public abstract class Abstract2DDisplay<T> extends JPanel implements Graphical2D
         return path;
     }
 
-    @Override
-    public void dispose() {
-        removeMouseListener(mouseManager);
-        removeMouseMotionListener(mouseManager);
-        removeMouseWheelListener(mouseManager);
-        removeAll();
-        this.setVisible(false);
-    }
-
     /**
      * This method is meant to be overridden by subclasses that want to display
      * a more sophisticated background than a simple color.
