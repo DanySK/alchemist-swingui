@@ -59,10 +59,10 @@ public class TimeStepMonitor<T> extends JPanel implements OutputMonitor<T> {
                 scheduleUpdate();
             } while (updaterAlive);
         }
-        void stop() {
+        public void stop() {
             updaterAlive = false;
         }
-        void update() {
+        public void update() {
             mutex.release();
         }
     }
