@@ -128,8 +128,8 @@ public class JMonitorsTab<T> extends JTapeTab implements ItemListener {
 
     protected void remOutputMonitor(final JOutputMonitorRepresentation<T> mon) {
         if (mon != null) {
-            if(simulation != null) {
-                simulation.removeOutputMonitor(mon.getMonitor());
+            if (simulation != null) {
+                simulation.stop();
             }
             monitors.remove(mon);
             monitorsFS.remove(mon);

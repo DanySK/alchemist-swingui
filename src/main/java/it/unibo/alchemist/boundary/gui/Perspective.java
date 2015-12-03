@@ -278,4 +278,12 @@ public class Perspective<T> extends JPanel implements ChangeListener, ActionList
         }
     }
 
+    @Override
+    protected void finalize() throws Throwable {
+        if (sim != null) {
+            sim.stop();
+        }
+        super.finalize();
+    }
+
 }

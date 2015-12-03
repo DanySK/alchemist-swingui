@@ -8,6 +8,17 @@
  */
 package it.unibo.alchemist.boundary.gui;
 
+import java.awt.event.ActionListener;
+import java.util.EnumMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import javax.swing.AbstractButton;
+
+import com.google.common.collect.MapMaker;
+
 import it.unibo.alchemist.boundary.gui.tape.JTapeFeatureStack;
 import it.unibo.alchemist.boundary.gui.tape.JTapeGroup;
 import it.unibo.alchemist.boundary.gui.tape.JTapeMainFeature;
@@ -15,16 +26,6 @@ import it.unibo.alchemist.boundary.gui.tape.JTapeSection;
 import it.unibo.alchemist.boundary.l10n.Res;
 import it.unibo.alchemist.core.interfaces.ISimulation;
 import it.unibo.alchemist.core.interfaces.Status;
-
-import java.awt.event.ActionListener;
-import java.util.EnumMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
-import javax.swing.AbstractButton;
 
 /**
  * This class maintains multiple control panels for controlling a simulation,
@@ -35,7 +36,8 @@ public final class SimControlPanel extends JTapeGroup {
 
     private static final long serialVersionUID = 8245609434257107323L;
 
-    private static final Map<ISimulation<?>, Set<SimControlPanel>> SIMCONTROLMAP = new ConcurrentHashMap<>();
+    private static final Map<ISimulation<?>, Set<SimControlPanel>> SIMCONTROLMAP = new MapMaker()
+            .weakKeys().makeMap();
 
     private boolean down;
 
