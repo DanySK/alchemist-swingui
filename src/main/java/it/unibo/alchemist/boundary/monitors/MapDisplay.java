@@ -8,32 +8,16 @@
  */
 package it.unibo.alchemist.boundary.monitors;
 
-import it.unibo.alchemist.boundary.wormhole.implementation.LinearZoomManager;
-import it.unibo.alchemist.boundary.wormhole.implementation.MapWormhole;
-import it.unibo.alchemist.model.interfaces.IEnvironment;
-import it.unibo.alchemist.model.interfaces.IMapEnvironment;
-import it.unibo.alchemist.model.interfaces.ITime;
-
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.geom.Point2D;
 import java.io.File;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.mapsforge.map.model.MapViewPosition;
-import org.mapsforge.map.model.Model;
-import org.mapsforge.map.rendertheme.InternalRenderTheme;
-import org.mapsforge.map.swing.MapViewer;
-import org.mapsforge.core.graphics.Canvas;
 import org.mapsforge.core.graphics.GraphicFactory;
-import org.mapsforge.core.model.BoundingBox;
-import org.mapsforge.core.model.Point;
 import org.mapsforge.map.awt.graphics.AwtGraphicFactory;
 import org.mapsforge.map.awt.view.MapView;
-import org.mapsforge.map.layer.Layer;
 import org.mapsforge.map.layer.cache.FileSystemTileCache;
 import org.mapsforge.map.layer.cache.InMemoryTileCache;
 import org.mapsforge.map.layer.cache.TileCache;
@@ -41,7 +25,12 @@ import org.mapsforge.map.layer.cache.TwoLevelTileCache;
 import org.mapsforge.map.layer.download.TileDownloadLayer;
 import org.mapsforge.map.layer.download.tilesource.OpenStreetMapMapnik;
 import org.mapsforge.map.layer.download.tilesource.TileSource;
-import org.mapsforge.map.layer.renderer.TileRendererLayer;
+import org.mapsforge.map.model.Model;
+
+import it.unibo.alchemist.boundary.wormhole.implementation.LinearZoomManager;
+import it.unibo.alchemist.boundary.wormhole.implementation.MapWormhole;
+import it.unibo.alchemist.model.interfaces.IEnvironment;
+import it.unibo.alchemist.model.interfaces.ITime;
 
 /**
  * 
@@ -50,8 +39,10 @@ import org.mapsforge.map.layer.renderer.TileRendererLayer;
 public class MapDisplay<T> extends Abstract2DDisplay<T> {
     private static final long serialVersionUID = 8593507198560560646L;
     private static final GraphicFactory GRAPHIC_FACTORY = AwtGraphicFactory.INSTANCE;
+    private static final int IN_MEMORY_TILES = 256;
+    private static final int ON_DISK_TILES = 2048;
     private static final AtomicInteger IDGEN = new AtomicInteger();
-    private MapView mapView;
+    private final MapView mapView = new MapView();
 
     /**
      * 
@@ -59,6 +50,11 @@ public class MapDisplay<T> extends Abstract2DDisplay<T> {
     public MapDisplay() {
         super();
         setLayout(new BorderLayout());
+        final TileDownloadLayer tdl = createTileDownloadLayer(createTileCache(), mapView.getModel());
+        mapView.addLayer(tdl);
+        tdl.start();
+        mapView.getMapScaleBar().setVisible(true);
+        add(mapView);
     }
 
     @Override
@@ -77,36 +73,33 @@ public class MapDisplay<T> extends Abstract2DDisplay<T> {
     @Override
     public void initialized(final IEnvironment<T> env) {
         super.initialized(env);
-        final IMapEnvironment<T> e = (IMapEnvironment<T>) env;
-        mapView = new MapView();
         Arrays.stream(getMouseListeners()).forEach(mapView::addMouseListener);
         Arrays.stream(getMouseMotionListeners()).forEach(mapView::addMouseMotionListener);
         Arrays.stream(getMouseWheelListeners()).forEach(mapView::addMouseWheelListener);
-        TileDownloadLayer tdl = createTileDownloadLayer(createTileCache(), mapView.getModel());
-        mapView.addLayer(tdl);
-        tdl.start();
         setWormhole(new MapWormhole(env, this, mapView.getModel().mapViewPosition));
         setZoomManager(new LinearZoomManager(1, 1, 2, MapWormhole.MAX_ZOOM));
         getWormhole().optimalZoom();
         getZoomManager().setZoom(getWormhole().getZoom());
-        mapView.getMapScaleBar().setVisible(true);
-        add(mapView);
-        revalidate();
         super.initialized(env);
     }
 
     private static TileCache createTileCache() {
-        TileCache firstLevelTileCache = new InMemoryTileCache(128);
-        File cacheDirectory = new File(System.getProperty("java.io.tmpdir"), "mapsforge" + IDGEN.getAndIncrement());
-        TileCache secondLevelTileCache = new FileSystemTileCache(1024, cacheDirectory, GRAPHIC_FACTORY);
+        final TileCache firstLevelTileCache = new InMemoryTileCache(IN_MEMORY_TILES);
+        final String tmpdir = System.getProperty("java.io.tmpdir");
+        final File cacheDirectory = new File(tmpdir, "mapsforge" + IDGEN.getAndIncrement());
+        final TileCache secondLevelTileCache = new FileSystemTileCache(ON_DISK_TILES, cacheDirectory, GRAPHIC_FACTORY);
         return new TwoLevelTileCache(firstLevelTileCache, secondLevelTileCache);
     }
 
     private static TileDownloadLayer createTileDownloadLayer(final TileCache tileCache, final Model model) {
-        TileSource tileSource = OpenStreetMapMapnik.INSTANCE;
-        TileDownloadLayer tileDownloadLayer = new TileDownloadLayer(tileCache, model.mapViewPosition, tileSource, GRAPHIC_FACTORY);
-        tileDownloadLayer.setDisplayModel(model.displayModel);
-        return tileDownloadLayer;
+        final TileSource tileSource = OpenStreetMapMapnik.INSTANCE;
+        final TileDownloadLayer tdl = new TileDownloadLayer(
+                tileCache,
+                model.mapViewPosition,
+                tileSource,
+                GRAPHIC_FACTORY);
+        tdl.setDisplayModel(model.displayModel);
+        return tdl;
     }
 
     @Override
