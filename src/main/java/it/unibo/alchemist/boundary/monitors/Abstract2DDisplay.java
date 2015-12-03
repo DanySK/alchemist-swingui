@@ -608,9 +608,9 @@ public abstract class Abstract2DDisplay<T> extends JPanel implements Graphical2D
         assert center.getDimensions() == 2;
         wormhole.zoomOnPoint(new Point2D.Double(center.getCoordinate(0), center.getCoordinate(1)), zoomLevel);
     }
-    
+
     @Override
-    protected void paintComponent(Graphics g) {
+    protected void paintComponent(final Graphics g) {
         super.paintComponent(g);
         drawBackground((Graphics2D) g);
         drawEnvOnView((Graphics2D) g);
