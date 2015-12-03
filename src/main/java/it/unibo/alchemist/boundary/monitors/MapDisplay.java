@@ -36,7 +36,7 @@ import it.unibo.alchemist.model.interfaces.ITime;
  * 
  * @param <T>
  */
-public class MapDisplay<T> extends Abstract2DDisplay<T> {
+public class MapDisplay<T> extends Generic2DDisplay<T> {
     private static final long serialVersionUID = 8593507198560560646L;
     private static final GraphicFactory GRAPHIC_FACTORY = AwtGraphicFactory.INSTANCE;
     private static final int IN_MEMORY_TILES = 256;
