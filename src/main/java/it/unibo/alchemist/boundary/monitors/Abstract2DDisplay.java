@@ -384,10 +384,10 @@ public abstract class Abstract2DDisplay<T> extends JPanel implements Graphical2D
         obstacles = ((IEnvironment2DWithObstacles<?, ?>) env).getObstacles();
     }
 
-    /**
-     * 
-     */
-    protected abstract void onFirstResizing();
+//    /**
+//     * 
+//     */
+//    protected abstract void onFirstResizing();
 
     /**
      * Call this method if you want this monitor to be bound to a new
@@ -618,11 +618,7 @@ public abstract class Abstract2DDisplay<T> extends JPanel implements Graphical2D
         @Override
         public void componentResized(final ComponentEvent e) {
             if (wormhole != null) {
-//                wormhole.setViewSize(getSize());
-                if (!inited) {
-                    onFirstResizing();
-                    inited = true;
-                }
+                inited = true;
             }
             updateView();
         }

@@ -66,7 +66,6 @@ public class MapDisplay<T> extends Abstract2DDisplay<T> {
         super.dispose();
         this.removeAll();
         if (mapView != null) {
-//            mapView.dispose();
             remove(mapView);
         }
         mapView = null;
@@ -100,7 +99,6 @@ public class MapDisplay<T> extends Abstract2DDisplay<T> {
         setZoomManager(new LinearZoomManager(1, 1, 2, MapWormhole.MAX_ZOOM));
         getWormhole().optimalZoom();
         getZoomManager().setZoom(getWormhole().getZoom());
-//        add(MapViewer.createMapView(mapView, mapModel, getMapFile(e.getMapFile())), BorderLayout.CENTER);
         mapView.getMapScaleBar().setVisible(true);
         add(mapView);
         revalidate();
@@ -119,11 +117,6 @@ public class MapDisplay<T> extends Abstract2DDisplay<T> {
         TileDownloadLayer tileDownloadLayer = new TileDownloadLayer(tileCache, model.mapViewPosition, tileSource, GRAPHIC_FACTORY);
         tileDownloadLayer.setDisplayModel(model.displayModel);
         return tileDownloadLayer;
-    }
-
-    @Override
-    protected void onFirstResizing() {
-
     }
 
     @Override

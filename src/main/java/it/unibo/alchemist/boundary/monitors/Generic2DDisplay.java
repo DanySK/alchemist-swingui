@@ -42,16 +42,6 @@ public class Generic2DDisplay<T> extends Abstract2DDisplay<T> {
 
     @Override
     protected void drawBackground(final Graphics2D g) {
-        /*
-         * Unused
-         */
-    }
-
-    @Override
-    protected void onFirstResizing() {
-        getWormhole().setViewPosition(new Point2D.Double(0, getSize().getHeight()));
-        getWormhole().optimalZoom();
-        getZoomManager().setZoom(getWormhole().getZoom());
     }
 
 }
