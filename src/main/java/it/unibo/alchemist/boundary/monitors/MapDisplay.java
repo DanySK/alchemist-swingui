@@ -67,7 +67,7 @@ public class MapDisplay<T> extends Generic2DDisplay<T> {
         if (mapView != null) {
             mapView.paint(g);
         }
-          drawEnvOnView((Graphics2D) g);
+        drawEnvOnView((Graphics2D) g);
     };
 
     @Override
