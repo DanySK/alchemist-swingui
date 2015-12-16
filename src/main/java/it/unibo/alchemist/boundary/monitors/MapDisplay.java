@@ -75,7 +75,6 @@ public class MapDisplay<T> extends Generic2DDisplay<T> {
         super.initialized(env);
         Arrays.stream(getMouseListeners()).forEach(mapView::addMouseListener);
         Arrays.stream(getMouseMotionListeners()).forEach(mapView::addMouseMotionListener);
-        Arrays.stream(getMouseWheelListeners()).forEach(mapView::addMouseWheelListener);
         setWormhole(new MapWormhole(env, this, mapView.getModel().mapViewPosition));
         setZoomManager(new LinearZoomManager(1, 1, 2, MapWormhole.MAX_ZOOM));
         getWormhole().center();

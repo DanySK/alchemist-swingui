@@ -11,6 +11,7 @@ package it.unibo.alchemist.boundary.wormhole.implementation;
 import java.awt.Component;
 import java.awt.Point;
 import java.awt.geom.Point2D;
+import java.util.Objects;
 import java.util.function.BiFunction;
 
 import org.mapsforge.core.model.LatLong;
@@ -93,11 +94,11 @@ public final class MapWormhole extends Wormhole2D {
         return MAPSFORGE_TILE_SIZE << mapModel.getZoomLevel();
     }
     
-    private PointAdapter coordToPx(PointAdapter pt) {
+    private PointAdapter coordToPx(final PointAdapter pt) {
         return from(lonToPxX(pt.getX()), latToPxY(pt.getY()));
     }
 
-    private PointAdapter pxToCoord(PointAdapter pt) {
+    private PointAdapter pxToCoord(final PointAdapter pt) {
         return from(pxXToLon(pt.getX()), pxYToLat(pt.getY()));
     }
 
