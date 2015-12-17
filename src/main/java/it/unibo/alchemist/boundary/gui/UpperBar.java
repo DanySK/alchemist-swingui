@@ -30,7 +30,7 @@ import javax.swing.event.ChangeListener;
 
 /**
  */
-public class UpperBar extends JTape {
+public final class UpperBar extends JTape {
 
     /**
      */
