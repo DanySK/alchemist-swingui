@@ -14,7 +14,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileInputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.Future;
 
 import javax.swing.JFileChooser;
@@ -24,6 +23,9 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import it.unibo.alchemist.boundary.gui.ReactivityPanel.Status;
 import it.unibo.alchemist.boundary.gui.UpperBar.Commands;
@@ -40,7 +42,6 @@ import it.unibo.alchemist.language.EnvironmentBuilder;
 import it.unibo.alchemist.language.EnvironmentBuilder.Result;
 import it.unibo.alchemist.model.implementations.times.DoubleTime;
 import it.unibo.alchemist.model.interfaces.IEnvironment;
-import it.unibo.alchemist.utils.L;
 
 /**
  * @param <T>
@@ -49,6 +50,7 @@ public class Perspective<T> extends JPanel implements ChangeListener, ActionList
 
     private static final long serialVersionUID = -6074331788924400019L;
     private static final FileFilter XML_FILTER = new FileNameExtensionFilter(r(Res.ALCHEMIST_XML), "xml");
+    private static final Logger L = LoggerFactory.getLogger(Perspective.class);
 
     private final UpperBar bar;
 
@@ -151,14 +153,9 @@ public class Perspective<T> extends JPanel implements ChangeListener, ActionList
         }
     }
 
-    @SuppressWarnings("unchecked")
     private void createMonitor() {
-        try {
-            final GraphicalOutputMonitor<T> display = GraphicalMonitorFactory.createMonitor(sim);
-            setMainDisplay(display);
-        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-            L.error(e);
-        }
+        final GraphicalOutputMonitor<T> display = GraphicalMonitorFactory.createMonitor(sim, e -> L.error("Cannot create monitor", e));
+        setMainDisplay(display);
     }
 
     private void openXML() {
@@ -219,7 +216,7 @@ public class Perspective<T> extends JPanel implements ChangeListener, ActionList
             bar.setProcessOK(false);
             status.setText(r(Res.FILE_NOT_VALID) + " " + xml.getAbsolutePath());
             status.setNo();
-            L.error(e);
+            L.error("Process error", e);
         });
     }
 
