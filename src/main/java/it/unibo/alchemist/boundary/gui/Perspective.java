@@ -77,7 +77,7 @@ public class Perspective<T> extends JPanel implements ChangeListener, ActionList
         bar.addActionListener(this);
         bar.addChangeListener(this);
         status = new StatusBar();
-        status.setText(r(Res.SAPERE_PERSPECTIVE));
+        status.setText(r(Res.PERSPECTIVE));
         add(status, BorderLayout.SOUTH);
         setMainDisplay(new Generic2DDisplay<T>());
     }
