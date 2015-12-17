@@ -312,11 +312,9 @@ public class Wormhole2D implements IWormhole2D {
 
     @Override
     public void center() {
-        System.out.println(position);
         final double[] off = getEnvironment().getOffset();
         final double[] size = getEnvironment().getSize();
         setEnvPosition(from(off[0] + size[0] / 2, off[1] + size[1] / 2).toPosition());
-        System.out.println(position);
     }
 
 }
