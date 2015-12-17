@@ -239,7 +239,9 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
                                 ? new Pair<>(neigh.getCenter(), node)
                                 : new Pair<>(node, neigh.getCenter())))
                 .distinct()
-                .map(pair -> mapPair(pair, node -> Optional.ofNullable(onView.get(node)).orElse(wormhole.getViewPoint(positions.get(node)))))
+                .map(pair -> mapPair(pair, node ->
+                        Optional.ofNullable(onView.get(node))
+                        .orElse(wormhole.getViewPoint(positions.get(node)))))
                 .forEachOrdered(line -> {
                     final Point p1 = line.getFirst();
                     final Point p2 = line.getSecond();
