@@ -28,6 +28,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import it.unibo.alchemist.boundary.gui.ReactivityPanel.Status;
 import it.unibo.alchemist.boundary.gui.UpperBar.Commands;
 import it.unibo.alchemist.boundary.gui.effects.JEffectsTab;
+import it.unibo.alchemist.boundary.interfaces.Graphical2DOutputMonitor;
 import it.unibo.alchemist.boundary.interfaces.GraphicalOutputMonitor;
 import it.unibo.alchemist.boundary.l10n.Res;
 import it.unibo.alchemist.boundary.monitors.Generic2DDisplay;
@@ -55,7 +56,7 @@ public class Perspective<T> extends JPanel implements ChangeListener, ActionList
     private GraphicalOutputMonitor<T> main;
     private RandomEngine rand;
     private final SimControlPanel scp = SimControlPanel.createControlPanel(null);
-    private final JEffectsTab<T> effectsTab;
+    private JEffectsTab<T> effectsTab;
     private transient ISimulation<T> sim;
     private final StatusBar status;
     private File xml;
@@ -74,22 +75,18 @@ public class Perspective<T> extends JPanel implements ChangeListener, ActionList
     public Perspective() {
         super();
         setLayout(new BorderLayout());
-
         bar = new UpperBar(scp);
         add(bar, BorderLayout.NORTH);
         bar.addActionListener(this);
         bar.addChangeListener(this);
-
         status = new StatusBar();
         status.setText(r(Res.SAPERE_PERSPECTIVE));
         add(status, BorderLayout.SOUTH);
-
-        effectsTab = new JEffectsTab<>();
+        final Graphical2DOutputMonitor<T> main = new Generic2DDisplay<T>();
+        effectsTab = new JEffectsTab<>(main);
         effectsTab.addLinksToggleActionListener(this);
         effectsTab.setEnabled(false);
-
         bar.registerTab(effectsTab);
-
         setMainDisplay(new Generic2DDisplay<T>());
     }
 
@@ -102,7 +99,7 @@ public class Perspective<T> extends JPanel implements ChangeListener, ActionList
         }
         main = null;
         sim = null;
-        effectsTab.setMonitor(null);
+        effectsTab = null;
     }
 
     @Override
@@ -251,7 +248,7 @@ public class Perspective<T> extends JPanel implements ChangeListener, ActionList
         }
         add((Component) main, BorderLayout.CENTER);
         revalidate();
-        effectsTab.setMonitor(gom);
+        effectsTab = new JEffectsTab<>(gom);
         gom.setDrawLinks(effectsTab.isDrawingLinks());
     }
 

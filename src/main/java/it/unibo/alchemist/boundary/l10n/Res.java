@@ -58,7 +58,7 @@ public enum Res {
         case EFFECT_TAB:
             return "View";
         case ENABLE_DRAW_LINKS:
-            return "Draw the links";
+            return "Draw links";
         case FILE:
             return "File";
         case FILE_NOT_VALID:

@@ -56,7 +56,7 @@ public class JEffectsTab<T> extends JTapeTab implements ItemListener {
      */
     private static final long serialVersionUID = 5687806032498247246L;
     private static final String EXT = ".aes", DESC = "Alchemist Effect Stack";
-    private GraphicalOutputMonitor<T> main;
+    private final GraphicalOutputMonitor<T> main;
     private final List<ActionListener> listeners = new LinkedList<>();
     private final JTapeFeatureStack stackSec;
     private final JButton addEffectButton, remEffectButton, saveButton, loadButton, moveLeftButton, moveRightButton;
@@ -70,9 +70,13 @@ public class JEffectsTab<T> extends JTapeTab implements ItemListener {
 
     /**
      * Initialize the component.
+     * 
+     * @param main
+     *            the target {@link GraphicalOutputMonitor}
      */
-    public JEffectsTab() {
+    public JEffectsTab(final GraphicalOutputMonitor<T> main) {
         super(r(Res.EFFECT_TAB));
+        this.main = main;
         stackSec = new JTapeFeatureStack(Type.HORIZONTAL_STACK);
         final JTapeGroup showGroup = new JTapeGroup(r(Res.SHOW_GROUP));
         final JTapeGroup effectsGroup = new JTapeGroup(r(Res.EFFECTS_GROUP));
@@ -136,6 +140,7 @@ public class JEffectsTab<T> extends JTapeTab implements ItemListener {
         final Effect defaultEffect = EffectFactory.buildDefaultEffect();
         addEffect(defaultEffect);
         genEvents();
+        main.setEffectStack(getEffects());
     }
 
     /**
@@ -278,24 +283,21 @@ public class JEffectsTab<T> extends JTapeTab implements ItemListener {
         }
     }
 
-    /**
-     * Sets the {@link GraphicalOutputMonitor} to use.
-     * 
-     * @param d
-     *            the {@link GraphicalOutputMonitor} to use
-     */
-    @SuppressWarnings("unchecked")
-    public void setMonitor(final GraphicalOutputMonitor<T> d) {
-        main = d;
-        if (main != null) {
-            main.setEffectStack(getEffects());
-        }
-        for (final Component c : stackSec.getOrderedComponents()) {
-            if (c instanceof JEffectRepresentation) {
-                ((JEffectRepresentation<T>) c).setMonitor(main);
-            }
-        }
-    }
+//    /**
+//     * Sets the {@link GraphicalOutputMonitor} to use.
+//     * 
+//     * @param d
+//     *            the {@link GraphicalOutputMonitor} to use
+//     */
+//    @SuppressWarnings("unchecked")
+//    private void setMonitor() {
+//        main.setEffectStack(getEffects());
+//        for (final Component c : stackSec.getOrderedComponents()) {
+//            if (c instanceof JEffectRepresentation) {
+//                ((JEffectRepresentation<T>) c).setMonitor(main);
+//            }
+//        }
+//    }
 
     private JFileChooser makeFileChooser() {
         final JFileChooser fc = new JFileChooser();

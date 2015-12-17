@@ -144,6 +144,9 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
         addMouseListener(mgr);
         addMouseMotionListener(mgr);
         addMouseWheelListener(mgr);
+    }
+
+    private void bindKeys() {
         bindKey(KeyEvent.VK_M, () -> setMarkCloserNode(!isCloserNodeMarked()));
         bindKey(KeyEvent.VK_L, () -> setDrawLinks(!paintLinks));
         bindKey(KeyEvent.VK_P, () -> Optional.ofNullable(Simulation.fromEnvironment(currentEnv))
@@ -157,8 +160,9 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
         bindKey(KeyEvent.VK_R, () -> setRealTime(!isRealTime()));
         bindKey(KeyEvent.VK_LEFT, () -> setStep(Math.max(1, st - Math.max(st / 10, 1))));
         bindKey(KeyEvent.VK_RIGHT, () -> setStep(Math.max(st, st + Math.max(st / 10, 1))));
+//        bindKey(KeyEvent.VK_E, () -> makeFrame("Effects", content));
     }
-
+    
     private void accessData() {
         mapConsistencyMutex.acquireUninterruptibly();
     }
@@ -543,7 +547,7 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
                 final NodeTracker<T> monitor = new NodeTracker<>(nearest);
                 monitor.stepDone(currentEnv, null, new DoubleTime(lasttime), st);
                 final ISimulation<T> sim = Simulation.fromEnvironment(currentEnv);
-                final JFrame frame = new JFrame("Tracker for node " + nearest.getId());
+                final JFrame frame = makeFrame("Tracker for node " + nearest.getId(), monitor);
                 if (sim != null) {
                     sim.addOutputMonitor(monitor);
                     frame.addWindowListener(new WindowAdapter() {
@@ -553,10 +557,6 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
                         }
                     });
                 }
-                frame.getContentPane().add(monitor);
-                frame.setLocationByPlatform(true);
-                frame.pack();
-                frame.setVisible(true);
             }
             if (nearest != null && SwingUtilities.isMiddleMouseButton(e)) {
                 hooked = hooked.isPresent() ? Optional.empty() : Optional.of(nearest);
@@ -629,6 +629,15 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
 
     }
 
+    private static JFrame makeFrame(String title, JPanel content) {
+        final JFrame frame = new JFrame(title);
+        frame.getContentPane().add(content);
+        frame.setLocationByPlatform(true);
+        frame.pack();
+        frame.setVisible(true);
+        return frame;
+    }
+    
     private void bindKey(final int key, final Runnable fun) {
         final Object binder = "Key: " + key;
         getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(key, 0), binder);
