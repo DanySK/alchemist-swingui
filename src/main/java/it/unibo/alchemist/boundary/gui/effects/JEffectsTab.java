@@ -78,16 +78,13 @@ public class JEffectsTab<T> extends JTapeTab implements ItemListener {
             SwingUtilities.convertPointToScreen(location, parent);
             eb.setLocation(location);
             eb.setVisible(true);
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        final Effect effect = EffectFactory.buildEffect(eb.getResult());
-                        addEffect(effect);
-                        genEvents();
-                    } catch (final Exception e1) {
-                        GUIUtilities.errorMessage(e1);
-                    }
+            new Thread(() -> {
+                try {
+                    final Effect effect = EffectFactory.buildEffect(eb.getResult());
+                    addEffect(effect);
+                    genEvents();
+                } catch (final Exception e1) {
+                    GUIUtilities.errorMessage(e1);
                 }
             }).start();
         }
