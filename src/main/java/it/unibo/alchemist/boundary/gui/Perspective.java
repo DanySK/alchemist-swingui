@@ -28,7 +28,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import it.unibo.alchemist.boundary.gui.ReactivityPanel.Status;
 import it.unibo.alchemist.boundary.gui.UpperBar.Commands;
 import it.unibo.alchemist.boundary.gui.effects.JEffectsTab;
-import it.unibo.alchemist.boundary.interfaces.Graphical2DOutputMonitor;
+import it.unibo.alchemist.boundary.gui.util.GraphicalMonitorFactory;
 import it.unibo.alchemist.boundary.interfaces.GraphicalOutputMonitor;
 import it.unibo.alchemist.boundary.l10n.Res;
 import it.unibo.alchemist.boundary.monitors.Generic2DDisplay;
@@ -61,9 +61,6 @@ public class Perspective<T> extends JPanel implements ChangeListener, ActionList
     private final StatusBar status;
     private File xml;
 
-    @SuppressWarnings("rawtypes")
-    private static final Class<? extends GraphicalOutputMonitor> DEFAULT_MONITOR_CLASS = Generic2DDisplay.class;
-    private static final String DEFAULT_MONITOR_PACKAGE = "it.unibo.alchemist.boundary.monitors.";
 
     private static String r(final Res res) {
         return Res.get(res);
@@ -159,23 +156,8 @@ public class Perspective<T> extends JPanel implements ChangeListener, ActionList
 
     @SuppressWarnings("unchecked")
     private void createMonitor() {
-        String monitorClassName = sim.getEnvironment().getPreferredMonitor();
-        Class<? extends GraphicalOutputMonitor<T>> monitorClass;
-        if (monitorClassName == null) {
-            monitorClass = (Class<? extends GraphicalOutputMonitor<T>>) DEFAULT_MONITOR_CLASS;
-        } else {
-            if (!monitorClassName.contains(".")) {
-                monitorClassName = DEFAULT_MONITOR_PACKAGE + monitorClassName;
-            }
-            try {
-                monitorClass = (Class<GraphicalOutputMonitor<T>>) Class.forName(monitorClassName);
-            } catch (final ClassNotFoundException e) {
-                L.warn(e);
-                monitorClass = (Class<? extends GraphicalOutputMonitor<T>>) DEFAULT_MONITOR_CLASS;
-            }
-        }
         try {
-            final GraphicalOutputMonitor<T> display = monitorClass.getConstructor().newInstance();
+            final GraphicalOutputMonitor<T> display = GraphicalMonitorFactory.createMonitor(sim);
             setMainDisplay(display);
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             L.error(e);
