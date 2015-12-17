@@ -63,87 +63,12 @@ public class JEffectsTab<T> extends JTapeTab implements ItemListener {
     private final JToggleButton paintLinksButton;
     private File currentDirectory = new File(System.getProperty("user.home"));
     private JEffectRepresentation<T> selected;
-    private static final FileFilter FF = new FileFilter() {
-        @Override
-        public boolean accept(final File f) {
-            return f.getName().endsWith(EXT) || f.isDirectory();
-        }
-        @Override
-        public String getDescription() {
-            return DESC;
-        }
-    };
-
-    private final ActionListener saveActionListener = new ActionListener() {
-        @Override
-        public void actionPerformed(final ActionEvent e) {
-            final JFileChooser fc = new JFileChooser();
-            fc.setFileFilter(FF);
-            fc.setCurrentDirectory(currentDirectory);
-            final int result = fc.showSaveDialog(null);
-            if (result == JFileChooser.APPROVE_OPTION) {
-                currentDirectory = fc.getSelectedFile().getParentFile();
-                try {
-                    final File f = fc.getSelectedFile();
-                    final File fileToWrite = f.getName().endsWith(EXT) ? f : new File(f.getAbsolutePath() + EXT);
-                    FileUtilities.objectToFile(getEffects(), fileToWrite, false);
-                } catch (final IOException e1) {
-                    GUIUtilities.errorMessage(e1);
-                }
-            }
-        }
-    };
-
-    private final ActionListener loadActionListener = new ActionListener() {
-        @Override
-        public void actionPerformed(final ActionEvent e) {
-            final JFileChooser fc = new JFileChooser();
-            fc.setFileFilter(FF);
-            fc.setCurrentDirectory(currentDirectory);
-            final int result = fc.showOpenDialog(null);
-            if (result == JFileChooser.APPROVE_OPTION) {
-                currentDirectory = fc.getSelectedFile().getParentFile();
-                try {
-                    clearEffects();
-                    @SuppressWarnings("unchecked")
-                    final List<Effect> effects = (List<Effect>) FileUtilities.fileToObject(fc.getSelectedFile());
-                    setEffects(effects);
-                    revalidate();
-                } catch (IOException | ClassNotFoundException e1) {
-                    GUIUtilities.errorMessage(e1);
-                }
-            }
-        }
-    };
-    private final ActionListener removeActionListener = new ActionListener() {
-        @Override
-        public void actionPerformed(final ActionEvent e) {
-            if (selected != null) {
-                stackSec.unregisterFeature(selected);
-                selected = null;
-                genEvents();
-            }
-        }
-    };
-    private final ActionListener moveLeftActionListener = new ActionListener() {
-        @Override
-        public void actionPerformed(final ActionEvent e) {
-            moveSelectedLeft();
-        }
-    };
-    private final ActionListener moveRightActionListener = new ActionListener() {
-        @Override
-        public void actionPerformed(final ActionEvent e) {
-            moveSelectedRight();
-        }
-    };
-
     private class CreateEffectBuilder implements ActionListener {
         private final Component parent;
 
-        public CreateEffectBuilder(final Component p) {
+        CreateEffectBuilder(final Component p) {
             parent = p;
-        };
+        }
 
         @Override
         public void actionPerformed(final ActionEvent e) {
@@ -177,6 +102,7 @@ public class JEffectsTab<T> extends JTapeTab implements ItemListener {
      */
     public JEffectsTab() {
         super(r(Res.EFFECT_TAB));
+        stackSec = new JTapeFeatureStack(Type.HORIZONTAL_STACK);
         final JTapeGroup showGroup = new JTapeGroup(r(Res.SHOW_GROUP));
         final JTapeGroup effectsGroup = new JTapeGroup(r(Res.EFFECTS_GROUP));
 
@@ -189,9 +115,9 @@ public class JEffectsTab<T> extends JTapeTab implements ItemListener {
 
         final JTapeSection saveLoadSec = new JTapeFeatureStack(Type.VERTICAL_STACK);
         saveButton = new JButton(r(Res.SAVE));
-        saveButton.addActionListener(saveActionListener);
+        saveButton.addActionListener((e) -> save(makeFileChooser()));
         loadButton = new JButton(r(Res.LOAD));
-        loadButton.addActionListener(loadActionListener);
+        loadButton.addActionListener((e) -> load(makeFileChooser()));
         saveLoadSec.registerFeature(saveButton);
         saveLoadSec.registerFeature(loadButton);
 
@@ -201,7 +127,13 @@ public class JEffectsTab<T> extends JTapeTab implements ItemListener {
         addEffectButton = new JButton(r(Res.ADD_EFFECT));
         addEffectButton.addActionListener(new CreateEffectBuilder(addEffectButton));
         remEffectButton = new JButton(r(Res.REMOVE_EFFECT));
-        remEffectButton.addActionListener(removeActionListener);
+        remEffectButton.addActionListener((event) -> {
+            if (selected != null) {
+                stackSec.unregisterFeature(selected);
+                selected = null;
+                genEvents();
+            }
+        });
         addRemSec.registerFeature(addEffectButton);
         addRemSec.registerFeature(remEffectButton);
 
@@ -209,15 +141,14 @@ public class JEffectsTab<T> extends JTapeTab implements ItemListener {
 
         final JTapeSection moveSec = new JTapeFeatureStack(Type.VERTICAL_STACK);
         moveLeftButton = new JButton("<");
-        moveLeftButton.addActionListener(moveLeftActionListener);
+        moveLeftButton.addActionListener((e) -> moveSelectedLeft());
         moveRightButton = new JButton(">");
-        moveRightButton.addActionListener(moveRightActionListener);
+        moveRightButton.addActionListener((e) -> moveSelectedRight());
         moveSec.registerFeature(moveLeftButton);
         moveSec.registerFeature(moveRightButton);
 
         effectsGroup.registerSection(moveSec);
 
-        stackSec = new JTapeFeatureStack(Type.HORIZONTAL_STACK);
         stackSec.setBorder(new LineBorder(Color.BLACK, 1, false));
 
         effectsGroup.registerSection(stackSec);
@@ -396,6 +327,52 @@ public class JEffectsTab<T> extends JTapeTab implements ItemListener {
         for (final Component c : stackSec.getOrderedComponents()) {
             if (c instanceof JEffectRepresentation) {
                 ((JEffectRepresentation<T>) c).setMonitor(main);
+            }
+        }
+    }
+    
+    private JFileChooser makeFileChooser() {
+        final JFileChooser fc = new JFileChooser();
+        fc.setFileFilter(new FileFilter() {
+            @Override
+            public boolean accept(final File f) {
+                return f.getName().endsWith(EXT) || f.isDirectory();
+            }
+            @Override
+            public String getDescription() {
+                return DESC;
+            }
+        });
+        fc.setCurrentDirectory(currentDirectory);
+        return fc;
+    }
+    
+    private void save(final JFileChooser fc) {
+        final int result = fc.showSaveDialog(null);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            currentDirectory = fc.getSelectedFile().getParentFile();
+            try {
+                final File f = fc.getSelectedFile();
+                final File fileToWrite = f.getName().endsWith(EXT) ? f : new File(f.getAbsolutePath() + EXT);
+                FileUtilities.objectToFile(getEffects(), fileToWrite, false);
+            } catch (final IOException e1) {
+                GUIUtilities.errorMessage(e1);
+            }
+        }
+    }
+    
+    private void load(final JFileChooser fc) {
+        final int result = fc.showOpenDialog(null);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            currentDirectory = fc.getSelectedFile().getParentFile();
+            try {
+                clearEffects();
+                @SuppressWarnings("unchecked")
+                final List<Effect> effects = (List<Effect>) FileUtilities.fileToObject(fc.getSelectedFile());
+                setEffects(effects);
+                revalidate();
+            } catch (IOException | ClassNotFoundException e1) {
+                GUIUtilities.errorMessage(e1);
             }
         }
     }
