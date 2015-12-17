@@ -59,7 +59,7 @@ public final class SingleRunGUI {
             final JPanel upper = new JPanel();
             upper.setLayout(new BoxLayout(upper, BoxLayout.X_AXIS));
             canvas.add(upper, BorderLayout.NORTH);
-            final JEffectsTab<T> effects = new JEffectsTab<>(main);
+            final JEffectsTab<T> effects = new JEffectsTab<>(main, false);
             upper.add(effects);
             final TimeStepMonitor<T> time = new TimeStepMonitor<>();
             sim.addOutputMonitor(time);

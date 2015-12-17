@@ -83,7 +83,7 @@ public class Perspective<T> extends JPanel implements ChangeListener, ActionList
     }
     
     private void makeEffects() {
-        final JEffectsTab<T> effects = new JEffectsTab<>(main);
+        final JEffectsTab<T> effects = new JEffectsTab<>(main, true);
         if (effectsTab != null) {
             bar.deregisterTab(effectsTab);
             effects.setEffects(effectsTab.getEffects());
@@ -92,7 +92,6 @@ public class Perspective<T> extends JPanel implements ChangeListener, ActionList
             effects.setEnabled(false);
         }
         effectsTab = effects;
-        effectsTab.addLinksToggleActionListener(this);
         bar.registerTab(effectsTab);
     }
 
@@ -130,8 +129,6 @@ public class Perspective<T> extends JPanel implements ChangeListener, ActionList
         } else if (SimControlCommand.STOP.equalsToString(e.getActionCommand())) {
             sim.stop();
             bar.setFileOK(true);
-        } else if (Commands.PAINT_LINKS.equalsToString(e.getActionCommand())) {
-            main.setDrawLinks(effectsTab.isDrawingLinks()); // side.isDrawingLinks());
         } else if (Commands.REACTIVITY.equalsToString(e.getActionCommand())) {
             switch (bar.getReactivityStatus()) {
             case MAX_REACTIVITY:
@@ -239,7 +236,6 @@ public class Perspective<T> extends JPanel implements ChangeListener, ActionList
         }
         add((Component) main, BorderLayout.CENTER);
         makeEffects();
-        gom.setDrawLinks(effectsTab.isDrawingLinks());
         revalidate();
     }
 

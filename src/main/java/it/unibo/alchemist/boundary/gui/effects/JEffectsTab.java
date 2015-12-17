@@ -8,7 +8,6 @@
  */
 package it.unibo.alchemist.boundary.gui.effects;
 
-import it.unibo.alchemist.boundary.gui.UpperBar.Commands;
 import it.unibo.alchemist.boundary.gui.tape.JTapeFeatureStack;
 import it.unibo.alchemist.boundary.gui.tape.JTapeFeatureStack.Type;
 import it.unibo.alchemist.boundary.gui.tape.JTapeGroup;
@@ -60,7 +59,6 @@ public class JEffectsTab<T> extends JTapeTab implements ItemListener {
     private final List<ActionListener> listeners = new LinkedList<>();
     private final JTapeFeatureStack stackSec;
     private final JButton addEffectButton, remEffectButton, saveButton, loadButton, moveLeftButton, moveRightButton;
-    private final JToggleButton paintLinksButton;
     private File currentDirectory = new File(System.getProperty("user.home"));
     private JEffectRepresentation<T> selected;
 
@@ -73,18 +71,25 @@ public class JEffectsTab<T> extends JTapeTab implements ItemListener {
      * 
      * @param main
      *            the target {@link GraphicalOutputMonitor}
+     * @param displayPaintLinks
+     *            pass true if you want a button to be able to switch link
+     *            visualization on or off
      */
-    public JEffectsTab(final GraphicalOutputMonitor<T> main) {
+    public JEffectsTab(final GraphicalOutputMonitor<T> main, final boolean displayPaintLinks) {
         super(r(Res.EFFECT_TAB));
         this.main = main;
         stackSec = new JTapeFeatureStack(Type.HORIZONTAL_STACK);
-        final JTapeGroup showGroup = new JTapeGroup(r(Res.SHOW_GROUP));
         final JTapeGroup effectsGroup = new JTapeGroup(r(Res.EFFECTS_GROUP));
-        final JTapeSection showLinksSec = new JTapeMainFeature();
-        paintLinksButton = new JToggleButton(r(Res.ENABLE_DRAW_LINKS));
-        paintLinksButton.setActionCommand(Commands.PAINT_LINKS.toString());
-        showLinksSec.registerFeature(paintLinksButton);
-        showGroup.registerSection(showLinksSec);
+        if (displayPaintLinks) {
+            final JTapeGroup showGroup = new JTapeGroup(r(Res.SHOW_GROUP));
+            final JTapeSection showLinksSec = new JTapeMainFeature();
+            final JToggleButton paintLinksButton;
+            paintLinksButton = new JToggleButton(r(Res.ENABLE_DRAW_LINKS));
+            paintLinksButton.addActionListener((e) -> main.setDrawLinks(paintLinksButton.isSelected()));
+            showLinksSec.registerFeature(paintLinksButton);
+            showGroup.registerSection(showLinksSec);
+            registerGroup(showGroup);
+        }
         final JTapeSection saveLoadSec = new JTapeFeatureStack(Type.VERTICAL_STACK);
         saveButton = new JButton(r(Res.SAVE));
         saveButton.addActionListener((e) -> save(makeFileChooser()));
@@ -129,7 +134,6 @@ public class JEffectsTab<T> extends JTapeTab implements ItemListener {
         effectsGroup.registerSection(moveSec);
         stackSec.setBorder(new LineBorder(Color.BLACK, 1, false));
         effectsGroup.registerSection(stackSec);
-        registerGroup(showGroup);
         registerGroup(effectsGroup);
         addActionListener((e) -> {
             if (main != null) {
@@ -166,16 +170,6 @@ public class JEffectsTab<T> extends JTapeTab implements ItemListener {
     }
 
     /**
-     * Adds listener to the toggle button that enables/disables links.
-     * 
-     * @param l
-     *            is the {@link ActionListener}
-     */
-    public void addLinksToggleActionListener(final ActionListener l) {
-        paintLinksButton.addActionListener(l);
-    }
-
-    /**
      * Removes every effect.
      */
     public void clearEffects() {
@@ -200,13 +194,6 @@ public class JEffectsTab<T> extends JTapeTab implements ItemListener {
             l1.add(((JEffectRepresentation<?>) c).getEffect());
         }
         return l1;
-    }
-
-    /**
-     * @return true if the links are currently drawn
-     */
-    public boolean isDrawingLinks() {
-        return paintLinksButton.isSelected();
     }
 
     @SuppressWarnings("unchecked")

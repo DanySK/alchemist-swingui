@@ -38,7 +38,7 @@ public final class UpperBar extends JTape {
         /**
          * 
          */
-        DICE, OPEN, PAINT_LINKS, PARALLEL, PROCESS, RANDOM, REACTIVITY;
+        DICE, OPEN, PARALLEL, PROCESS, RANDOM, REACTIVITY;
 
         /**
          * @param s
