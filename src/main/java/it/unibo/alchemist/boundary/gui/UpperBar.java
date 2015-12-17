@@ -41,7 +41,8 @@ public class UpperBar extends JTape {
         DICE, OPEN, PAINT_LINKS, PARALLEL, PROCESS, RANDOM, REACTIVITY;
 
         /**
-         * @param s string representation
+         * @param s
+         *            string representation
          * @return true if equal to the String representation of the Command
          */
         public boolean equalsToString(final String s) {
@@ -68,24 +69,26 @@ public class UpperBar extends JTape {
 
     /**
      * Default constructor.
-     * @param control the SimControlPanel to use
+     * 
+     * @param control
+     *            the SimControlPanel to use
      */
     public UpperBar(final SimControlPanel control) {
         super();
-    
+
         final JTapeTab homeTab = new JTapeTab(r(Res.HOME_TAB));
         final JTapeTab flowTab = new JTapeTab(r(Res.FLOW_TAB));
         monTab = new JMonitorsTab<>();
-    
+
         final JTapeGroup startGroup = new JTapeGroup(r(Res.START));
         final JTapeGroup randGroup = new JTapeGroup(r(Res.RANDOM));
         final JTapeGroup timeGroup = new JTapeGroup(r(Res.TIME));
-    
+
         final JTapeSection openMF = new JTapeMainFeature();
         final JTapeSection loadFS = new JTapeFeatureStack();
         final JTapeSection seedFS = new JTapeFeatureStack();
         final JTapeSection timeMF = new JTapeMainFeature();
-    
+
         open = new OpenXML();
         open.setText(r(Res.OPEN));
         open.setActionCommand(Commands.OPEN.toString());
@@ -117,25 +120,25 @@ public class UpperBar extends JTape {
         random.setActionCommand(Commands.RANDOM.toString());
         seedFS.registerFeature(dice);
         seedFS.registerFeature(random);
-    
+
         startGroup.registerSection(openMF);
         startGroup.registerSection(loadFS);
         randGroup.registerSection(seedFS);
         homeTab.registerGroup(startGroup);
         homeTab.registerGroup(randGroup);
-    
+
         scp = control;
         scp.setEnabled(false);
         flowTab.registerGroup(scp);
         reactivity.setActionCommand(Commands.REACTIVITY.toString());
         flowTab.registerGroup(reactivity);
-    
+
         timeMF.registerFeature(time);
         timeGroup.registerSection(timeMF);
         flowTab.registerGroup(timeGroup);
-    
+
         registerTab(homeTab);
-        registerTab(flowTab);    
+        registerTab(flowTab);
         registerTab(monTab);
 
         setFileOK(false);
@@ -282,7 +285,8 @@ public class UpperBar extends JTape {
     }
 
     /**
-     * @param s simulation
+     * @param s
+     *            simulation
      */
     public void setSimulation(final ISimulation<?> s) {
         monTab.setSimulation(s);
