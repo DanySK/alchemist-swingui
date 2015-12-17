@@ -256,9 +256,9 @@ public class Perspective<T> extends JPanel implements ChangeListener, ActionList
             new Thread(() -> sim.addOutputMonitor(main)).start();
         }
         add((Component) main, BorderLayout.CENTER);
-        revalidate();
         makeEffects();
         gom.setDrawLinks(effectsTab.isDrawingLinks());
+        revalidate();
     }
 
     private void setRandom() {
