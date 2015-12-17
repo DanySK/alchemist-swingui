@@ -8,6 +8,24 @@
  */
 package it.unibo.alchemist.boundary.gui.monitors;
 
+import java.awt.BorderLayout;
+import java.awt.GridLayout;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
+import java.util.LinkedList;
+import java.util.List;
+
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JPanel;
+
+import org.reflections.Reflections;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import it.unibo.alchemist.boundary.gui.tape.JTapeFeatureStack;
 import it.unibo.alchemist.boundary.gui.tape.JTapeFeatureStack.Type;
 import it.unibo.alchemist.boundary.gui.tape.JTapeGroup;
@@ -18,29 +36,10 @@ import it.unibo.alchemist.boundary.interfaces.OutputMonitor;
 import it.unibo.alchemist.boundary.l10n.Res;
 import it.unibo.alchemist.boundary.monitors.ExportInspector;
 import it.unibo.alchemist.core.interfaces.ISimulation;
-import it.unibo.alchemist.utils.L;
 
-import java.awt.BorderLayout;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Modifier;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JPanel;
-
-import org.reflections.Reflections;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+/**
+ * @param <T>
+ */
 public class JMonitorsTab<T> extends JTapeTab implements ItemListener {
     /**
      * 
@@ -95,20 +94,12 @@ public class JMonitorsTab<T> extends JTapeTab implements ItemListener {
         registerGroup(monitorsGroup1);
         registerGroup(monitorsGroup2);
 
-        btnAddMonitor.addActionListener(new ActionListener() {
-            @SuppressWarnings("unchecked")
-            @Override
-            public void actionPerformed(final ActionEvent arg0) {
-                addOutputMonitor(getSelectedItem());
-            }
-        });
-        btnRemMonitor.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                remOutputMonitor(selected);
+        btnAddMonitor.addActionListener(e -> addOutputMonitor(getSelectedItem()));
+        btnRemMonitor.addActionListener(e -> {
+                removeOutputMonitor(selected);
                 selected = null;
             }
-        });
+        );
     }
 
     @SuppressWarnings("unchecked")
@@ -140,10 +131,6 @@ public class JMonitorsTab<T> extends JTapeTab implements ItemListener {
         }
     }
 
-    public ISimulation<?> getSimulation() {
-        return simulation;
-    }
-
     @SuppressWarnings("unchecked")
     @Override
     public void itemStateChanged(final ItemEvent e) {
@@ -157,7 +144,7 @@ public class JMonitorsTab<T> extends JTapeTab implements ItemListener {
         }
     }
 
-    private void remOutputMonitor(final JOutputMonitorRepresentation<T> mon) {
+    private void removeOutputMonitor(final JOutputMonitorRepresentation<T> mon) {
         if (mon != null) {
             if (simulation != null) {
                 simulation.stop();
