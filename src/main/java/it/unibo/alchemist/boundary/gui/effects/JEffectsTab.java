@@ -62,7 +62,7 @@ public class JEffectsTab<T> extends JTapeTab implements ItemListener {
     private final JButton addEffectButton, remEffectButton, saveButton, loadButton, moveLeftButton, moveRightButton;
     private final JToggleButton paintLinksButton;
     private File currentDirectory = new File(System.getProperty("user.home"));
-    private JEffectRepresentation<T> selected = null;
+    private JEffectRepresentation<T> selected;
     private final FileFilter ff = new FileFilter() {
         @Override
         public boolean accept(final File f) {
