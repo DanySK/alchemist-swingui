@@ -144,6 +144,7 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
         addMouseListener(mgr);
         addMouseMotionListener(mgr);
         addMouseWheelListener(mgr);
+        bindKeys();
     }
 
     private void bindKeys() {
@@ -160,9 +161,8 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
         bindKey(KeyEvent.VK_R, () -> setRealTime(!isRealTime()));
         bindKey(KeyEvent.VK_LEFT, () -> setStep(Math.max(1, st - Math.max(st / 10, 1))));
         bindKey(KeyEvent.VK_RIGHT, () -> setStep(Math.max(st, st + Math.max(st / 10, 1))));
-//        bindKey(KeyEvent.VK_E, () -> makeFrame("Effects", content));
     }
-    
+
     private void accessData() {
         mapConsistencyMutex.acquireUninterruptibly();
     }
@@ -435,7 +435,6 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
         if (step <= 0) {
             throw new IllegalArgumentException("The parameter must be a positive integer");
         }
-        System.out.println(step);
         st = step;
     }
 
@@ -629,7 +628,7 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
 
     }
 
-    private static JFrame makeFrame(String title, JPanel content) {
+    private static JFrame makeFrame(final String title, final JPanel content) {
         final JFrame frame = new JFrame(title);
         frame.getContentPane().add(content);
         frame.setLocationByPlatform(true);
@@ -637,7 +636,7 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
         frame.setVisible(true);
         return frame;
     }
-    
+
     private void bindKey(final int key, final Runnable fun) {
         final Object binder = "Key: " + key;
         getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(key, 0), binder);
