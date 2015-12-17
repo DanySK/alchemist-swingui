@@ -63,12 +63,11 @@ public class JEffectsTab<T> extends JTapeTab implements ItemListener {
     private final JToggleButton paintLinksButton;
     private File currentDirectory = new File(System.getProperty("user.home"));
     private JEffectRepresentation<T> selected;
-    private final FileFilter ff = new FileFilter() {
+    private static final FileFilter FF = new FileFilter() {
         @Override
         public boolean accept(final File f) {
             return f.getName().endsWith(EXT) || f.isDirectory();
         }
-
         @Override
         public String getDescription() {
             return DESC;
@@ -79,7 +78,7 @@ public class JEffectsTab<T> extends JTapeTab implements ItemListener {
         @Override
         public void actionPerformed(final ActionEvent e) {
             final JFileChooser fc = new JFileChooser();
-            fc.setFileFilter(ff);
+            fc.setFileFilter(FF);
             fc.setCurrentDirectory(currentDirectory);
             final int result = fc.showSaveDialog(null);
             if (result == JFileChooser.APPROVE_OPTION) {
@@ -99,7 +98,7 @@ public class JEffectsTab<T> extends JTapeTab implements ItemListener {
         @Override
         public void actionPerformed(final ActionEvent e) {
             final JFileChooser fc = new JFileChooser();
-            fc.setFileFilter(ff);
+            fc.setFileFilter(FF);
             fc.setCurrentDirectory(currentDirectory);
             final int result = fc.showOpenDialog(null);
             if (result == JFileChooser.APPROVE_OPTION) {
