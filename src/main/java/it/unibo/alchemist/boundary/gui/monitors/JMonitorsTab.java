@@ -94,7 +94,7 @@ public class JMonitorsTab<T> extends JTapeTab implements ItemListener {
             try {
                 final Constructor<OutputMonitor<T>> c = monClass.getConstructor();
                 mon = c.newInstance();
-                if(simulation != null) {
+                if (simulation != null) {
                     simulation.addOutputMonitor(mon);
                 }
                 repr = new JOutputMonitorRepresentation<>(mon);
@@ -104,7 +104,6 @@ public class JMonitorsTab<T> extends JTapeTab implements ItemListener {
                 revalidate();
             } catch (final Exception e) {
                 L.error(e);
-                return;
             }
         }
     }
