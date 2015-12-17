@@ -263,6 +263,7 @@ public class JEffectsTab<T> extends JTapeTab implements ItemListener {
      *            is a {@link List} of effects
      */
     public void setEffects(final List<Effect> effects) {
+        clearEffects();
         for (final Effect e : effects) {
             addEffect(e);
         }

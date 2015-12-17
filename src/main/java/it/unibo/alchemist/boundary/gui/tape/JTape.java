@@ -33,5 +33,14 @@ public class JTape extends JTabbedPane {
         addTab(tab.getTitle(), tab);
         return true;
     }
+    
+    public boolean deregisterTab(final JTapeTab tab) {
+        final int idx = indexOfTab(tab.getTitle());
+        if (idx >= 0) {
+            removeTabAt(idx);
+            return true;
+        }
+        return false;
+    }
 
 }

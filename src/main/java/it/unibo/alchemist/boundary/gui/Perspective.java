@@ -82,12 +82,21 @@ public class Perspective<T> extends JPanel implements ChangeListener, ActionList
         status = new StatusBar();
         status.setText(r(Res.SAPERE_PERSPECTIVE));
         add(status, BorderLayout.SOUTH);
-        final Graphical2DOutputMonitor<T> main = new Generic2DDisplay<T>();
-        effectsTab = new JEffectsTab<>(main);
-        effectsTab.addLinksToggleActionListener(this);
-        effectsTab.setEnabled(false);
-        bar.registerTab(effectsTab);
         setMainDisplay(new Generic2DDisplay<T>());
+    }
+    
+    private void makeEffects() {
+        final JEffectsTab<T> effects = new JEffectsTab<>(main);
+        if (effectsTab != null) {
+            bar.deregisterTab(effectsTab);
+            effects.setEffects(effectsTab.getEffects());
+            effects.setEnabled(effectsTab.isEnabled());
+        } else {
+            effects.setEnabled(false);
+        }
+        effectsTab = effects;
+        effectsTab.addLinksToggleActionListener(this);
+        bar.registerTab(effectsTab);
     }
 
     private void dispose() {
@@ -248,7 +257,7 @@ public class Perspective<T> extends JPanel implements ChangeListener, ActionList
         }
         add((Component) main, BorderLayout.CENTER);
         revalidate();
-        effectsTab = new JEffectsTab<>(gom);
+        makeEffects();
         gom.setDrawLinks(effectsTab.isDrawingLinks());
     }
 

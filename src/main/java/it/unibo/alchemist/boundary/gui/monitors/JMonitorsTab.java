@@ -13,8 +13,10 @@ import it.unibo.alchemist.boundary.gui.tape.JTapeFeatureStack.Type;
 import it.unibo.alchemist.boundary.gui.tape.JTapeGroup;
 import it.unibo.alchemist.boundary.gui.tape.JTapeSection;
 import it.unibo.alchemist.boundary.gui.tape.JTapeTab;
+import it.unibo.alchemist.boundary.interfaces.GraphicalOutputMonitor;
 import it.unibo.alchemist.boundary.interfaces.OutputMonitor;
 import it.unibo.alchemist.boundary.l10n.Res;
+import it.unibo.alchemist.boundary.monitors.ExportInspector;
 import it.unibo.alchemist.core.interfaces.ISimulation;
 import it.unibo.alchemist.utils.L;
 
@@ -25,20 +27,30 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JPanel;
+
+import org.reflections.Reflections;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JMonitorsTab<T> extends JTapeTab implements ItemListener {
     /**
      * 
      */
     private static final long serialVersionUID = -821717582498461584L;
+    private static final Reflections REFLECTIONS = new Reflections("it.unibo.alchemist");
+    private static final Logger L = LoggerFactory.getLogger(JMonitorsTab.class);
     private final JButton btnAddMonitor = new JButton(r(Res.ATTACH_MONITOR));
     private final JButton btnRemMonitor = new JButton(r(Res.DETACH_MONITOR));
-    private final OutputMonitorSelector<T> monitorCombo = new OutputMonitorSelector<>();
+    private final JComboBox<ClassItem<? extends OutputMonitor<T>>> monitorCombo = new JComboBox<>();
     private final JTapeSection monitorsFS = new JTapeFeatureStack(Type.HORIZONTAL_STACK);
     private final List<JOutputMonitorRepresentation<T>> monitors = new LinkedList<>();
     private JOutputMonitorRepresentation<T> selected;
@@ -51,9 +63,21 @@ public class JMonitorsTab<T> extends JTapeTab implements ItemListener {
     /**
      * 
      */
+    @SuppressWarnings("unchecked")
     public JMonitorsTab() {
         super(r(Res.MONITORS));
-        simulation = null;
+        REFLECTIONS.getSubTypesOf(OutputMonitor.class).forEach((c) -> {
+            if (!GraphicalOutputMonitor.class.isAssignableFrom(c)
+                    && !Modifier.isAbstract(c.getModifiers())
+                    && c.isAnnotationPresent(ExportInspector.class)) {
+                try {
+                    c.getConstructor();
+                    monitorCombo.addItem(new ClassItem<>((Class<? extends OutputMonitor<T>>) c));
+                } catch (NoSuchMethodException e) {
+                    L.warn("{} cannot be added to the GUI: it has no default constructor.", c);
+                }
+            }
+        });
         final JTapeGroup monitorsGroup1 = new JTapeGroup(r(Res.OUTPUT_MONITORS));
         final JTapeGroup monitorsGroup2 = new JTapeGroup(r(Res.MONITORS));
         final JTapeSection monFS = new JTapeFeatureStack();
@@ -75,7 +99,7 @@ public class JMonitorsTab<T> extends JTapeTab implements ItemListener {
             @SuppressWarnings("unchecked")
             @Override
             public void actionPerformed(final ActionEvent arg0) {
-                addOutputMonitor((Class<OutputMonitor<T>>) monitorCombo.getSelectedItem());
+                addOutputMonitor(getSelectedItem());
             }
         });
         btnRemMonitor.addActionListener(new ActionListener() {
@@ -87,12 +111,17 @@ public class JMonitorsTab<T> extends JTapeTab implements ItemListener {
         });
     }
 
-    protected void addOutputMonitor(final Class<OutputMonitor<T>> monClass) {
+    @SuppressWarnings("unchecked")
+    private Class<? extends OutputMonitor<T>> getSelectedItem() {
+        return ((ClassItem<OutputMonitor<T>>) monitorCombo.getSelectedItem()).getPayload();
+    }
+
+    private void addOutputMonitor(final Class<? extends OutputMonitor<T>> monClass) {
         if (OutputMonitor.class.isAssignableFrom(monClass)) {
             final OutputMonitor<T> mon;
             final JOutputMonitorRepresentation<T> repr;
             try {
-                final Constructor<OutputMonitor<T>> c = monClass.getConstructor();
+                final Constructor<? extends OutputMonitor<T>> c = monClass.getConstructor();
                 mon = c.newInstance();
                 if (simulation != null) {
                     simulation.addOutputMonitor(mon);
@@ -102,8 +131,11 @@ public class JMonitorsTab<T> extends JTapeTab implements ItemListener {
                 monitorsFS.add(repr);
                 repr.addItemListener(this);
                 revalidate();
-            } catch (final Exception e) {
-                L.error(e);
+            } catch (final InstantiationException
+                    | IllegalAccessException
+                    | InvocationTargetException
+                    | NoSuchMethodException e) {
+                L.error("Unexpected problem creating a monitor for " + monClass, e);
             }
         }
     }
@@ -125,7 +157,7 @@ public class JMonitorsTab<T> extends JTapeTab implements ItemListener {
         }
     }
 
-    protected void remOutputMonitor(final JOutputMonitorRepresentation<T> mon) {
+    private void remOutputMonitor(final JOutputMonitorRepresentation<T> mon) {
         if (mon != null) {
             if (simulation != null) {
                 simulation.stop();
