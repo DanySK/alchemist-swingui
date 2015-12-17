@@ -271,14 +271,6 @@ public class Wormhole2D implements IWormhole2D {
 
     @Override
     public IPosition getEnvPoint(final Point viewPoint) {
-//        final Point2D vp = new Point2D.Double(viewPoint.getX(), viewPoint.getY());
-//        final AffineTransform t = calculateTransform();
-//        try {
-//            t.inverseTransform(vp, vp);
-//        } catch (final NoninvertibleTransformException e) {
-//            L.error(e.getMessage());
-//        }
-//        return toIPosition(NSEAlg2DHelper.sum(vp, getEffectApplicationCenter()));
         return envPointFromView(from(viewPoint)).toPosition();
     }
     
