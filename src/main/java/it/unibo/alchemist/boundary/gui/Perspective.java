@@ -81,7 +81,7 @@ public class Perspective<T> extends JPanel implements ChangeListener, ActionList
         add(status, BorderLayout.SOUTH);
         setMainDisplay(new Generic2DDisplay<T>());
     }
-    
+
     private void makeEffects() {
         final JEffectsTab<T> effects = new JEffectsTab<>(main, true);
         if (effectsTab != null) {
