@@ -137,6 +137,9 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
      */
     public Generic2DDisplay(final int step) {
         super();
+        if (!"true".equals(System.getProperty("sun.java2d.opengl"))) {
+            L.warn("OpenGL acceleration appears to be disabled on this system. This may impact performance negatively. Please enable it with -Dsun.java2d.opengl=true");
+        }
         setStep(step);
         setBackground(Color.WHITE);
         inited = false;
