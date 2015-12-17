@@ -303,10 +303,6 @@ public class Wormhole2D implements IWormhole2D {
 
     @Override
     public Point getViewPoint(final IPosition envPoint) {
-//        final Point2D ep = PointAdapter.subtract(envPoint, effectCenter);
-//        final AffineTransform t = calculateTransform();
-//        t.transform(ep, ep);
-//        return toPoint(ep);
         return viewPointFromEnv(from(envPoint)).toPoint();
     }
 
