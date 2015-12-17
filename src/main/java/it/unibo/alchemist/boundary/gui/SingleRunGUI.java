@@ -2,20 +2,14 @@ package it.unibo.alchemist.boundary.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
-import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.math3.fraction.FractionConversionException;
-import org.apache.xmlgraphics.java2d.Dimension2DDouble;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
