@@ -47,12 +47,6 @@ public class Wormhole2D implements IWormhole2D {
      * Initializes a new instance directly setting the size of both view and
      * environment, and the offset too.
      * 
-     * @param vSize
-     *            is the size of the view
-     * @param eSize
-     *            is the size of the environment
-     * @param o
-     *            is the offset
      * 
      * @see IWormhole2D
      */
@@ -161,11 +155,6 @@ public class Wormhole2D implements IWormhole2D {
         final Dimension2D vs = getViewSize();
         return x >= 0 && x <= vs.getWidth() && y >= 0 && y <= vs.getHeight();
     }
-
-//    @Override
-//    public void setDeltaViewPosition(final Point2D delta) {
-//        position = NSEAlg2DHelper.sum(position, delta);
-//    }
 
     @Override
     public void setEnvPosition(final IPosition pos) {
