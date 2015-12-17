@@ -235,7 +235,7 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
             onView.keySet().parallelStream()
                 .map(neighbors::get)
                 .flatMap(neigh -> neigh.getNeighbors().parallelStream()
-                        .map(node -> node.compareTo(neigh.getCenter()) > 0
+                    .map(node -> node.compareTo(neigh.getCenter()) > 0
                                 ? new Pair<>(neigh.getCenter(), node)
                                 : new Pair<>(node, neigh.getCenter())))
                 .distinct()
@@ -506,7 +506,11 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
         neighbors.clear();
         env.getNodes().parallelStream().forEach(node -> {
             positions.put(node, env.getPosition(node));
-            neighbors.put(node, env.getNeighborhood(node));
+            try {
+                neighbors.put(node, env.getNeighborhood(node).clone());
+            } catch (Exception e) {
+                L.error("Unable to clone neighborhood for " + node, e);
+            }
         });
         releaseData();
         repaint();
