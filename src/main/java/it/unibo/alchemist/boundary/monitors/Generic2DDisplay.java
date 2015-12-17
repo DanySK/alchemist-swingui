@@ -137,7 +137,7 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
      */
     public Generic2DDisplay(final int step) {
         super();
-        st = step;
+        setStep(step);
         setBackground(Color.WHITE);
         inited = false;
         final MouseManager mgr = new MouseManager();
@@ -146,7 +146,7 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
         addMouseWheelListener(mgr);
         bindKey(KeyEvent.VK_M, () -> setMarkCloserNode(!isCloserNodeMarked()));
         bindKey(KeyEvent.VK_L, () -> setDrawLinks(!paintLinks));
-        bindKey(KeyEvent.VK_SPACE, () -> Optional.ofNullable(Simulation.fromEnvironment(currentEnv))
+        bindKey(KeyEvent.VK_P, () -> Optional.ofNullable(Simulation.fromEnvironment(currentEnv))
                 .ifPresent(sim -> {
                     if (sim.getStatus() == Status.RUNNING) {
                         sim.pause();
@@ -154,6 +154,9 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
                         sim.play();
                     }
                 }));
+        bindKey(KeyEvent.VK_R, () -> setRealTime(!isRealTime()));
+        bindKey(KeyEvent.VK_LEFT, () -> setStep(Math.max(1, st - Math.max(st / 10, 1))));
+        bindKey(KeyEvent.VK_RIGHT, () -> setStep(Math.max(st, st + Math.max(st / 10, 1))));
     }
 
     private void accessData() {
@@ -356,7 +359,7 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
      * @return true if this monitor is trying to draw in realtime
      */
     @Override
-    public boolean isRealTime() {
+    public final boolean isRealTime() {
         return realTime;
     }
 
@@ -424,7 +427,11 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
     }
 
     @Override
-    public void setStep(final int step) {
+    public final void setStep(final int step) {
+        if (step <= 0) {
+            throw new IllegalArgumentException("The parameter must be a positive integer");
+        }
+        System.out.println(step);
         st = step;
     }
 
