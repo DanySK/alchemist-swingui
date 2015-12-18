@@ -37,8 +37,8 @@ public class SimplePlot extends ASMCPlot {
     private static final long serialVersionUID = 254120260303757755L;
     private static final int N_RENDERERS = 2;
     private static final int TRE = 3;
-    private int currentRenderer = 0;
-    private static final java.awt.Dimension DIMENSION = new Dimension(1500, 810);
+    private int currentRenderer;
+    private static final Dimension DIMENSION = new Dimension(1500, 810);
 
     /**
      * Default constructor.
