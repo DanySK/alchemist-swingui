@@ -58,6 +58,9 @@ public class RecordingMonitor<T> extends EnvironmentInspector<T> {
      * 
      */
     protected enum ReactivityMode {
+        /**
+         * 
+         */
         REALTIME, MAX
     }
 
@@ -251,8 +254,8 @@ public class RecordingMonitor<T> extends EnvironmentInspector<T> {
 
             lastStep = step;
             lastUpdate = time.toDouble();
-            String currentStep = isLoggingStep() ? getSeparator() + step : "";
-            String currentTime = isLoggingTime() ? getSeparator() + time : "";
+            final String currentStep = isLoggingStep() ? getSeparator() + step : "";
+            final String currentTime = isLoggingTime() ? getSeparator() + time : "";
 
             try {
                 new File(fpCache).mkdirs();
