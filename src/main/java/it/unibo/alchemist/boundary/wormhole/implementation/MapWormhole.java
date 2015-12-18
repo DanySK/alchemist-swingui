@@ -8,23 +8,19 @@
  */
 package it.unibo.alchemist.boundary.wormhole.implementation;
 
+import static it.unibo.alchemist.boundary.wormhole.implementation.PointAdapter.from;
+
 import java.awt.Component;
 import java.awt.Point;
-import java.awt.geom.Point2D;
-import java.util.Objects;
 import java.util.function.BiFunction;
 
 import org.mapsforge.core.model.LatLong;
 import org.mapsforge.core.util.MercatorProjection;
 import org.mapsforge.map.model.MapViewPosition;
-import org.mapsforge.map.model.Model;
 
-import it.unibo.alchemist.boundary.wormhole.interfaces.IWormhole2D;
 import it.unibo.alchemist.model.implementations.positions.LatLongPosition;
 import it.unibo.alchemist.model.interfaces.IEnvironment;
 import it.unibo.alchemist.model.interfaces.IPosition;
-
-import static it.unibo.alchemist.boundary.wormhole.implementation.PointAdapter.from;
 
 /**
  * Wormhole used for maps rendering.
@@ -43,10 +39,12 @@ public final class MapWormhole extends Wormhole2D {
      * Initializes a new {@link MapWormhole} copying the state of the one in
      * input.
      * 
-     * @param w
-     *            is the previous {@link IWormhole2D}
+     * @param env
+     *            the {@link IEnvironment}
+     * @param comp
+     *            the controlled {@link Component}
      * @param m
-     *            is the {@link Model} object used to handle the map
+     *            the {@link MapViewPosition}
      */
     public MapWormhole(final IEnvironment<?> env, final Component comp, final MapViewPosition m) {
         super(env, comp);
@@ -54,7 +52,6 @@ public final class MapWormhole extends Wormhole2D {
         super.setMode(Mode.MAP);
     }
 
-    
     @Override
     public IPosition getEnvPoint(final Point viewPoint) {
         final LatLong l = mapModel.getCenter();
@@ -93,13 +90,9 @@ public final class MapWormhole extends Wormhole2D {
     private long mapSize() {
         return MAPSFORGE_TILE_SIZE << mapModel.getZoomLevel();
     }
-    
+
     private PointAdapter coordToPx(final PointAdapter pt) {
         return from(lonToPxX(pt.getX()), latToPxY(pt.getY()));
-    }
-
-    private PointAdapter pxToCoord(final PointAdapter pt) {
-        return from(pxXToLon(pt.getX()), pxYToLat(pt.getY()));
     }
 
     @Override
@@ -109,7 +102,7 @@ public final class MapWormhole extends Wormhole2D {
         final PointAdapter centerView = coordToPx(from(l.longitude, l.latitude));
         final PointAdapter diff = viewPoint.diff(centerView);
         final PointAdapter vc = from(getViewPosition());
-        return vc.sum(diff).toPoint();// new Point2D.Double(vc.getX() + diff.getX(), vc.getY() + diff.getY());
+        return vc.sum(diff).toPoint();
     }
 
     @Override
