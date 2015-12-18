@@ -38,10 +38,8 @@ public class ReactivityPanel extends JTapeGroup implements ActionListener, ItemL
     private static final int SLIDE_SIZE = 150;
     private final JTapeSection stack1 = new JTapeFeatureStack();
 
-    // private final JTapeSection stack2 = new JTapeFeatureStack();
     private final JTapeSection buttMF = new JTapeMainFeature();
     private final JTapeSection sliderMF = new JTapeMainFeature();
-    // private final JButton button;
     private final JToggleButton btnMax;
     private final JToggleButton btnReal;
     private final JToggleButton btnUser;
@@ -53,7 +51,7 @@ public class ReactivityPanel extends JTapeGroup implements ActionListener, ItemL
 
     /**
      */
-    public static enum Status {
+    public enum Status {
         /**
          * The GUI is always updated.
          */
