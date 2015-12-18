@@ -14,6 +14,9 @@ import java.awt.Dimension;
 
 import javax.swing.SpringLayout;
 
+/**
+ *
+ */
 public class JTapeMainFeature extends JTapeSection {
 
     /**
@@ -22,6 +25,9 @@ public class JTapeMainFeature extends JTapeSection {
     private static final long serialVersionUID = -3756166558195051145L;
     private final SpringLayout springLayout;
 
+    /**
+     * 
+     */
     public JTapeMainFeature() {
         super();
 
