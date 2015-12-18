@@ -6,12 +6,9 @@
  * the GNU General Public License, with a linking exception, as described
  * in the file LICENSE in the Alchemist distribution's top directory.
  */
-package it.unibo.alchemist.boundary.gui.sapere;
+package it.unibo.alchemist.boundary.gui;
 
-import it.unibo.alchemist.boundary.gui.AbstractMenu;
-import it.unibo.alchemist.boundary.gui.AlchemistSwingUI;
-import it.unibo.alchemist.boundary.gui.Perspective;
-import it.unibo.alchemist.boundary.l10n.Res;
+import it.unibo.alchemist.boundary.l10n.R;
 
 import java.awt.event.ActionEvent;
 
@@ -19,18 +16,18 @@ import javax.swing.JMenuItem;
 
 /**
  */
-public class SAPEREMenu extends AbstractMenu {
+public class Menu extends AbstractMenu {
 
     private static final long serialVersionUID = 5209455686362711386L;
-    private static final JMenuItem[] ITEMS = { new JMenuItem(Res.get(Res.OPEN_PERSPECTIVE)) };
+    private static final JMenuItem[] ITEMS = { new JMenuItem(R.getString("open_perspective")) };
     private int n = 1;
 
     /**
      * Builds the File menu.
      * 
      */
-    public SAPEREMenu() {
-        super(Res.get(Res.PERSPECTIVES), ITEMS);
+    public Menu() {
+        super(R.getString("perspective"), ITEMS);
     }
 
     @Override

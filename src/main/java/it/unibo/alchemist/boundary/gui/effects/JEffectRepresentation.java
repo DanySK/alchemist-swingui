@@ -10,7 +10,6 @@ package it.unibo.alchemist.boundary.gui.effects;
 
 import it.unibo.alchemist.boundary.gui.tape.JTapeFeatureStack;
 import it.unibo.alchemist.boundary.interfaces.GraphicalOutputMonitor;
-import it.unibo.alchemist.utils.L;
 
 import java.awt.Color;
 import java.awt.ItemSelectable;
@@ -29,6 +28,8 @@ import javax.swing.UIManager;
 import javax.swing.border.LineBorder;
 
 import org.danilopianini.view.ObjectModFrame;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Representation of an {@link Effect}. Useful to let the user interact with an
@@ -41,6 +42,7 @@ import org.danilopianini.view.ObjectModFrame;
 public class JEffectRepresentation<T> extends JTapeFeatureStack implements ItemSelectable {
 
     private static final long serialVersionUID = -6875167656425950159L;
+    private static final Logger L = LoggerFactory.getLogger(JEffectRepresentation.class);
     private final Effect effect;
     private final GraphicalOutputMonitor<T> monitor;
     private final JLabel info;
@@ -79,7 +81,7 @@ public class JEffectRepresentation<T> extends JTapeFeatureStack implements ItemS
                     mod.setLocation(p);
                     mod.setVisible(true);
                 } catch (final IllegalAccessException e1) {
-                    L.error(e1);
+                    L.error("Cannot modify the frame target object", e1);
                 }
             } else {
                 setSelected(false);

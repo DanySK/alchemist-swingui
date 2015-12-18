@@ -12,7 +12,6 @@ import it.unibo.alchemist.SupportedIncarnations;
 import it.unibo.alchemist.boundary.gui.ColorChannel;
 import it.unibo.alchemist.model.interfaces.IMolecule;
 import it.unibo.alchemist.model.interfaces.INode;
-import it.unibo.alchemist.utils.L;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -21,6 +20,10 @@ import org.apache.commons.math3.util.FastMath;
 import org.danilopianini.lang.HashUtils;
 import org.danilopianini.lang.RangedInteger;
 import org.danilopianini.view.ExportForGUI;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  */
@@ -59,6 +62,7 @@ public class DrawShape implements Effect {
     private static final int PROPERTY_SCALE = 10;
     private static final int SCALE_DIFF = MAX_SCALE - MIN_SCALE;
     private static final int SCALE_INITIAL = (SCALE_DIFF) / 2 + MIN_SCALE;
+    private static final Logger L = LoggerFactory.getLogger(DrawShape.class);
 
     private static final long serialVersionUID = 1993455990254876325L;
 
@@ -100,11 +104,12 @@ public class DrawShape implements Effect {
     private Color colorCache = Color.BLACK;
     private transient IMolecule molecule;
     private transient Object molStringCached;
+    @SuppressFBWarnings(value = "SE_TRANSIENT_FIELD_NOT_RESTORED", justification = "If null, it gets reinitialized anyway if needed")
     private transient SupportedIncarnations prevIncarnation = incarnation;
 
     @Override
     public void apply(final Graphics2D g, final INode<?> n, final int x, final int y) {
-        if (!HashUtils.pointerEquals(molString,molStringCached) || !incarnation.equals(prevIncarnation)) {
+        if (!HashUtils.pointerEquals(molString, molStringCached) || !incarnation.equals(prevIncarnation)) {
             molStringCached = molString;
             prevIncarnation = incarnation;
             /*
@@ -114,8 +119,8 @@ public class DrawShape implements Effect {
             th.start();
             try {
                 th.join();
-            } catch (InterruptedException e) {
-                L.error(e);
+            } catch (final InterruptedException e) {
+                L.error("Bug.", e);
             }
         }
         if (!molFilter || (molecule != null && n.contains(molecule))) {

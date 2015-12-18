@@ -15,7 +15,7 @@ import it.unibo.alchemist.boundary.gui.tape.JTapeMainFeature;
 import it.unibo.alchemist.boundary.gui.tape.JTapeSection;
 import it.unibo.alchemist.boundary.gui.tape.JTapeTab;
 import it.unibo.alchemist.boundary.interfaces.GraphicalOutputMonitor;
-import it.unibo.alchemist.boundary.l10n.Res;
+import it.unibo.alchemist.boundary.l10n.R;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -55,16 +55,19 @@ public class JEffectsTab<T> extends JTapeTab implements ItemListener {
      */
     private static final long serialVersionUID = 5687806032498247246L;
     private static final String EXT = ".aes", DESC = "Alchemist Effect Stack";
+    private static final String EFFECT_TAB = R.getString("effect_tab");
+    private static final String EFFECTS_GROUP = R.getString("effects_group");
+    private static final String DRAW_LINKS = R.getString("draw_links");
+    private static final String SAVE = R.getString("save");
+    private static final String LOAD = R.getString("load");
+    private static final String ADD_EFFECT = R.getString("add_effect");
+    private static final String REMOVE_EFFECT = R.getString("remove_effect");
     private final GraphicalOutputMonitor<T> main;
     private final List<ActionListener> listeners = new LinkedList<>();
     private final JTapeFeatureStack stackSec;
     private final JButton addEffectButton, remEffectButton, saveButton, loadButton, moveLeftButton, moveRightButton;
     private File currentDirectory = new File(System.getProperty("user.home"));
     private JEffectRepresentation<T> selected;
-
-    private static String r(final Res r) {
-        return Res.get(r);
-    }
 
     /**
      * Initialize the component.
@@ -76,30 +79,30 @@ public class JEffectsTab<T> extends JTapeTab implements ItemListener {
      *            visualization on or off
      */
     public JEffectsTab(final GraphicalOutputMonitor<T> main, final boolean displayPaintLinks) {
-        super(r(Res.EFFECT_TAB));
+        super(EFFECT_TAB);
         this.main = main;
         stackSec = new JTapeFeatureStack(Type.HORIZONTAL_STACK);
-        final JTapeGroup effectsGroup = new JTapeGroup(r(Res.EFFECTS_GROUP));
+        final JTapeGroup effectsGroup = new JTapeGroup(EFFECTS_GROUP);
         if (displayPaintLinks) {
-            final JTapeGroup showGroup = new JTapeGroup(r(Res.SHOW_GROUP));
+            final JTapeGroup showGroup = new JTapeGroup(DRAW_LINKS);
             final JTapeSection showLinksSec = new JTapeMainFeature();
             final JToggleButton paintLinksButton;
-            paintLinksButton = new JToggleButton(r(Res.ENABLE_DRAW_LINKS));
+            paintLinksButton = new JToggleButton(DRAW_LINKS);
             paintLinksButton.addActionListener((e) -> main.setDrawLinks(paintLinksButton.isSelected()));
             showLinksSec.registerFeature(paintLinksButton);
             showGroup.registerSection(showLinksSec);
             registerGroup(showGroup);
         }
         final JTapeSection saveLoadSec = new JTapeFeatureStack(Type.VERTICAL_STACK);
-        saveButton = new JButton(r(Res.SAVE));
+        saveButton = new JButton(SAVE);
         saveButton.addActionListener((e) -> save(makeFileChooser()));
-        loadButton = new JButton(r(Res.LOAD));
+        loadButton = new JButton(LOAD);
         loadButton.addActionListener((e) -> load(makeFileChooser()));
         saveLoadSec.registerFeature(saveButton);
         saveLoadSec.registerFeature(loadButton);
         effectsGroup.registerSection(saveLoadSec);
         final JTapeSection addRemSec = new JTapeFeatureStack(Type.VERTICAL_STACK);
-        addEffectButton = new JButton(r(Res.ADD_EFFECT));
+        addEffectButton = new JButton(ADD_EFFECT);
         addEffectButton.addActionListener((e) -> {
             final EffectBuilder eb = new EffectBuilder();
             eb.pack();
@@ -113,7 +116,7 @@ public class JEffectsTab<T> extends JTapeTab implements ItemListener {
                 genEvents();
             }).start();
         });
-        remEffectButton = new JButton(r(Res.REMOVE_EFFECT));
+        remEffectButton = new JButton(REMOVE_EFFECT);
         remEffectButton.addActionListener((event) -> {
             if (selected != null) {
                 stackSec.unregisterFeature(selected);

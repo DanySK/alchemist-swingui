@@ -13,7 +13,6 @@ import it.unibo.alchemist.boundary.gui.tape.JTapeFeatureStack;
 import it.unibo.alchemist.boundary.gui.tape.JTapeGroup;
 import it.unibo.alchemist.boundary.gui.tape.JTapeMainFeature;
 import it.unibo.alchemist.boundary.gui.tape.JTapeSection;
-import it.unibo.alchemist.boundary.l10n.Res;
 
 import java.awt.Dimension;
 import java.awt.event.ActionListener;
@@ -26,6 +25,8 @@ import javax.swing.JSlider;
 import javax.swing.JToggleButton;
 import javax.swing.event.ChangeListener;
 
+import static it.unibo.alchemist.boundary.l10n.R.getString;
+
 /**
  */
 public class ReactivityPanel extends JTapeGroup implements ItemListener {
@@ -33,10 +34,14 @@ public class ReactivityPanel extends JTapeGroup implements ItemListener {
     private static final long serialVersionUID = 6688803192091760332L;
 
     private static final int SLIDE_MAX = 20;
-
     private static final int SLIDE_SIZE = 150;
-    private final JTapeSection stack1 = new JTapeFeatureStack();
 
+    private static final String UI_REACTIVITY = getString("ui_reactivity");
+    private static final String MAX_REACTIVITY = getString("max_reactivity");
+    private static final String REALTIME = getString("realtime");
+    private static final String USER_SELECTED = getString("user_selected");
+
+    private final JTapeSection stack1 = new JTapeFeatureStack();
     private final JTapeSection buttMF = new JTapeMainFeature();
     private final JTapeSection sliderMF = new JTapeMainFeature();
     private final JToggleButton btnMax;
@@ -70,13 +75,13 @@ public class ReactivityPanel extends JTapeGroup implements ItemListener {
      * 
      */
     public ReactivityPanel() {
-        super(Res.get(Res.REACTIVITY));
+        super(UI_REACTIVITY);
         slider.setPreferredSize(new Dimension(SLIDE_SIZE, slider.getHeight()));
         // setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
         // button = new JButton(max);
-        btnMax = new JToggleButton(Res.get(Res.MAX_REACTIVITY), max, true);
-        btnReal = new JToggleButton(Res.get(Res.REAL_TIME), real, false);
-        btnUser = new JToggleButton(Res.get(Res.USER_SELECTED), user, false);
+        btnMax = new JToggleButton(MAX_REACTIVITY, max, true);
+        btnReal = new JToggleButton(REALTIME, real, false);
+        btnUser = new JToggleButton(USER_SELECTED, user, false);
         /*
          * add(button); add(slider); button.addActionListener(this);
          */

@@ -32,7 +32,6 @@ import it.unibo.alchemist.boundary.gui.UpperBar.Commands;
 import it.unibo.alchemist.boundary.gui.effects.JEffectsTab;
 import it.unibo.alchemist.boundary.gui.util.GraphicalMonitorFactory;
 import it.unibo.alchemist.boundary.interfaces.GraphicalOutputMonitor;
-import it.unibo.alchemist.boundary.l10n.Res;
 import it.unibo.alchemist.boundary.monitors.Generic2DDisplay;
 import it.unibo.alchemist.boundary.monitors.TimeStepMonitor;
 import it.unibo.alchemist.core.implementations.Simulation;
@@ -43,14 +42,21 @@ import it.unibo.alchemist.language.EnvironmentBuilder.Result;
 import it.unibo.alchemist.model.implementations.times.DoubleTime;
 import it.unibo.alchemist.model.interfaces.IEnvironment;
 
+import static it.unibo.alchemist.boundary.l10n.R.getString;
+
 /**
  * @param <T>
  */
 public class Perspective<T> extends JPanel implements ChangeListener, ActionListener {
 
     private static final long serialVersionUID = -6074331788924400019L;
-    private static final FileFilter XML_FILTER = new FileNameExtensionFilter(r(Res.ALCHEMIST_XML), "xml");
+    private static final FileFilter XML_FILTER = new FileNameExtensionFilter(getString("alchemist_xml"), "xml");
     private static final Logger L = LoggerFactory.getLogger(Perspective.class);
+    private static final String FILE_NOT_VALID = getString("file_not_valid");
+    private static final String RANDOM_REINIT_SUCCESS = getString("random_reinit_success");
+    private static final String RANDOM_REINIT_FAILURE = getString("random_reinit_failure");
+    private static final String NOT_AN_INTEGER = getString("not_an_integer");
+    private static final String NOT_INITIALIZED_YET = getString("not_initialized_yet");
 
     private final UpperBar bar;
 
@@ -64,10 +70,6 @@ public class Perspective<T> extends JPanel implements ChangeListener, ActionList
     private File xml;
 
 
-    private static String r(final Res res) {
-        return Res.get(res);
-    }
-
     /**
      * Builds a new SAPERE perspective.
      */
@@ -79,7 +81,7 @@ public class Perspective<T> extends JPanel implements ChangeListener, ActionList
         bar.addActionListener(this);
         bar.addChangeListener(this);
         status = new StatusBar();
-        status.setText(r(Res.PERSPECTIVE));
+        status.setText(getString("perspective"));
         add(status, BorderLayout.SOUTH);
         setMainDisplay(new Generic2DDisplay<T>());
     }
@@ -168,14 +170,14 @@ public class Perspective<T> extends JPanel implements ChangeListener, ActionList
             xml = fc.getSelectedFile();
             currentDirectory = fc.getSelectedFile().getParentFile();
             if (xml.exists() && xml.getName().endsWith("xml")) {
-                status.setText(r(Res.READY_TO_PROCESS) + " " + xml.getAbsolutePath());
+                status.setText(getString("ready_to_process") + " " + xml.getAbsolutePath());
                 status.setOK();
                 if (sim != null) {
                     sim.stop();
                 }
                 bar.setFileOK(true);
             } else {
-                status.setText(r(Res.FILE_NOT_VALID) + " " + xml.getAbsolutePath());
+                status.setText(FILE_NOT_VALID + " " + xml.getAbsolutePath());
                 status.setNo();
                 bar.setFileOK(false);
             }
@@ -204,7 +206,7 @@ public class Perspective<T> extends JPanel implements ChangeListener, ActionList
             bar.setProcessOK(true);
             effectsTab.setEnabled(true);
             status.setOK();
-            status.setText(r(Res.FILE_PROCESSED) + ": " + xml.getAbsolutePath());
+            status.setText(getString("file_processed") + ": " + xml.getAbsolutePath());
         } catch (Exception e) {
             processError(e);
         }
@@ -214,7 +216,7 @@ public class Perspective<T> extends JPanel implements ChangeListener, ActionList
         SwingUtilities.invokeLater(() -> {
             bar.setFileOK(false);
             bar.setProcessOK(false);
-            status.setText(r(Res.FILE_NOT_VALID) + " " + xml.getAbsolutePath());
+            status.setText(FILE_NOT_VALID + " " + xml.getAbsolutePath());
             status.setNo();
             L.error("Process error", e);
         });
@@ -241,14 +243,14 @@ public class Perspective<T> extends JPanel implements ChangeListener, ActionList
             try {
                 rand.setSeed(bar.getRandomText());
                 status.setOK();
-                status.setText(r(Res.RANDOM_REINIT_SUCCESS) + ": " + rand.getSeed());
+                status.setText(RANDOM_REINIT_SUCCESS + ": " + rand.getSeed());
             } catch (final NumberFormatException e) {
                 status.setNo();
-                status.setText(r(Res.RANDOM_REINIT_FAIL) + ": " + r(Res.IS_NOT_AN_INTEGER));
+                status.setText(RANDOM_REINIT_FAILURE + ": " + NOT_AN_INTEGER);
             }
         } else {
             status.setNo();
-            status.setText(r(Res.RANDOM_REINIT_FAIL) + ": RandomEngine " + r(Res.IS_NOT_INITIALIZED_YET));
+            status.setText(RANDOM_REINIT_FAILURE + ": RandomEngine " + NOT_INITIALIZED_YET);
         }
     }
 

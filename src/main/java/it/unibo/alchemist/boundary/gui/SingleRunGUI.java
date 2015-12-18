@@ -3,7 +3,6 @@ package it.unibo.alchemist.boundary.gui;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.DisplayMode;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.io.File;
@@ -29,6 +28,7 @@ import it.unibo.alchemist.boundary.gui.effects.JEffectsTab;
 import it.unibo.alchemist.boundary.gui.monitors.JMonitorsTab;
 import it.unibo.alchemist.boundary.gui.util.GraphicalMonitorFactory;
 import it.unibo.alchemist.boundary.interfaces.GraphicalOutputMonitor;
+import it.unibo.alchemist.boundary.l10n.R;
 import it.unibo.alchemist.boundary.monitors.TimeStepMonitor;
 import it.unibo.alchemist.core.implementations.Simulation;
 import it.unibo.alchemist.core.interfaces.ISimulation;
@@ -97,7 +97,7 @@ public final class SingleRunGUI {
     }
 
     private static void errorLoadingEffects(final Throwable e) {
-        L.error("Cannot load the effects from the provided source", e);
+        L.error(R.getString("cannot_load_effects"), e);
     }
 
     /**

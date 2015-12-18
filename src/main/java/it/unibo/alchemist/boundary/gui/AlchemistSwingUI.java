@@ -28,8 +28,7 @@ import org.danilopianini.view.GUIUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import it.unibo.alchemist.boundary.gui.sapere.SAPEREMenu;
-import it.unibo.alchemist.boundary.l10n.Res;
+import static it.unibo.alchemist.boundary.l10n.R.getString;
 
 /**
  * The main frame for the standard Alchemist GUI.
@@ -51,7 +50,7 @@ public final class AlchemistSwingUI extends JFrame {
     private static final long serialVersionUID = -5060969438004075630L;
     private static final Logger L = LoggerFactory.getLogger(AlchemistSwingUI.class);
 
-    private final JMenu[] menus = { new FileMenu(), new SAPEREMenu() };
+    private final JMenu[] menus = { new FileMenu(), new Menu() };
 
     /**
      * Inserts a new tab for the given component, at the given index,
@@ -94,7 +93,7 @@ public final class AlchemistSwingUI extends JFrame {
      *            the title to be displayed on the tab
      */
     public static void addTab(final Component c, final String tabName) {
-        addTab(c, tabName, Res.get(Res.NO_DESCRIPTION_AVAILABLE));
+        addTab(c, tabName, getString("no_description_available"));
     }
 
     /**
@@ -194,7 +193,7 @@ public final class AlchemistSwingUI extends JFrame {
      * Builds a new GUI instance.
      */
     public AlchemistSwingUI() {
-        super("Alchemist");
+        super(getString("alchemist"));
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         final JPanel pane = new JPanel();
         getContentPane().add(pane);

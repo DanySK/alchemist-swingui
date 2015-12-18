@@ -33,7 +33,13 @@ public class JTape extends JTabbedPane {
         addTab(tab.getTitle(), tab);
         return true;
     }
-    
+
+    /**
+     * Removes a tab.
+     * 
+     * @param tab the tab
+     * @return true if the tab was present and got removed
+     */
     public boolean deregisterTab(final JTapeTab tab) {
         final int idx = indexOfTab(tab.getTitle());
         if (idx >= 0) {

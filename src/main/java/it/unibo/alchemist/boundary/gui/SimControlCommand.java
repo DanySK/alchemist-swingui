@@ -8,7 +8,7 @@
  */
 package it.unibo.alchemist.boundary.gui;
 
-import it.unibo.alchemist.boundary.l10n.Res;
+import static it.unibo.alchemist.boundary.l10n.R.getString;
 
 /**
  */
@@ -17,13 +17,21 @@ public enum SimControlCommand {
     /**
      * 
      */
-    PLAY("/oxygen/actions/media-playback-start.png", r(Res.PLAY)), STEP("/oxygen/actions/media-skip-forward.png", r(Res.STEP)), PAUSE("/oxygen/actions/media-playback-pause.png", r(Res.PAUSE)), STOP("/oxygen/actions/media-playback-stop.png", r(Res.STOP));
+    PLAY("/oxygen/actions/media-playback-start.png", getString("play")),
+    /**
+     * 
+     */
+    STEP("/oxygen/actions/media-skip-forward.png", getString("step")),
+    /**
+     * 
+     */
+    PAUSE("/oxygen/actions/media-playback-pause.png", getString("pause")),
+    /**
+     * 
+     */
+    STOP("/oxygen/actions/media-playback-stop.png", getString("stop"));
 
     private final String icon, tt;
-
-    private static String r(final Res res) {
-        return Res.get(res);
-    }
 
     SimControlCommand(final String iconPath, final String tooltip) {
         icon = iconPath;

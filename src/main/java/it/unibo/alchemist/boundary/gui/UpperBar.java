@@ -9,16 +9,6 @@
 package it.unibo.alchemist.boundary.gui;
 
 import static it.unibo.alchemist.boundary.gui.AlchemistSwingUI.loadScaledImage;
-import it.unibo.alchemist.boundary.gui.monitors.JMonitorsTab;
-import it.unibo.alchemist.boundary.gui.tape.JTape;
-import it.unibo.alchemist.boundary.gui.tape.JTapeFeatureStack;
-import it.unibo.alchemist.boundary.gui.tape.JTapeGroup;
-import it.unibo.alchemist.boundary.gui.tape.JTapeMainFeature;
-import it.unibo.alchemist.boundary.gui.tape.JTapeSection;
-import it.unibo.alchemist.boundary.gui.tape.JTapeTab;
-import it.unibo.alchemist.boundary.l10n.Res;
-import it.unibo.alchemist.boundary.monitors.TimeStepMonitor;
-import it.unibo.alchemist.core.interfaces.ISimulation;
 
 import java.awt.event.ActionListener;
 
@@ -27,6 +17,17 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JTextField;
 import javax.swing.event.ChangeListener;
+
+import it.unibo.alchemist.boundary.gui.monitors.JMonitorsTab;
+import it.unibo.alchemist.boundary.gui.tape.JTape;
+import it.unibo.alchemist.boundary.gui.tape.JTapeFeatureStack;
+import it.unibo.alchemist.boundary.gui.tape.JTapeGroup;
+import it.unibo.alchemist.boundary.gui.tape.JTapeMainFeature;
+import it.unibo.alchemist.boundary.gui.tape.JTapeSection;
+import it.unibo.alchemist.boundary.gui.tape.JTapeTab;
+import it.unibo.alchemist.boundary.l10n.R;
+import it.unibo.alchemist.boundary.monitors.TimeStepMonitor;
+import it.unibo.alchemist.core.interfaces.ISimulation;
 
 /**
  */
@@ -53,6 +54,16 @@ public final class UpperBar extends JTape {
     private static final byte COLUMNS = 12;
 
     private static final long serialVersionUID = 7964622676457801603L;
+    private static final String HOME_TAB = R.getString("home_tab");
+    private static final String FLOW_TAB = R.getString("flow_tab");
+    private static final String START = R.getString("start");
+    private static final String RANDOM = R.getString("random");
+    private static final String TIME = R.getString("time");
+    private static final String OPEN = R.getString("open");
+    private static final String LOAD_PARALLEL = R.getString("load_parallel");
+    private static final String LOAD_SINGLE = R.getString("load_single");
+    private static final String PROCESS_FILE = R.getString("process_file");
+    private static final String CHANGE_RANDOM_SEED = R.getString("change_random_seed");
 
     private final JMonitorsTab<?> monTab;
     private final JButton open, parallel, process, dice;
@@ -63,10 +74,6 @@ public final class UpperBar extends JTape {
     private final Icon singlethread = loadScaledImage("/oxygen/actions/split.png");
     private final TimeStepMonitor<?> time = new TimeStepMonitor<>();
 
-    private static String r(final Res res) {
-        return Res.get(res);
-    }
-
     /**
      * Default constructor.
      * 
@@ -76,13 +83,13 @@ public final class UpperBar extends JTape {
     public UpperBar(final SimControlPanel control) {
         super();
 
-        final JTapeTab homeTab = new JTapeTab(r(Res.HOME_TAB));
-        final JTapeTab flowTab = new JTapeTab(r(Res.FLOW_TAB));
+        final JTapeTab homeTab = new JTapeTab(HOME_TAB);
+        final JTapeTab flowTab = new JTapeTab(FLOW_TAB);
         monTab = new JMonitorsTab<>();
 
-        final JTapeGroup startGroup = new JTapeGroup(r(Res.START));
-        final JTapeGroup randGroup = new JTapeGroup(r(Res.RANDOM));
-        final JTapeGroup timeGroup = new JTapeGroup(r(Res.TIME));
+        final JTapeGroup startGroup = new JTapeGroup(START);
+        final JTapeGroup randGroup = new JTapeGroup(RANDOM);
+        final JTapeGroup timeGroup = new JTapeGroup(TIME);
 
         final JTapeSection openMF = new JTapeMainFeature();
         final JTapeSection loadFS = new JTapeFeatureStack();
@@ -90,32 +97,31 @@ public final class UpperBar extends JTape {
         final JTapeSection timeMF = new JTapeMainFeature();
 
         open = new OpenXML();
-        open.setText(r(Res.OPEN));
+        open.setText(OPEN);
         open.setActionCommand(Commands.OPEN.toString());
         openMF.registerFeature(open);
 
         parallel = new JButton(singlethread);
-        parallel.setText(r(Res.LOAD_PARALLEL));
+        parallel.setText(LOAD_PARALLEL);
         parallel.setEnabled(false);
-        parallel.setToolTipText(r(Res.SWITCH_TO_PARALLEL));
         parallel.setActionCommand(Commands.PARALLEL.toString());
         loadFS.registerFeature(parallel);
 
         final Icon processIcon = loadScaledImage("/oxygen/actions/system-reboot.png");
         process = new JButton(processIcon);
-        process.setText(r(Res.LOAD_SINGLE));
+        process.setText(LOAD_SINGLE);
         process.setEnabled(false);
-        process.setToolTipText(r(Res.PROCESS_FILE));
+        process.setToolTipText(PROCESS_FILE);
         process.setActionCommand(Commands.PROCESS.toString());
         loadFS.registerFeature(process);
 
         final Icon diceIcon = loadScaledImage("/oxygen/status/media-playlist-shuffle.png");
         dice = new JButton(diceIcon);
-        dice.setText(r(Res.CHANGE_RANDOM_SEED));
+        dice.setText(CHANGE_RANDOM_SEED);
         dice.setActionCommand(Commands.DICE.toString());
         random.setColumns(COLUMNS);
         dice.setEnabled(false);
-        dice.setToolTipText(r(Res.CHANGE_RANDOM_SEED));
+        dice.setToolTipText(CHANGE_RANDOM_SEED);
         random.setEnabled(false);
         random.setActionCommand(Commands.RANDOM.toString());
         seedFS.registerFeature(dice);

@@ -47,12 +47,12 @@ public abstract class AFlowLayout implements LayoutManager, Serializable {
 
     /**
      * The anchoring constant that designates anchoring to the top of the
-     * display area
+     * display area.
      */
     public static final int TOP = 1;
     /**
      * The anchoring constant that designates anchoring to the bottom of the
-     * display area
+     * display area.
      */
     public static final int BOTTOM = 2;
 

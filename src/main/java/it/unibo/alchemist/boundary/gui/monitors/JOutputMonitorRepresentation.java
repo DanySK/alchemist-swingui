@@ -8,9 +8,6 @@
  */
 package it.unibo.alchemist.boundary.gui.monitors;
 
-import it.unibo.alchemist.boundary.interfaces.OutputMonitor;
-import it.unibo.alchemist.utils.L;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.ItemSelectable;
@@ -29,6 +26,11 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.LineBorder;
 
 import org.danilopianini.view.ObjectModFrame;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import it.unibo.alchemist.boundary.interfaces.OutputMonitor;
+import it.unibo.alchemist.boundary.l10n.R;
 
 /**
  * @param <T>
@@ -38,22 +40,10 @@ public class JOutputMonitorRepresentation<T> extends JPanel implements ItemSelec
      * 
      */
     private static final long serialVersionUID = 5590060251090393414L;
+    private static final Logger L = LoggerFactory.getLogger(JOutputMonitorRepresentation.class);
     private final OutputMonitor<T> monitor;
-    private boolean selected = false;
-
+    private boolean selected;
     private final transient List<ItemListener> itemListeners = new LinkedList<>();
-    private final transient ItemListener itemListener = new ItemListener() {
-
-        @Override
-        public void itemStateChanged(final ItemEvent e) {
-            if (e.getStateChange() == ItemEvent.SELECTED) {
-                setBorder(new LineBorder(Color.BLUE, 2, true));
-            } else if (e.getStateChange() == ItemEvent.DESELECTED) {
-                setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
-            }
-
-        }
-    };
     private final transient MouseAdapter mouseAdapter = new MouseAdapter() {
 
         @Override
@@ -61,13 +51,13 @@ public class JOutputMonitorRepresentation<T> extends JPanel implements ItemSelec
             if (!selected && isEnabled()) {
                 setSelected(true);
                 try {
-                    JFrame f = new ObjectModFrame(monitor);
-                    Point p = getLocation();
+                    final JFrame f = new ObjectModFrame(monitor);
+                    final Point p = getLocation();
                     SwingUtilities.convertPointToScreen(p, JOutputMonitorRepresentation.this);
                     f.setLocation((int) p.getX(), (int) p.getY());
                     f.setVisible(true);
                 } catch (IllegalAccessException e1) {
-                    L.warn(e1);
+                    L.error(R.getString("cannot_access_object"), e1);
                 }
             } else {
                 setSelected(false);
@@ -89,6 +79,9 @@ public class JOutputMonitorRepresentation<T> extends JPanel implements ItemSelec
         }
     };
 
+    /**
+     * @param mon the {@link OutputMonitor}
+     */
     public JOutputMonitorRepresentation(final OutputMonitor<T> mon) {
         super();
         setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
@@ -101,7 +94,13 @@ public class JOutputMonitorRepresentation<T> extends JPanel implements ItemSelec
         infoLabel.setText(monitor.getClass().getSimpleName());
 
         addMouseListener(mouseAdapter);
-        addItemListener(itemListener);
+        addItemListener((e) -> {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+                setBorder(new LineBorder(Color.BLUE, 2, true));
+            } else if (e.getStateChange() == ItemEvent.DESELECTED) {
+                setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
+            }
+        });
     }
 
     @Override
@@ -109,7 +108,10 @@ public class JOutputMonitorRepresentation<T> extends JPanel implements ItemSelec
         itemListeners.add(l);
     }
 
-    protected OutputMonitor<T> getMonitor() {
+    /**
+     * @return the monitor
+     */
+    public OutputMonitor<T> getMonitor() {
         return monitor;
     }
 
@@ -122,6 +124,9 @@ public class JOutputMonitorRepresentation<T> extends JPanel implements ItemSelec
         }
     }
 
+    /**
+     * @return true if it is selected
+     */
     public boolean isSelected() {
         return selected;
     }
@@ -137,6 +142,10 @@ public class JOutputMonitorRepresentation<T> extends JPanel implements ItemSelec
         itemListeners.remove(l);
     }
 
+    /**
+     * @param val
+     *            if the component is selected
+     */
     public void setSelected(final boolean val) {
         selected = val;
         notifySelection();
