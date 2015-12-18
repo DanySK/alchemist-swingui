@@ -10,7 +10,6 @@ package it.unibo.alchemist.boundary.wormhole.interfaces;
 
 import java.awt.Point;
 import java.awt.geom.Dimension2D;
-import java.awt.geom.Point2D;
 
 import it.unibo.alchemist.model.interfaces.IPosition;
 
