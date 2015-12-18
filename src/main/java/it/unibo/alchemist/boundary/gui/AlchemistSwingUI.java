@@ -23,15 +23,13 @@ import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
-//import org.apache.log4j.Level;
-//import org.apache.log4j.LogManager;
-//import org.apache.log4j.Logger;
 import org.danilopianini.view.ButtonTabComponent;
 import org.danilopianini.view.GUIUtilities;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import it.unibo.alchemist.boundary.gui.sapere.SAPEREMenu;
 import it.unibo.alchemist.boundary.l10n.Res;
-import it.unibo.alchemist.utils.L;
 
 /**
  * The main frame for the standard Alchemist GUI.
@@ -51,6 +49,7 @@ public final class AlchemistSwingUI extends JFrame {
     public static final int DEFAULT_WINDOW_HEIGHT = 960, DEFAULT_WINDOW_WIDTH = 1280;
     private static final JTabbedPane MAINPANE = new JTabbedPane(SwingConstants.BOTTOM);
     private static final long serialVersionUID = -5060969438004075630L;
+    private static final Logger L = LoggerFactory.getLogger(AlchemistSwingUI.class);
 
     private final JMenu[] menus = { new FileMenu(), new SAPEREMenu() };
 
@@ -178,22 +177,10 @@ public final class AlchemistSwingUI extends JFrame {
      *            No arguments needed so far.
      */
     public static void main(final String[] args) {
-        /*
-         * Disable Log4j.
-         */
-//        @SuppressWarnings("unchecked")
-//        final Enumeration<Logger> loggers = LogManager.getCurrentLoggers();
-//        while (loggers.hasMoreElements()) {
-//            loggers.nextElement().setLevel(Level.OFF);
-//        }
-//        LogManager.getRootLogger().setLevel(Level.OFF);
-
-//        L.setGUIEnabled(true);
         try {
-            // Set System L&F
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
-            L.error(e);
+            L.error("Unable to set the system look and feel", e);
         }
         final AlchemistSwingUI f = new AlchemistSwingUI();
         GUIUtilities.packAndDisplayInCenterOfScreen(f);
@@ -208,35 +195,6 @@ public final class AlchemistSwingUI extends JFrame {
      */
     public AlchemistSwingUI() {
         super("Alchemist");
-
-        /*
-         * Options loading or creation
-         */
-//        OptionsSet optionsLoaded = new OptionsSet();
-//        if (Global.PERSISTENTFILE.exists()) {
-//            if (Global.OPTIONSFILE.exists()) {
-//                try {
-//                    optionsLoaded = (OptionsSet) FileUtilities.fileToObject(Global.OPTIONSFILE);
-//                } catch (ClassCastException | ClassNotFoundException | IOException e) {
-//                    optionsLoaded = new OptionsSet();
-//                    try {
-//                        FileUtilities.objectToFile(optionsLoaded, Global.OPTIONSFILE, false);
-//                    } catch (final IOException e1) {
-//                        GUIUtilities.errorMessage(e);
-//                    }
-//                }
-//            }
-//        } else if (Global.PERSISTENTFILE.mkdir()) {
-//            try {
-//                FileUtilities.objectToFile(optionsLoaded, Global.OPTIONSFILE, false);
-//            } catch (final IOException e) {
-//                GUIUtilities.errorMessage(e);
-//            }
-//        } else {
-//            GUIUtilities.warningMessage(Res.get(Res.CANNOT_LOAD_STORE_OPTIONS), Res.get(Res.WARNING));
-//        }
-//        final OptionsSet options = optionsLoaded;
-
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         final JPanel pane = new JPanel();
         getContentPane().add(pane);
