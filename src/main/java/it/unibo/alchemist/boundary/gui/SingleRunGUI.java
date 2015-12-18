@@ -15,8 +15,6 @@ import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import org.apache.commons.io.IOUtils;
-import org.danilopianini.io.FileUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,8 +86,8 @@ public final class SingleRunGUI {
             make(sim);
         }
     }
-    
-    private static void errorLoadingEffects(Throwable e) {
+
+    private static void errorLoadingEffects(final Throwable e) {
         L.error("Cannot load the effects from the provided source", e);
     }
 
@@ -151,7 +149,7 @@ public final class SingleRunGUI {
         }
     }
 
-    public static void main(String... args) throws InterruptedException, ExecutionException, FileNotFoundException {
+    public static void main(final String... args) throws InterruptedException, ExecutionException, FileNotFoundException {
         final IEnvironment<?> env = EnvironmentBuilder
                 .build(new FileInputStream("/home/danysk/2015-SASO-DEMO/src-gen/test.xml")).get().getEnvironment();
         final ISimulation<?> sim = new Simulation<>(env, DoubleTime.INFINITE_TIME);
