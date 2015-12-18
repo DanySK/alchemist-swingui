@@ -3,7 +3,6 @@ package it.unibo.alchemist.boundary.gui;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.DisplayMode;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.io.File;
@@ -15,7 +14,6 @@ import java.io.ObjectInputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
@@ -30,11 +28,7 @@ import it.unibo.alchemist.boundary.gui.monitors.JMonitorsTab;
 import it.unibo.alchemist.boundary.gui.util.GraphicalMonitorFactory;
 import it.unibo.alchemist.boundary.interfaces.GraphicalOutputMonitor;
 import it.unibo.alchemist.boundary.monitors.TimeStepMonitor;
-import it.unibo.alchemist.core.implementations.Simulation;
 import it.unibo.alchemist.core.interfaces.ISimulation;
-import it.unibo.alchemist.language.EnvironmentBuilder;
-import it.unibo.alchemist.model.implementations.times.DoubleTime;
-import it.unibo.alchemist.model.interfaces.IEnvironment;
 
 /**
  * Utility class for quickly creating non-reusable graphical interfaces.
@@ -150,7 +144,7 @@ public final class SingleRunGUI {
              * Go on screen
              */
             // frame.pack();
-            Optional<Dimension> size = Arrays.stream(GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices())
+            final Optional<Dimension> size = Arrays.stream(GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices())
                 .map(GraphicsDevice::getDisplayMode)
                 .map(dm -> new Dimension(dm.getWidth(), dm.getHeight()))
                 .min((d1, d2) -> Double.compare(area(d1), area(d2)));
@@ -165,14 +159,6 @@ public final class SingleRunGUI {
 
     private static double area(final Dimension d) {
         return d.getWidth() * d.getHeight();
-    }
-
-    public static void main(final String... args) throws InterruptedException, ExecutionException, FileNotFoundException {
-        final IEnvironment<?> env = EnvironmentBuilder
-                .build(new FileInputStream("/home/danysk/2015-SASO-DEMO/src-gen/test.xml")).get().getEnvironment();
-        final ISimulation<?> sim = new Simulation<>(env, DoubleTime.INFINITE_TIME);
-        make(sim, "/home/danysk/2015-SASO-DEMO/effects/10-0.aes");
-        sim.run();
     }
 
 }
