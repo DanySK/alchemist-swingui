@@ -2,17 +2,25 @@ package it.unibo.alchemist.boundary.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import org.apache.commons.io.IOUtils;
+import org.danilopianini.io.FileUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import it.unibo.alchemist.boundary.gui.effects.Effect;
 import it.unibo.alchemist.boundary.gui.effects.JEffectsTab;
 import it.unibo.alchemist.boundary.gui.monitors.JMonitorsTab;
 import it.unibo.alchemist.boundary.gui.util.GraphicalMonitorFactory;
@@ -43,6 +51,60 @@ public final class SingleRunGUI {
      *            concentration type
      */
     public static <T> void make(final ISimulation<T> sim) {
+        make(sim, (InputStream) null);
+    }
+
+    /**
+     * Builds a single-use graphical interface.
+     * 
+     * @param sim
+     *            the simulation for this GUI
+     * @param effectsFile
+     *            the effects file
+     * @param <T>
+     *            concentration type
+     * @throws FileNotFoundException 
+     */
+    public static <T> void make(final ISimulation<T> sim, final String effectsFile) {
+        make(sim, new File(effectsFile));
+    }
+
+    /**
+     * Builds a single-use graphical interface.
+     * 
+     * @param sim
+     *            the simulation for this GUI
+     * @param effectsFile
+     *            the effects file
+     * @param <T>
+     *            concentration type
+     * @throws FileNotFoundException 
+     */
+    public static <T> void make(final ISimulation<T> sim, final File effectsFile) {
+        try {
+            make(sim, new FileInputStream(effectsFile));
+        } catch (FileNotFoundException e) {
+            errorLoadingEffects(e);
+            make(sim);
+        }
+    }
+    
+    private static void errorLoadingEffects(Throwable e) {
+        L.error("Cannot load the effects from the provided source", e);
+    }
+
+    /**
+     * Builds a single-use graphical interface.
+     * 
+     * @param sim
+     *            the simulation for this GUI
+     * @param effectsFile
+     *            the effects file
+     * @param <T>
+     *            concentration type
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> void make(final ISimulation<T> sim, final InputStream effectsFile) {
         final GraphicalOutputMonitor<T> main = GraphicalMonitorFactory.createMonitor(sim,
                 e -> L.error("Cannot init the UI.", e));
         if (main instanceof Component) {
@@ -60,6 +122,13 @@ public final class SingleRunGUI {
             upper.setLayout(new BoxLayout(upper, BoxLayout.X_AXIS));
             canvas.add(upper, BorderLayout.NORTH);
             final JEffectsTab<T> effects = new JEffectsTab<>(main, false);
+            if (effectsFile != null) {
+                try (final ObjectInputStream ois = new ObjectInputStream(effectsFile)) {
+                    effects.setEffects((List<Effect>) ois.readObject());
+                } catch (IOException | ClassNotFoundException ex) {
+                    errorLoadingEffects(ex);
+                }
+            }
             upper.add(effects);
             final TimeStepMonitor<T> time = new TimeStepMonitor<>();
             sim.addOutputMonitor(time);
@@ -73,7 +142,7 @@ public final class SingleRunGUI {
             /*
              * Go on screen
              */
-//            frame.pack();
+            // frame.pack();
             frame.setSize(800, 600);
             frame.setLocationByPlatform(true);
             frame.setVisible(true);
@@ -86,7 +155,7 @@ public final class SingleRunGUI {
         final IEnvironment<?> env = EnvironmentBuilder
                 .build(new FileInputStream("/home/danysk/2015-SASO-DEMO/src-gen/test.xml")).get().getEnvironment();
         final ISimulation<?> sim = new Simulation<>(env, DoubleTime.INFINITE_TIME);
-        make(sim);
+        make(sim, "/home/danysk/2015-SASO-DEMO/effects/10-0.aes");
         sim.run();
     }
 
