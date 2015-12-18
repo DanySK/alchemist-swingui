@@ -50,7 +50,7 @@ public class JTapeFeatureStack extends JTapeSection {
 
     /**
      * 
-     * @param t
+     * @param t the type
      */
     public JTapeFeatureStack(final Type t) {
         super();
@@ -79,7 +79,7 @@ public class JTapeFeatureStack extends JTapeSection {
 
     /**
      * 
-     * @return
+     * @return the ordered components
      */
     public List<Component> getOrderedComponents() {
         return getLayout().getComponentsList();
@@ -87,7 +87,7 @@ public class JTapeFeatureStack extends JTapeSection {
 
     /**
      * 
-     * @return
+     * @return the type
      */
     public Type getType() {
         return type;
@@ -106,9 +106,10 @@ public class JTapeFeatureStack extends JTapeSection {
     }
 
     /**
-     * 
      * @param c
+     *            the component
      * @param order
+     *            the order
      */
     public void setComponentOrder(final Component c, final int order) {
         getLayout().setComponentOrder(c, order);
