@@ -2,13 +2,19 @@ package it.unibo.alchemist.boundary.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.DisplayMode;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 import javax.swing.BoxLayout;
@@ -36,6 +42,9 @@ import it.unibo.alchemist.model.interfaces.IEnvironment;
 public final class SingleRunGUI {
 
     private static final Logger L = LoggerFactory.getLogger(SingleRunGUI.class);
+    private static final float SCALE_FACTOR = 0.8f;
+    private static final int FALLBACK_X_SIZE = 800;
+    private static final int FALLBACK_Y_SIZE = 600;
 
     private SingleRunGUI() {
     }
@@ -141,12 +150,21 @@ public final class SingleRunGUI {
              * Go on screen
              */
             // frame.pack();
-            frame.setSize(800, 600);
+            Optional<Dimension> size = Arrays.stream(GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices())
+                .map(GraphicsDevice::getDisplayMode)
+                .map(dm -> new Dimension(dm.getWidth(), dm.getHeight()))
+                .min((d1, d2) -> Double.compare(area(d1), area(d2)));
+            size.ifPresent(d -> d.setSize(d.getWidth() * SCALE_FACTOR, d.getHeight() * SCALE_FACTOR));
+            frame.setSize(size.orElse(new Dimension(FALLBACK_X_SIZE, FALLBACK_Y_SIZE)));
             frame.setLocationByPlatform(true);
             frame.setVisible(true);
         } else {
             L.error("The default monitor of {} is not compatible with Java Swing.", sim);
         }
+    }
+
+    private static double area(final Dimension d) {
+        return d.getWidth() * d.getHeight();
     }
 
     public static void main(final String... args) throws InterruptedException, ExecutionException, FileNotFoundException {
