@@ -78,6 +78,11 @@ import it.unibo.alchemist.model.interfaces.ITime;
  * @param <T>
  */
 public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMonitor<T> {
+
+    static {
+        System.setProperty("sun.java2d.opengl", "true");
+    }
+
     /**
      * The default frame rate.
      */
