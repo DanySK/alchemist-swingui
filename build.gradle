@@ -52,7 +52,6 @@ dependencies {
     compile "it.unibo.alchemist:alchemist-maps:$mapsVersion"
     compile "it.unibo.alchemist:alchemist-incarnations:$incarnationsVersion"
     compile 'org.mapsforge:mapsforge-map-awt:0.6.0'
-    compile 'org.mapsforge:SwingMapViewer:0.6.0'
     compile "org.jfree:jfreesvg:$jfreesvgVersion"
     compile "org.jfree:jfreechart:$jfreechartVersion"
     compile "org.slf4j:slf4j-api:$slf4jVersion"
