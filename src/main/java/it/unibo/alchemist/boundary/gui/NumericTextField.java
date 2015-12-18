@@ -30,12 +30,6 @@ class NumericTextField extends JTextField {
         private static final String REGEX = "[\\+-]?\\d+";
         private static final Pattern DIGITS = Pattern.compile(REGEX);
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see javax.swing.text.PlainDocument#insertString(int,
-         * java.lang.String, javax.swing.text.AttributeSet)
-         */
         @Override
         public void insertString(final int offs, final String str, final AttributeSet a) throws BadLocationException {
             // Only insert the text if it matches the regular expression
