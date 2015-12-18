@@ -271,22 +271,6 @@ public class JEffectsTab<T> extends JTapeTab implements ItemListener {
         }
     }
 
-//    /**
-//     * Sets the {@link GraphicalOutputMonitor} to use.
-//     * 
-//     * @param d
-//     *            the {@link GraphicalOutputMonitor} to use
-//     */
-//    @SuppressWarnings("unchecked")
-//    private void setMonitor() {
-//        main.setEffectStack(getEffects());
-//        for (final Component c : stackSec.getOrderedComponents()) {
-//            if (c instanceof JEffectRepresentation) {
-//                ((JEffectRepresentation<T>) c).setMonitor(main);
-//            }
-//        }
-//    }
-
     private JFileChooser makeFileChooser() {
         final JFileChooser fc = new JFileChooser();
         fc.setFileFilter(new FileFilter() {
