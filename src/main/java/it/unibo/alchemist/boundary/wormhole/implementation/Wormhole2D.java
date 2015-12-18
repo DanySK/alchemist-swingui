@@ -47,8 +47,8 @@ public class Wormhole2D implements IWormhole2D {
      * Initializes a new instance directly setting the size of both view and
      * environment, and the offset too.
      * 
-     * 
-     * @see IWormhole2D
+     * @param env the {@link IEnvironment}
+     * @param comp the controlled {@link Component}
      */
     public Wormhole2D(final IEnvironment<?> env, final Component comp) {
         model = env;
@@ -262,8 +262,15 @@ public class Wormhole2D implements IWormhole2D {
     public IPosition getEnvPoint(final Point viewPoint) {
         return envPointFromView(from(viewPoint)).toPosition();
     }
-    
-    protected PointAdapter envPointFromView(PointAdapter viewPoint) {
+
+    /**
+     * Translates a point to the env space.
+     * 
+     * @param viewPoint
+     *            view space point
+     * @return env space point
+     */
+    protected final PointAdapter envPointFromView(final PointAdapter viewPoint) {
         final Point vp = viewPoint.toPoint();
         final AffineTransform t = calculateTransform();
         try {
@@ -274,7 +281,14 @@ public class Wormhole2D implements IWormhole2D {
         return from(vp);
     }
 
-    protected PointAdapter viewPointFromEnv(PointAdapter envPoint) {
+    /**
+     * Translates a point to the view space.
+     * 
+     * @param envPoint
+     *            env space point
+     * @return view space point
+     */
+    protected final PointAdapter viewPointFromEnv(final PointAdapter envPoint) {
         final PointAdapter envp = envPoint.diff(effectCenter);
         final Point2D ep = envp.toPoint2D();
         final AffineTransform t = calculateTransform();
@@ -287,6 +301,9 @@ public class Wormhole2D implements IWormhole2D {
         return viewPointFromEnv(from(envPoint)).toPoint();
     }
 
+    /**
+     * @return the {@link IEnvironment}
+     */
     protected final IEnvironment<?> getEnvironment() {
         return model;
     }
