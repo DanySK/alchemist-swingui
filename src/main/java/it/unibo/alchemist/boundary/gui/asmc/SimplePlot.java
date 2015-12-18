@@ -29,72 +29,70 @@ import org.jfree.data.xy.YIntervalSeriesCollection;
 /**
  * An ASMCPlot that makes use of the JFreeChart library.
  * 
- * @author Davide Ensini
- * 
  */
 public class SimplePlot extends ASMCPlot {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 254120260303757755L;
-	private static final int N_RENDERERS = 2;
-	private static final int TRE = 3;
-	private int currentRenderer = 0;
-	private static final java.awt.Dimension DIMENSION = new Dimension(1500, 810);
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 254120260303757755L;
+    private static final int N_RENDERERS = 2;
+    private static final int TRE = 3;
+    private int currentRenderer;
+    private static final Dimension DIMENSION = new Dimension(1500, 810);
 
-	/**
-	 * Default constructor.
-	 */
-	public SimplePlot() {
-		super();
-		this.setLayout(new BorderLayout());
-		final JPanel placeHolder = new JPanel();
-		final JLabel wait = new JLabel("Please wait.");
-		placeHolder.add(wait);
-		this.add(placeHolder, BorderLayout.NORTH);
-	}
+    /**
+     * Default constructor.
+     */
+    public SimplePlot() {
+        super();
+        this.setLayout(new BorderLayout());
+        final JPanel placeHolder = new JPanel();
+        final JLabel wait = new JLabel("Please wait.");
+        placeHolder.add(wait);
+        this.add(placeHolder, BorderLayout.NORTH);
+    }
 
-	@Override
-	public void batchDone(final double[][] values, final double lower, final double upper, final int sampleSize) {
-		this.removeAll();
-		final YIntervalSeries series = new YIntervalSeries("Probability of condition satisfaction vs. time");
-		for (final double[] value : values) {
-			series.add(value[0], value[1], value[2], value[TRE]);
-		}
-		final YIntervalSeriesCollection data = new YIntervalSeriesCollection();
-		data.addSeries(series);
-		final JFreeChart chart = ChartFactory.createXYLineChart("", "X", "Y", data, PlotOrientation.VERTICAL, true, true, false);
-		XYItemRenderer renderer;
-		switch (currentRenderer) {
-		case 1:
-			renderer = new YIntervalRenderer();
-			break;
-		case 0:
-		default:
-			renderer = new DeviationRenderer(true, false);
-		}
-		final XYPlot plot = (XYPlot) chart.getPlot();
-		plot.setRenderer(renderer);
-		plot.getDomainAxis().setLowerBound(lower);
-		plot.getDomainAxis().setUpperBound(upper);
-		plot.getRangeAxis().setUpperBound(1.0);
-		plot.getRangeAxis().setLowerBound(0.0);
+    @Override
+    public void batchDone(final double[][] values, final double lower, final double upper, final int sampleSize) {
+        this.removeAll();
+        final YIntervalSeries series = new YIntervalSeries("Probability of condition satisfaction vs. time");
+        for (final double[] value : values) {
+            series.add(value[0], value[1], value[2], value[TRE]);
+        }
+        final YIntervalSeriesCollection data = new YIntervalSeriesCollection();
+        data.addSeries(series);
+        final JFreeChart chart = ChartFactory.createXYLineChart("", "X", "Y", data, PlotOrientation.VERTICAL, true, true, false);
+        XYItemRenderer renderer;
+        switch (currentRenderer) {
+        case 1:
+            renderer = new YIntervalRenderer();
+            break;
+        case 0:
+        default:
+            renderer = new DeviationRenderer(true, false);
+        }
+        final XYPlot plot = (XYPlot) chart.getPlot();
+        plot.setRenderer(renderer);
+        plot.getDomainAxis().setLowerBound(lower);
+        plot.getDomainAxis().setUpperBound(upper);
+        plot.getRangeAxis().setUpperBound(1.0);
+        plot.getRangeAxis().setLowerBound(0.0);
 
-		final ChartPanel chartPanel = new ChartPanel(chart);
-		chartPanel.setPreferredSize(DIMENSION);
-		this.setLayout(new BorderLayout());
-		this.add(chartPanel, BorderLayout.NORTH);
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				chartPanel.getRootPane().validate();
-			}
-		});
-	}
+        final ChartPanel chartPanel = new ChartPanel(chart);
+        chartPanel.setPreferredSize(DIMENSION);
+        this.setLayout(new BorderLayout());
+        this.add(chartPanel, BorderLayout.NORTH);
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                chartPanel.getRootPane().validate();
+            }
+        });
+    }
 
-	@Override
-	public void switchView() {
-		currentRenderer = ++currentRenderer % N_RENDERERS;
-	}
+    @Override
+    public void switchView() {
+        currentRenderer = ++currentRenderer % N_RENDERERS;
+    }
 
 }

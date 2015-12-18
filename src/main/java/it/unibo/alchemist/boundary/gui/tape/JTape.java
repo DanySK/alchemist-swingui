@@ -14,25 +14,39 @@ import javax.swing.JTabbedPane;
  * JTape is a container for a commands bar that should expose the whole set of
  * features of an application that may concern the user.
  * 
- * @author Giovanni Ciatto
  */
 public class JTape extends JTabbedPane {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -2711040476982254056L;
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -2711040476982254056L;
 
-	/**
-	 * Adds a tab to the JTape instance.
-	 * 
-	 * @param tab
-	 *            is the {@link JTapeTab} to add
-	 * @return <code>true</code>
-	 */
-	public boolean registerTab(final JTapeTab tab) {
-		addTab(tab.getTitle(), tab);
-		return true;
-	}
+    /**
+     * Adds a tab to the JTape instance.
+     * 
+     * @param tab
+     *            is the {@link JTapeTab} to add
+     * @return <code>true</code>
+     */
+    public boolean registerTab(final JTapeTab tab) {
+        addTab(tab.getTitle(), tab);
+        return true;
+    }
+
+    /**
+     * Removes a tab.
+     * 
+     * @param tab the tab
+     * @return true if the tab was present and got removed
+     */
+    public boolean deregisterTab(final JTapeTab tab) {
+        final int idx = indexOfTab(tab.getTitle());
+        if (idx >= 0) {
+            removeTabAt(idx);
+            return true;
+        }
+        return false;
+    }
 
 }

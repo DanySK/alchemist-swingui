@@ -8,8 +8,10 @@
  */
 package it.unibo.alchemist.boundary.wormhole.interfaces;
 
+import java.awt.Point;
 import java.awt.geom.Dimension2D;
-import java.awt.geom.Point2D;
+
+import it.unibo.alchemist.model.interfaces.IPosition;
 
 /**
  * A Wormhole (in this context) is an entity that "connects" two worlds: the
@@ -37,298 +39,157 @@ import java.awt.geom.Point2D;
  * to (16; 48) in order to see the "beginning" of the map on the left-bottom
  * corner of the view.<br>
  * 
- * @author <a href="mailto:giovanni.ciatto@studio.unibo.it">Giovanni Ciatto</a>
+
  */
 public interface IWormhole2D {
 
-	/**
-	 * Wormhole mode.
-	 * 
-	 * @author <a href="mailto:giovanni.ciatto@studio.unibo.it">Giovanni
-	 *         Ciatto</a>
-	 */
-	enum Mode {
-		/**
-		 * No stretch allowed
-		 */
-		ISOMETRIC,
-		/**
-		 * Stretch to adapt to view
-		 */
-		ADAPT_TO_VIEW,
-		/**
-		 * Stretch is defined by user
-		 */
-		SETTABLE,
-		/**
-		 * Uses spherical coordinates, no stretch allowed
-		 */
-		MAP;
-	};
+    /**
+     * Wormhole mode.
+     * 
+     */
+    enum Mode {
+        /**
+         * No stretch allowed
+         */
+        ISOMETRIC,
+        /**
+         * Stretch to adapt to view
+         */
+        ADAPT_TO_VIEW,
+        /**
+         * Stretch is defined by user
+         */
+        SETTABLE,
+        /**
+         * Uses spherical coordinates, no stretch allowed
+         */
+        MAP;
+    };
 
-	/**
-	 * Gets the offset vector.
-	 * 
-	 * @return a {@link Point2D} object representing the offset vector
-	 */
-	Point2D getEnvOffset();
+    /**
+     * Converts a point from the view-space to the env-space.
+     * 
+     * @param viewPoint
+     *            is the {@link Point} object whose coordinates are from
+     *            view-space
+     * @return a {@link IPosition} object whose coordinates are from env-space
+     */
+    IPosition getEnvPoint(Point viewPoint);
 
-	/**
-	 * Converts a point from the view-space to the env-space.
-	 * 
-	 * @param viewPoint
-	 *            is the {@link Point2D} object whose coordinates are from
-	 *            view-space
-	 * @return a {@link Point2D} object whose coordinates are from env-space
-	 */
-	Point2D getEnvPoint(Point2D viewPoint);
+    /**
+     * Gets the rendering mode.
+     * 
+     * @return a {@link IWormhole2D#Mode} value
+     */
+    Mode getMode();
 
-	/**
-	 * Converts the Position into env-coordinates.
-	 * 
-	 * @return a {@link Point2D} object representing the Position into
-	 *         env-coordinates
-	 */
-	Point2D getEnvPosition();
+    /**
+     * Converts a point from the env-space to the view-space.
+     * 
+     * @param envPoint
+     *            is the {@link IPosition} object whose coordinates are from
+     *            env-space
+     * @return a {@link Point} object whose coordinates are from view-space
+     */
+    Point getViewPoint(IPosition envPoint);
 
-	/**
-	 * Gets the enviroment's ratio i.e. envWidth / envHeight.
-	 * 
-	 * @return a <code>double</code> value representing the enviroment's ratio
-	 */
-	double getEnvRatio();
+    /**
+     * Gets the Position.
+     * 
+     * @return a {@link Point} object representing the Position
+     */
+    Point getViewPosition();
 
-	/**
-	 * Gets the environment's size.
-	 * 
-	 * @return a {@link Dimension2D} object containing the enviroment's width
-	 *         and height
-	 */
-	Dimension2D getEnvSize();
+    /**
+     * Gets the view's size.
+     * 
+     * @return a {@link Dimension2D} object containing the view's width and
+     *         height
+     */
+    Dimension2D getViewSize();
 
-	/**
-	 * Gets the horizontal stretch rate.
-	 * 
-	 * @return a <code>double</code> value representing the horizontal stretch
-	 *         rate
-	 */
-	double getHRate();
+    /**
+     * Gets the zoom factor.
+     * 
+     * @return a <code>double</code> representing the zoom factor
+     */
+    double getZoom();
 
-	/**
-	 * Gets the rendering mode.
-	 * 
-	 * @return a {@link IWormhole2D#Mode} value
-	 */
-	Mode getMode();
+    /**
+     * Check if a point of the view-space is "visible", i.e. it is inside the
+     * view.
+     * 
+     * @param viewPoint
+     *            is the {@link Point} to check
+     * @return <code>true</code> if it is visible, <code>false</code> instead
+     */
+    boolean isInsideView(Point viewPoint);
 
-	/**
-	 * Gets the viewWidth / envWidth ratio.<br>
-	 * NI = Not Isometric.
-	 * 
-	 * @return a <code>double</code> value representing the horizontal ratio for
-	 *         Not Isometric mode
-	 */
-	double getNIHorizontalRatio();
+    /**
+     * Rotates around a point into the view-space.
+     * 
+     * @param p
+     *            is the {@link Point}
+     * @param a
+     *            is the absolute angle (in radians)
+     */
+    void rotateAroundPoint(Point p, double a);
 
-	/**
-	 * Gets the viewHeight / envHeight ratio.<br>
-	 * NI = Not Isometric.
-	 * 
-	 * @return a <code>double</code> value representing the vertical ratio for
-	 *         Not Isometric mode
-	 */
-	double getNIVerticalRatio();
+    /**
+     * Sets the position to the view-point corresponding to
+     * <code>envPoint</code>.
+     * 
+     * @param envPoint
+     *            is the {@link IPosition} object representing the new position
+     *            with env-coordinates
+     */
+    void setEnvPosition(IPosition envPoint);
 
-	/**
-	 * Gets the rotation angle, in radians.
-	 * 
-	 * @return a <code>double</code> value representing an angle expressed with
-	 *         radians
-	 * @see #setRotation(double)
-	 */
-	double getRotation();
+    /**
+     * Automatically sets the zoom rate in order to make the environment
+     * entirely visible on the view.
+     */
+    void optimalZoom();
 
-	/**
-	 * Converts a point from the env-space to the view-space.
-	 * 
-	 * @param envPoint
-	 *            is the {@link Point2D} object whose coordinates are from
-	 *            env-space
-	 * @return a {@link Point2D} object whose coordinates are from view-space
-	 */
-	Point2D getViewPoint(Point2D envPoint);
+    /**
+     * Rotates the environment around the Position.
+     * 
+     * @param rad
+     *            is the <code>double</code> value representing the angle
+     *            expressed with radians
+     */
+    void setRotation(double rad);
 
-	/**
-	 * Gets the Position.
-	 * 
-	 * @return a {@link Point2D} object representing the Position
-	 */
-	Point2D getViewPosition();
+    /**
+     * Sets the Position to <code>viewPoint</code>.
+     * 
+     * @param viewPoint
+     *            is the {@link Point} object representing the new position
+     *            with view-coordinates
+     */
+    void setViewPosition(Point viewPoint);
 
-	/**
-	 * Gets the view's ratio i.e. viewWidth / viewHeight.
-	 * 
-	 * @return a <code>double</code> value representing the view's ratio
-	 */
-	double getViewRatio();
+    /**
+     * Changes the zoom factor.
+     * 
+     * @param value
+     *            is the <code>double</code> value representing the new zoom
+     *            factor
+     */
+    void setZoom(double value);
 
-	/**
-	 * Gets the view's size.
-	 * 
-	 * @return a {@link Dimension2D} object containing the view's width and
-	 *         height
-	 */
-	Dimension2D getViewSize();
+    /**
+     * Zooms on a point into the view-space.
+     * 
+     * @param p
+     *            is the {@link Point}
+     * @param z
+     *            is the absolute zoom rate
+     */
+    void zoomOnPoint(Point p, double z);
 
-	/**
-	 * Gets the vertical stretch rate.
-	 * 
-	 * @return a <code>double</code> value representing the vertical stretch
-	 *         rate
-	 */
-	double getVRate();
-
-	/**
-	 * Gets the zoom factor.
-	 * 
-	 * @return a <code>double</code> representing the zoom factor
-	 */
-	double getZoom();
-
-	/**
-	 * Check if a point of the view-space is "visible", i.e. it is inside the
-	 * view.
-	 * 
-	 * @param viewPoint
-	 *            is the {@link Point2D} to check
-	 * @return <code>true</code> if it is visible, <code>false</code> instead
-	 */
-	boolean isInsideView(Point2D viewPoint);
-
-	/**
-	 * Rotates around a point into the view-space.
-	 * 
-	 * @param p
-	 *            is the {@link Point2D}
-	 * @param a
-	 *            is the absolute angle (in radians)
-	 */
-	void rotateAroundPoint(Point2D p, double a);
-
-	/**
-	 * Equivalent to: Position = Position + delta.
-	 * 
-	 * @param delta
-	 *            is a {@link Point2D} object representing the variation vector
-	 */
-	void setDeltaViewPosition(Point2D delta);
-
-	/**
-	 * Sets the offset vector.
-	 * 
-	 * @param point
-	 *            is the {@link Point2D} object representing the offset vector
-	 */
-	void setEnvOffset(Point2D point);
-
-	/**
-	 * Sets the position to the view-point corresponding to
-	 * <code>envPoint</code>.
-	 * 
-	 * @param envPoint
-	 *            is the {@link Point2D} object representing the new position
-	 *            with env-coordinates
-	 */
-	void setEnvPosition(Point2D envPoint);
-
-	/**
-	 * Stores the enviroment's size.
-	 * 
-	 * @param size
-	 *            is the {@link Dimension2D} object containing the enviroment's
-	 *            width and height
-	 */
-	void setEnvSize(Dimension2D size);
-
-	/*
-	 * TODO fix doc
-	 */
-	/**
-	 * Activates/deactivates isometric mode.
-	 * 
-	 * @param value
-	 *            is the <code>boolean</code> value that activates/deactivates
-	 *            isometric mode
-	 */
-	/* void setMode(Mode m); */
-
-	/**
-	 * Sets the horizontal stretch rate.
-	 * 
-	 * @param value
-	 *            is the <code>double</code> value representing the new
-	 *            horizontal stretch rate
-	 */
-	void setHRate(double value);
-
-	/**
-	 * Automatically sets the zoom rate in order to make the environment
-	 * entirely visible on the view.
-	 */
-	void setOptimalZoomRate();
-
-	/**
-	 * Rotates the environment around the Position.
-	 * 
-	 * @param rad
-	 *            is the <code>double</code> value representing the angle
-	 *            expressed with radians
-	 */
-	void setRotation(double rad);
-
-	/**
-	 * Sets the Position to <code>viewPoint</code>.
-	 * 
-	 * @param viewPoint
-	 *            is the {@link Point2D} object representing the new position
-	 *            with view-coordinates
-	 */
-	void setViewPosition(Point2D viewPoint);
-
-	/**
-	 * Stores the view's size.
-	 * 
-	 * @param size
-	 *            is the {@link Dimension2D} object containing the view's width
-	 *            and height
-	 */
-	void setViewSize(Dimension2D size);
-
-	/**
-	 * Sets the horizontal stretch rate.
-	 * 
-	 * @param value
-	 *            is the <code>double</code> value representing the new
-	 *            horizontal stretch rate
-	 */
-	void setVRate(double value);
-
-	/**
-	 * Changes the zoom factor.
-	 * 
-	 * @param value
-	 *            is the <code>double</code> value representing the new zoom
-	 *            factor
-	 */
-	void setZoom(double value);
-
-	/**
-	 * Zooms on a point into the view-space.
-	 * 
-	 * @param p
-	 *            is the {@link Point2D}
-	 * @param z
-	 *            is the absolute zoom rate
-	 */
-	void zoomOnPoint(Point2D p, double z);
+    /**
+     * Points the center of the view on the center of the environment.
+     */
+    void center();
 }

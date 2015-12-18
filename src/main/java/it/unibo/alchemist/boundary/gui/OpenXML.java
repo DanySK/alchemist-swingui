@@ -13,19 +13,17 @@ import static it.unibo.alchemist.boundary.gui.AlchemistSwingUI.loadScaledImage;
 import javax.swing.JButton;
 
 /**
- * @author Danilo Pianini
- * 
  */
 public class OpenXML extends JButton {
 
-	private static final long serialVersionUID = 20671260008783881L;
+    private static final long serialVersionUID = 20671260008783881L;
 
-	/**
-	 * Default constructor.
-	 */
-	public OpenXML() {
-		super(loadScaledImage("/oxygen/actions/document-open.png"));
-		setToolTipText("Open an AlchemistXML model");
-	}
+    /**
+     * Default constructor.
+     */
+    public OpenXML() {
+        super(loadScaledImage("/oxygen/actions/document-open.png"));
+        setToolTipText("Open an AlchemistXML model");
+    }
 
 }

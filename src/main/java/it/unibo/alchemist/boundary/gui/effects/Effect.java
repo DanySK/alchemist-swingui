@@ -15,28 +15,26 @@ import java.awt.Graphics2D;
 import java.io.Serializable;
 
 /**
- * @author Danilo Pianini
- * 
  */
 public interface Effect extends Serializable {
 
-	/**
-	 * Applies the effect.
-	 * 
-	 * @param g
-	 *            Graphics2D to use
-	 * @param n
-	 *            the node to draw
-	 * @param x
-	 *            x screen position
-	 * @param y
-	 *            y screen position
-	 */
-	void apply(Graphics2D g, INode<?> n, int x, int y);
+    /**
+     * Applies the effect.
+     * 
+     * @param g
+     *            Graphics2D to use
+     * @param n
+     *            the node to draw
+     * @param x
+     *            x screen position
+     * @param y
+     *            y screen position
+     */
+    void apply(Graphics2D g, INode<?> n, int x, int y);
 
-	/**
-	 * @return a color which resembles the color of this effect
-	 */
-	Color getColorSummary();
+    /**
+     * @return a color which resembles the color of this effect
+     */
+    Color getColorSummary();
 
 }

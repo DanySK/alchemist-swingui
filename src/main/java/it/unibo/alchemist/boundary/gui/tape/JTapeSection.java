@@ -16,30 +16,29 @@ import javax.swing.JPanel;
  * A {@link JTapeSection} is a set of one or more feature that should appear
  * close to each other because of stylistic or semantic reasons.
  * 
- * @author Giovanni Ciatto
  */
 public abstract class JTapeSection extends JPanel {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 128847317931592742L;
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 128847317931592742L;
 
-	/**
-	 * Adds a feature to the current section.
-	 * 
-	 * @param c
-	 *            is the {@link Component} containing the feature
-	 * @return a <code>boolean</code> value
-	 */
-	public abstract boolean registerFeature(Component c);
+    /**
+     * Adds a feature to the current section.
+     * 
+     * @param c
+     *            is the {@link Component} containing the feature
+     * @return a <code>boolean</code> value
+     */
+    public abstract boolean registerFeature(Component c);
 
-	/**
-	 * Removes a feature from the current section.
-	 * 
-	 * @param c
-	 *            is the {@link Component} containing the feature
-	 * @return a <code>boolean</code> value
-	 */
-	public abstract boolean unregisterFeature(Component c);
+    /**
+     * Removes a feature from the current section.
+     * 
+     * @param c
+     *            is the {@link Component} containing the feature
+     * @return a <code>boolean</code> value
+     */
+    public abstract boolean unregisterFeature(Component c);
 }

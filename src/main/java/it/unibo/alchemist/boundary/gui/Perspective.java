@@ -14,7 +14,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileInputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.Future;
 
 import javax.swing.JFileChooser;
@@ -25,11 +24,14 @@ import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import it.unibo.alchemist.boundary.gui.ReactivityPanel.Status;
 import it.unibo.alchemist.boundary.gui.UpperBar.Commands;
 import it.unibo.alchemist.boundary.gui.effects.JEffectsTab;
+import it.unibo.alchemist.boundary.gui.util.GraphicalMonitorFactory;
 import it.unibo.alchemist.boundary.interfaces.GraphicalOutputMonitor;
-import it.unibo.alchemist.boundary.l10n.Res;
 import it.unibo.alchemist.boundary.monitors.Generic2DDisplay;
 import it.unibo.alchemist.boundary.monitors.TimeStepMonitor;
 import it.unibo.alchemist.core.implementations.Simulation;
@@ -39,247 +41,232 @@ import it.unibo.alchemist.language.EnvironmentBuilder;
 import it.unibo.alchemist.language.EnvironmentBuilder.Result;
 import it.unibo.alchemist.model.implementations.times.DoubleTime;
 import it.unibo.alchemist.model.interfaces.IEnvironment;
-import it.unibo.alchemist.utils.L;
+
+import static it.unibo.alchemist.boundary.l10n.R.getString;
 
 /**
- * @author Danilo Pianini
- * 
  * @param <T>
  */
 public class Perspective<T> extends JPanel implements ChangeListener, ActionListener {
 
-	private static final long serialVersionUID = -6074331788924400019L;
-	private static final FileFilter XML_FILTER = new FileNameExtensionFilter(r(Res.ALCHEMIST_XML), "xml");
+    private static final long serialVersionUID = -6074331788924400019L;
+    private static final FileFilter XML_FILTER = new FileNameExtensionFilter(getString("alchemist_xml"), "xml");
+    private static final Logger L = LoggerFactory.getLogger(Perspective.class);
+    private static final String FILE_NOT_VALID = getString("file_not_valid");
+    private static final String RANDOM_REINIT_SUCCESS = getString("random_reinit_success");
+    private static final String RANDOM_REINIT_FAILURE = getString("random_reinit_failure");
+    private static final String NOT_AN_INTEGER = getString("not_an_integer");
+    private static final String NOT_INITIALIZED_YET = getString("not_initialized_yet");
 
-	private final UpperBar bar;
+    private final UpperBar bar;
 
-	private File currentDirectory = new File(System.getProperty("user.home"));
-	private GraphicalOutputMonitor<T> main;
-	private RandomEngine rand;
-	private final SimControlPanel scp = SimControlPanel.createControlPanel(null);
-	private final JEffectsTab<T> effectsTab;
-	private transient ISimulation<T> sim;
-	private final StatusBar status;
-	private File xml;
+    private File currentDirectory = new File(System.getProperty("user.home"));
+    private GraphicalOutputMonitor<T> main;
+    private RandomEngine rand;
+    private final SimControlPanel scp = SimControlPanel.createControlPanel(null);
+    private JEffectsTab<T> effectsTab;
+    private transient ISimulation<T> sim;
+    private final StatusBar status;
+    private File xml;
 
-	@SuppressWarnings("rawtypes")
-	private static final Class<? extends GraphicalOutputMonitor> DEFAULT_MONITOR_CLASS = Generic2DDisplay.class;
-	private static final String DEFAULT_MONITOR_PACKAGE = "it.unibo.alchemist.boundary.monitors.";
 
-	private static String r(final Res res) {
-		return Res.get(res);
-	}
+    /**
+     * Builds a new SAPERE perspective.
+     */
+    public Perspective() {
+        super();
+        setLayout(new BorderLayout());
+        bar = new UpperBar(scp);
+        add(bar, BorderLayout.NORTH);
+        bar.addActionListener(this);
+        bar.addChangeListener(this);
+        status = new StatusBar();
+        status.setText(getString("perspective"));
+        add(status, BorderLayout.SOUTH);
+        setMainDisplay(new Generic2DDisplay<T>());
+    }
 
-	/**
-	 * Builds a new SAPERE perspective.
-	 */
-	public Perspective() {
-		super();
-		setLayout(new BorderLayout());
+    private void makeEffects() {
+        final JEffectsTab<T> effects = new JEffectsTab<>(main, true);
+        if (effectsTab != null) {
+            bar.deregisterTab(effectsTab);
+            effects.setEffects(effectsTab.getEffects());
+            effects.setEnabled(effectsTab.isEnabled());
+        } else {
+            effects.setEnabled(false);
+        }
+        effectsTab = effects;
+        bar.registerTab(effectsTab);
+    }
 
-		bar = new UpperBar(scp);
-		add(bar, BorderLayout.NORTH);
-		bar.addActionListener(this);
-		bar.addChangeListener(this);
+    private void dispose() {
+        if (main != null) {
+            if (sim != null) {
+                sim.removeOutputMonitor(main);
+            }
+            remove((Component) main);
+        }
+        main = null;
+        sim = null;
+        effectsTab = null;
+    }
 
-		status = new StatusBar();
-		status.setText(r(Res.SAPERE_PERSPECTIVE));
-		add(status, BorderLayout.SOUTH);
+    @Override
+    public void actionPerformed(final ActionEvent e) {
+        if (Commands.OPEN.equalsToString(e.getActionCommand())) {
+            openXML();
+        } else if (Commands.PARALLEL.equalsToString(e.getActionCommand())) {
+            process(true);
+        } else if (Commands.PROCESS.equalsToString(e.getActionCommand())) {
+            process(false);
+        } else if (Commands.DICE.equalsToString(e.getActionCommand())) {
+            setRandom();
+        } else if (SimControlCommand.PLAY.equalsToString(e.getActionCommand())) {
+            sim.play();
+            bar.setPlay(true);
+        } else if (SimControlCommand.PAUSE.equalsToString(e.getActionCommand())) {
+            sim.pause();
+            bar.setPlay(false);
+        } else if (SimControlCommand.STEP.equalsToString(e.getActionCommand())) {
+            sim.play();
+            sim.pause();
+        } else if (SimControlCommand.STOP.equalsToString(e.getActionCommand())) {
+            sim.stop();
+            bar.setFileOK(true);
+        } else if (Commands.REACTIVITY.equalsToString(e.getActionCommand())) {
+            switch (bar.getReactivityStatus()) {
+            case MAX_REACTIVITY:
+                main.setStep(1);
+                main.setRealTime(false);
+                break;
+            case REAL_TIME:
+                main.setRealTime(true);
+                main.setStep(1);
+                break;
+            case USER_SELECTED:
+                main.setStep(bar.getReactivity());
+                main.setRealTime(false);
+                break;
+            default:
+                break;
+            }
+        } else {
+            dispose();
+        }
+    }
 
-		effectsTab = new JEffectsTab<>();
-		effectsTab.addLinksToggleActionListener(this);
-		effectsTab.setEnabled(false);
+    private void createMonitor() {
+        final GraphicalOutputMonitor<T> display = GraphicalMonitorFactory.createMonitor(sim, e -> L.error("Cannot create monitor", e));
+        setMainDisplay(display);
+    }
 
-		bar.registerTab(effectsTab);
+    private void openXML() {
+        final JFileChooser fc = new JFileChooser();
+        fc.setMultiSelectionEnabled(false);
+        fc.setFileFilter(XML_FILTER);
+        fc.setCurrentDirectory(currentDirectory);
+        final int returnVal = fc.showOpenDialog(null);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            xml = fc.getSelectedFile();
+            currentDirectory = fc.getSelectedFile().getParentFile();
+            if (xml.exists() && xml.getName().endsWith("xml")) {
+                status.setText(getString("ready_to_process") + " " + xml.getAbsolutePath());
+                status.setOK();
+                if (sim != null) {
+                    sim.stop();
+                }
+                bar.setFileOK(true);
+            } else {
+                status.setText(FILE_NOT_VALID + " " + xml.getAbsolutePath());
+                status.setNo();
+                bar.setFileOK(false);
+            }
+        }
+    }
 
-		setMainDisplay(new Generic2DDisplay<T>());
-	}
-	
-	private void dispose() {
-		if (main != null) {
-			main.dispose();
-			if (sim != null) {
-				sim.removeOutputMonitor(main);
-			}
-			remove((Component) main);
-		}
-		main = null;
-		sim = null;
-		effectsTab.setMonitor(null);
-	}
+    private void process(final boolean parallel) {
+        if (sim != null) {
+            sim.stopAndWait();
+        }
+        try {
+            sim = null;
+            final Future<Result<T>> fenv = EnvironmentBuilder.build(new FileInputStream(xml));
+            final IEnvironment<T> env = fenv.get().getEnvironment();
+            rand = fenv.get().getRandomEngine();
+            sim = new Simulation<>(env, new DoubleTime(Double.POSITIVE_INFINITY), parallel);
+            bar.setSimulation(sim);
+            scp.setSimulation(sim);
+            final Thread simThread = new Thread(sim);
+            createMonitor();
+            simThread.start();
+            final TimeStepMonitor<T> tm = bar.getTimeMonitor();
+            sim.addOutputMonitor(tm);
+            bar.setRandom(rand.getSeed());
+            bar.setFileOK(true);
+            bar.setProcessOK(true);
+            effectsTab.setEnabled(true);
+            status.setOK();
+            status.setText(getString("file_processed") + ": " + xml.getAbsolutePath());
+        } catch (Exception e) {
+            processError(e);
+        }
+    }
 
-	@Override
-	public void actionPerformed(final ActionEvent e) {
-		if (Commands.OPEN.equalsToString(e.getActionCommand())) {
-			openXML();
-		} else if (Commands.PARALLEL.equalsToString(e.getActionCommand())) {
-			process(true);
-		} else if (Commands.PROCESS.equalsToString(e.getActionCommand())) {
-			process(false);
-		} else if (Commands.DICE.equalsToString(e.getActionCommand())) {
-			setRandom();
-		} else if (SimControlCommand.PLAY.equalsToString(e.getActionCommand())) {
-			sim.play();
-			bar.setPlay(true);
-		} else if (SimControlCommand.PAUSE.equalsToString(e.getActionCommand())) {
-			sim.pause();
-			bar.setPlay(false);
-		} else if (SimControlCommand.STEP.equalsToString(e.getActionCommand())) {
-			sim.play();
-			sim.pause();
-		} else if (SimControlCommand.STOP.equalsToString(e.getActionCommand())) {
-			sim.stop();
-			bar.setFileOK(true);
-		} else if (Commands.PAINT_LINKS.equalsToString(e.getActionCommand())) {
-			main.setDrawLinks(effectsTab.isDrawingLinks()); // side.isDrawingLinks());
-		} else if (Commands.REACTIVITY.equalsToString(e.getActionCommand())) {
-			switch (bar.getReactivityStatus()) {
-			case MAX_REACTIVITY:
-				main.setStep(1);
-				main.setRealTime(false);
-				break;
-			case REAL_TIME:
-				main.setRealTime(true);
-				main.setStep(1);
-				break;
-			case USER_SELECTED:
-				main.setStep(bar.getReactivity());
-				main.setRealTime(false);
-				break;
-			default:
-				break;
-			}
-		} else {
-			dispose();
-		}
-	}
+    private void processError(final Throwable e) {
+        SwingUtilities.invokeLater(() -> {
+            bar.setFileOK(false);
+            bar.setProcessOK(false);
+            status.setText(FILE_NOT_VALID + " " + xml.getAbsolutePath());
+            status.setNo();
+            L.error("Process error", e);
+        });
+    }
 
-	@SuppressWarnings("unchecked")
-	private void createMonitor() {
-		String monitorClassName = sim.getEnvironment().getPreferredMonitor();
-		Class<? extends GraphicalOutputMonitor<T>> monitorClass;
-		if (monitorClassName == null) {
-			monitorClass = (Class<? extends GraphicalOutputMonitor<T>>) DEFAULT_MONITOR_CLASS;
-		} else {
-			if (!monitorClassName.contains(".")) {
-				monitorClassName = DEFAULT_MONITOR_PACKAGE + monitorClassName;
-			}
-			try {
-				monitorClass = (Class<GraphicalOutputMonitor<T>>) Class.forName(monitorClassName);
-			} catch (final ClassNotFoundException e) {
-				L.warn(e);
-				monitorClass = (Class<? extends GraphicalOutputMonitor<T>>) DEFAULT_MONITOR_CLASS;
-			}
-		}
-		try {
-			final GraphicalOutputMonitor<T> display = monitorClass.getConstructor().newInstance();
-			setMainDisplay(display);
-		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-			L.error(e);
-		}
-	}
+    private void setMainDisplay(final GraphicalOutputMonitor<T> gom) {
+        if (main != null) {
+            sim.removeOutputMonitor(main);
+            gom.setStep(main.getStep());
+            gom.setRealTime(main.isRealTime());
+            remove((Component) main);
+        }
+        main = gom;
+        if (sim != null) {
+            new Thread(() -> sim.addOutputMonitor(main)).start();
+        }
+        add((Component) main, BorderLayout.CENTER);
+        makeEffects();
+        revalidate();
+    }
 
-	private void openXML() {
-		final JFileChooser fc = new JFileChooser();
-		fc.setMultiSelectionEnabled(false);
-		fc.setFileFilter(XML_FILTER);
-		fc.setCurrentDirectory(currentDirectory);
-		final int returnVal = fc.showOpenDialog(null);
-		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			xml = fc.getSelectedFile();
-			currentDirectory = fc.getSelectedFile().getParentFile();
-			if (xml.exists() && xml.getName().endsWith("xml")) {
-				status.setText(r(Res.READY_TO_PROCESS) + " " + xml.getAbsolutePath());
-				status.setOK();
-				if (sim != null) {
-					sim.stop();
-				}
-				bar.setFileOK(true);
-			} else {
-				status.setText(r(Res.FILE_NOT_VALID) + " " + xml.getAbsolutePath());
-				status.setNo();
-				bar.setFileOK(false);
-			}
-		}
-	}
+    private void setRandom() {
+        if (rand != null) {
+            try {
+                rand.setSeed(bar.getRandomText());
+                status.setOK();
+                status.setText(RANDOM_REINIT_SUCCESS + ": " + rand.getSeed());
+            } catch (final NumberFormatException e) {
+                status.setNo();
+                status.setText(RANDOM_REINIT_FAILURE + ": " + NOT_AN_INTEGER);
+            }
+        } else {
+            status.setNo();
+            status.setText(RANDOM_REINIT_FAILURE + ": RandomEngine " + NOT_INITIALIZED_YET);
+        }
+    }
 
-	private void process(final boolean parallel) {
-		if (sim != null) {
-			sim.stopAndWait();
-		}
-		try {
-			sim = null;
-			final Future<Result<T>> fenv = EnvironmentBuilder.build(new FileInputStream(xml));
-			final IEnvironment<T> env = fenv.get().getEnvironment();
-			rand = fenv.get().getRandomEngine();
-			sim = new Simulation<>(env, new DoubleTime(Double.POSITIVE_INFINITY), parallel);
-			bar.setSimulation(sim);
-			scp.setSimulation(sim);
-			final Thread simThread = new Thread(sim);
-			createMonitor();
-			simThread.start();
-			final TimeStepMonitor<T> tm = bar.getTimeMonitor();
-			sim.addOutputMonitor(tm);
-			bar.setRandom(rand.getSeed());
-			bar.setFileOK(true);
-			bar.setProcessOK(true);
-			effectsTab.setEnabled(true);
-			status.setOK();
-			status.setText(r(Res.FILE_PROCESSED) + ": " + xml.getAbsolutePath());
-		} catch (Exception e) {
-			processError(e);
-		}
-	}
-	
-	private void processError(final Throwable e) {
-		SwingUtilities.invokeLater(() -> {
-			bar.setFileOK(false);
-			bar.setProcessOK(false);
-			status.setText(r(Res.FILE_NOT_VALID) + " " + xml.getAbsolutePath());
-			status.setNo();
-			L.error(e);
-		});
-	}
+    @Override
+    public void stateChanged(final ChangeEvent e) {
+        if (bar.getReactivityStatus().equals(Status.USER_SELECTED)) {
+            main.setStep(bar.getReactivity());
+        }
+    }
 
-	private void setMainDisplay(final GraphicalOutputMonitor<T> gom) {
-		if (main != null) {
-			sim.removeOutputMonitor(main);
-			gom.setStep(main.getStep());
-			gom.setRealTime(main.isRealTime());
-			remove((Component) main);
-			main.dispose();
-		}
-		main = gom;
-		if (sim != null) {
-			new Thread(() -> sim.addOutputMonitor(main)).start();
-		}
-		add((Component) main, BorderLayout.CENTER);
-		revalidate();
-		effectsTab.setMonitor(gom);
-		gom.setDrawLinks(effectsTab.isDrawingLinks());
-	}
-
-	private void setRandom() {
-		if (rand != null) {
-			try {
-				rand.setSeed(bar.getRandomText());
-				status.setOK();
-				status.setText(r(Res.RANDOM_REINIT_SUCCESS) + ": " + rand.getSeed());
-			} catch (final NumberFormatException e) {
-				status.setNo();
-				status.setText(r(Res.RANDOM_REINIT_FAIL) + ": " + r(Res.IS_NOT_AN_INTEGER));
-			}
-		} else {
-			status.setNo();
-			status.setText(r(Res.RANDOM_REINIT_FAIL) + ": RandomEngine " + r(Res.IS_NOT_INITIALIZED_YET));
-		}
-	}
-
-	@Override
-	public void stateChanged(final ChangeEvent e) {
-		if (bar.getReactivityStatus().equals(Status.USER_SELECTED)) {
-			main.setStep(bar.getReactivity());
-		}
-	}
+    @Override
+    protected void finalize() throws Throwable {
+        if (sim != null) {
+            sim.stop();
+        }
+        super.finalize();
+    }
 
 }

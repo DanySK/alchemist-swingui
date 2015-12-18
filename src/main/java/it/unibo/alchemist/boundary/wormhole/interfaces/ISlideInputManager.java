@@ -12,22 +12,22 @@ package it.unibo.alchemist.boundary.wormhole.interfaces;
  * <code>ISlideInputManager</code> is the base type for any class whose aim is
  * to handle the the sliding of any physical/virtual device/control.
  * 
- * @author <a href="mailto:giovanni.ciatto@studio.unibo.it">Giovanni Ciatto</a>
+
  */
 public interface ISlideInputManager {
-	/**
-	 * Decreases the total amount of slides.
-	 * 
-	 * @param value
-	 *            is the number of slides
-	 */
-	void dec(double value);
+    /**
+     * Decreases the total amount of slides.
+     * 
+     * @param value
+     *            is the number of slides
+     */
+    void dec(double value);
 
-	/**
-	 * Increases the total amount of slides.
-	 * 
-	 * @param value
-	 *            is the number of slides
-	 */
-	void inc(double value);
+    /**
+     * Increases the total amount of slides.
+     * 
+     * @param value
+     *            is the number of slides
+     */
+    void inc(double value);
 }

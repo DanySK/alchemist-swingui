@@ -13,13 +13,13 @@ package it.unibo.alchemist.boundary.wormhole.interfaces;
  * convert the sliding of any physical/virtual device/control into a positive
  * <code>double</code> value that represents an angle.
  * 
- * @author <a href="mailto:giovanni.ciatto@studio.unibo.it">Giovanni Ciatto</a>
+
  */
-public interface IAngleManager extends ISlideInputManager {
-	/**
-	 * Gets the angle.
-	 * 
-	 * @return a <code>double</code> value representing an angle in radians
-	 */
-	double getAngle();
+public interface AngleManager extends ISlideInputManager {
+    /**
+     * Gets the angle.
+     * 
+     * @return a <code>double</code> value representing an angle in radians
+     */
+    double getAngle();
 }

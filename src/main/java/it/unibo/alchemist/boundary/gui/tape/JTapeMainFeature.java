@@ -14,44 +14,50 @@ import java.awt.Dimension;
 
 import javax.swing.SpringLayout;
 
+/**
+ *
+ */
 public class JTapeMainFeature extends JTapeSection {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3756166558195051145L;
-	private final SpringLayout springLayout;
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -3756166558195051145L;
+    private final SpringLayout springLayout;
 
-	public JTapeMainFeature() {
-		super();
+    /**
+     * 
+     */
+    public JTapeMainFeature() {
+        super();
 
-		setBackground(Color.YELLOW);
-		springLayout = new SpringLayout();
+        setBackground(Color.YELLOW);
+        springLayout = new SpringLayout();
 
-		setLayout(springLayout);
-	}
+        setLayout(springLayout);
+    }
 
-	/**
-	 * 
-	 */
-	@Override
-	public boolean registerFeature(final Component c) {
-		if (getComponentCount() != 0) {
-			return false;
-		}
-		final Dimension d = c.getPreferredSize();
-		springLayout.putConstraint(SpringLayout.NORTH, c, 0, SpringLayout.NORTH, this);
-		springLayout.putConstraint(SpringLayout.WEST, c, 0, SpringLayout.WEST, this);
-		springLayout.putConstraint(SpringLayout.EAST, c, 0, SpringLayout.EAST, this);
-		springLayout.putConstraint(SpringLayout.SOUTH, c, 0, SpringLayout.SOUTH, this);
-		setMinimumSize(d);
-		add(c);
-		return true;
-	}
+    /**
+     * 
+     */
+    @Override
+    public boolean registerFeature(final Component c) {
+        if (getComponentCount() != 0) {
+            return false;
+        }
+        final Dimension d = c.getPreferredSize();
+        springLayout.putConstraint(SpringLayout.NORTH, c, 0, SpringLayout.NORTH, this);
+        springLayout.putConstraint(SpringLayout.WEST, c, 0, SpringLayout.WEST, this);
+        springLayout.putConstraint(SpringLayout.EAST, c, 0, SpringLayout.EAST, this);
+        springLayout.putConstraint(SpringLayout.SOUTH, c, 0, SpringLayout.SOUTH, this);
+        setMinimumSize(d);
+        add(c);
+        return true;
+    }
 
-	@Override
-	public boolean unregisterFeature(final Component c) {
-		return false;
-	}
+    @Override
+    public boolean unregisterFeature(final Component c) {
+        return false;
+    }
 
 }
