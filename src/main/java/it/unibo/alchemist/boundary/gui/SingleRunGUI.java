@@ -14,7 +14,6 @@ import java.io.ObjectInputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
@@ -30,11 +29,7 @@ import it.unibo.alchemist.boundary.gui.util.GraphicalMonitorFactory;
 import it.unibo.alchemist.boundary.interfaces.GraphicalOutputMonitor;
 import it.unibo.alchemist.boundary.l10n.R;
 import it.unibo.alchemist.boundary.monitors.TimeStepMonitor;
-import it.unibo.alchemist.core.implementations.Simulation;
 import it.unibo.alchemist.core.interfaces.ISimulation;
-import it.unibo.alchemist.language.EnvironmentBuilder;
-import it.unibo.alchemist.model.implementations.times.DoubleTime;
-import it.unibo.alchemist.model.interfaces.IEnvironment;
 
 /**
  * Utility class for quickly creating non-reusable graphical interfaces.
@@ -165,14 +160,6 @@ public final class SingleRunGUI {
 
     private static double area(final Dimension d) {
         return d.getWidth() * d.getHeight();
-    }
-
-    public static void main(final String... args) throws InterruptedException, ExecutionException, FileNotFoundException {
-        final IEnvironment<?> env = EnvironmentBuilder
-                .build(new FileInputStream("/home/danysk/2015-SASO-DEMO/src-gen/test.xml")).get().getEnvironment();
-        final ISimulation<?> sim = new Simulation<>(env, DoubleTime.INFINITE_TIME);
-        make(sim, "/home/danysk/2015-SASO-DEMO/effects/10-0.aes");
-        sim.run();
     }
 
 }
