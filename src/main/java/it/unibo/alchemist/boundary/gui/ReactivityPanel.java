@@ -16,7 +16,6 @@ import it.unibo.alchemist.boundary.gui.tape.JTapeSection;
 import it.unibo.alchemist.boundary.l10n.Res;
 
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
@@ -29,7 +28,7 @@ import javax.swing.event.ChangeListener;
 
 /**
  */
-public class ReactivityPanel extends JTapeGroup implements ActionListener, ItemListener {
+public class ReactivityPanel extends JTapeGroup implements ItemListener {
 
     private static final long serialVersionUID = 6688803192091760332L;
 
@@ -94,19 +93,6 @@ public class ReactivityPanel extends JTapeGroup implements ActionListener, ItemL
         registerSection(stack1);
         registerSection(buttMF);
         registerSection(sliderMF);
-    }
-
-    @Override
-    public void actionPerformed(final ActionEvent e) {
-        /*
-         * if (e.getSource().equals(button)) { switch (status) { case
-         * MAX_REACTIVITY: status = Status.USER_SELECTED; button.setIcon(user);
-         * slider.setEnabled(true); break; case USER_SELECTED: status =
-         * Status.REAL_TIME; button.setIcon(real); slider.setEnabled(false);
-         * break; case REAL_TIME: status = Status.MAX_REACTIVITY;
-         * button.setIcon(max); slider.setEnabled(false); break; default: break;
-         * } }
-         */
     }
 
     /**
