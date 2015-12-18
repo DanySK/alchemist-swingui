@@ -12,8 +12,6 @@ package it.unibo.alchemist.boundary.gui.asmc;
  * A Sampler for the probability v.s. time function (see Manual), returning both
  * mean value and confidence interval.
  * 
- * @author Davide Ensini
- * 
  */
 public interface ASMCSampler {
 

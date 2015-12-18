@@ -29,8 +29,6 @@ import org.jfree.data.xy.YIntervalSeriesCollection;
 /**
  * An ASMCPlot that makes use of the JFreeChart library.
  * 
- * @author Davide Ensini
- * 
  */
 public class SimplePlot extends ASMCPlot {
     /**

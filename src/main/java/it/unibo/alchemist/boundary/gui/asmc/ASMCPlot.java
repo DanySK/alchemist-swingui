@@ -14,8 +14,6 @@ import javax.swing.JPanel;
  * A chart panel that, given a series of XY values, each comprised in a
  * surrounding interval, plots series line and interval area.
  * 
- * @author Davide Ensini
- * 
  */
 public abstract class ASMCPlot extends JPanel {
 
