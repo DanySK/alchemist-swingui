@@ -122,7 +122,8 @@ public final class SimControlPanel extends JTapeGroup {
                 /*
                  * Clone one of the existing elements. Ensures consistency.
                  */
-                for (final SimControlPanel clone : l) {
+                if (!l.isEmpty()) {
+                    final SimControlPanel clone = l.iterator().next();
                     for (final Entry<SimControlCommand, SimControlButton> entry : clone.map.entrySet()) {
                         final SimControlCommand cmd = entry.getKey();
                         final SimControlButton but = entry.getValue();
@@ -132,7 +133,6 @@ public final class SimControlPanel extends JTapeGroup {
                             dbut.addActionListener(al);
                         }
                     }
-                    break;
                 }
             }
             l.add(scp);
