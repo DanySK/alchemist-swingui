@@ -18,6 +18,7 @@ import java.util.Set;
 import javax.swing.AbstractButton;
 
 import com.google.common.collect.MapMaker;
+import com.google.common.collect.Sets;
 
 import it.unibo.alchemist.boundary.gui.tape.JTapeFeatureStack;
 import it.unibo.alchemist.boundary.gui.tape.JTapeGroup;
@@ -81,14 +82,8 @@ public final class SimControlPanel extends JTapeGroup {
         if (scp.simulation != null) {
             final Set<SimControlPanel> result = SIMCONTROLMAP.get(scp.simulation);
             return result == null ? new HashSet<SimControlPanel>() : result;
-        } else {
-            return new HashSet<SimControlPanel>() {
-                private static final long serialVersionUID = 5519065640151468388L;
-                {
-                    add(scp);
-                }
-            };
         }
+        return Sets.newHashSet(scp);
     }
 
     private static synchronized void removeAllActionListeners(final SimControlPanel scp) {
