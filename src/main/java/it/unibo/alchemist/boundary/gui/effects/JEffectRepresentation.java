@@ -46,7 +46,7 @@ public class JEffectRepresentation<T> extends JTapeFeatureStack implements ItemS
     private final Effect effect;
     private final GraphicalOutputMonitor<T> monitor;
     private final JLabel info;
-    private boolean selected = false;
+    private boolean selected;
     private final transient List<ItemListener> itemListeners = new LinkedList<>();
     private final transient ItemListener itemListener = new ItemListener() {
 
@@ -134,7 +134,7 @@ public class JEffectRepresentation<T> extends JTapeFeatureStack implements ItemS
     }
 
     @Override
-    public void addItemListener(final ItemListener l) {
+    public final void addItemListener(final ItemListener l) {
         itemListeners.add(l);
     }
 

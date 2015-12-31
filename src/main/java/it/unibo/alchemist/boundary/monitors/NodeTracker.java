@@ -20,11 +20,11 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 
 import it.unibo.alchemist.boundary.interfaces.OutputMonitor;
-import it.unibo.alchemist.model.interfaces.IEnvironment;
-import it.unibo.alchemist.model.interfaces.IMolecule;
-import it.unibo.alchemist.model.interfaces.INode;
-import it.unibo.alchemist.model.interfaces.IReaction;
-import it.unibo.alchemist.model.interfaces.ITime;
+import it.unibo.alchemist.model.interfaces.Environment;
+import it.unibo.alchemist.model.interfaces.Molecule;
+import it.unibo.alchemist.model.interfaces.Node;
+import it.unibo.alchemist.model.interfaces.Reaction;
+import it.unibo.alchemist.model.interfaces.Time;
 
 /**
  * @param <T>
@@ -35,7 +35,7 @@ public class NodeTracker<T> extends JPanel implements OutputMonitor<T>, ActionLi
     private static final long serialVersionUID = -676002989218532788L;
     private static final int AREA_SIZE = 80;
     private final JTextArea txt = new JTextArea(AREA_SIZE / 2, AREA_SIZE);
-    private final INode<T> n;
+    private final Node<T> n;
     private int stringLength = Byte.MAX_VALUE;
 
     /**
@@ -43,7 +43,7 @@ public class NodeTracker<T> extends JPanel implements OutputMonitor<T>, ActionLi
      *            the node to track
      * 
      */
-    public NodeTracker(final INode<T> node) {
+    public NodeTracker(final Node<T> node) {
         super();
         final JScrollPane areaScrollPane = new JScrollPane(txt);
         n = node;
@@ -59,17 +59,17 @@ public class NodeTracker<T> extends JPanel implements OutputMonitor<T>, ActionLi
     }
 
     @Override
-    public void finished(final IEnvironment<T> env, final ITime time, final long step) {
+    public void finished(final Environment<T> env, final Time time, final long step) {
         stepDone(env, null, time, step);
     }
 
     @Override
-    public void initialized(final IEnvironment<T> env) {
+    public void initialized(final Environment<T> env) {
         stepDone(env, null, null, 0L);
     }
 
     @Override
-    public void stepDone(final IEnvironment<T> env, final IReaction<T> exec, final ITime time, final long step) {
+    public void stepDone(final Environment<T> env, final Reaction<T> exec, final Time time, final long step) {
         if (exec == null || exec.getNode().equals(n)) {
             final StringBuilder sb = new StringBuilder(stringLength);
             sb.append(POSITION);
@@ -78,7 +78,7 @@ public class NodeTracker<T> extends JPanel implements OutputMonitor<T>, ActionLi
             sb.append("\n\n\n");
             sb.append(CONTENT);
             sb.append('\n');
-            for (final Entry<IMolecule, T> e : n.getContents().entrySet()) {
+            for (final Entry<Molecule, T> e : n.getContents().entrySet()) {
                 sb.append(e.getKey());
                 sb.append(" > ");
                 sb.append(e.getValue());
@@ -87,7 +87,7 @@ public class NodeTracker<T> extends JPanel implements OutputMonitor<T>, ActionLi
             sb.append("\n\n\n");
             sb.append(PROGRAM);
             sb.append("\n\n");
-            for (final IReaction<T> r : n.getReactions()) {
+            for (final Reaction<T> r : n.getReactions()) {
                 sb.append(r.toString());
                 sb.append("\n\n");
             }

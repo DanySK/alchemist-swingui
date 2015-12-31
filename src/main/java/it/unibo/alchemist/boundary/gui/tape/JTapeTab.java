@@ -33,7 +33,7 @@ public class JTapeTab extends JPanel {
     private final StringBuilder layoutString = new StringBuilder();
     private JProgressBar progressBar;
     private final JPanel contentPanel;
-    private int compCount = 0;
+    private int compCount;
 
     /**
      * Initializes a new {@link JTapeTab} with the title in input.

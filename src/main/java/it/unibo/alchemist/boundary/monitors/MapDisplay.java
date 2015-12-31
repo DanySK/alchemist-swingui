@@ -29,8 +29,8 @@ import org.mapsforge.map.model.Model;
 
 import it.unibo.alchemist.boundary.wormhole.implementation.LinearZoomManager;
 import it.unibo.alchemist.boundary.wormhole.implementation.MapWormhole;
-import it.unibo.alchemist.model.interfaces.IEnvironment;
-import it.unibo.alchemist.model.interfaces.ITime;
+import it.unibo.alchemist.model.interfaces.Environment;
+import it.unibo.alchemist.model.interfaces.Time;
 
 /**
  * 
@@ -71,7 +71,7 @@ public class MapDisplay<T> extends Generic2DDisplay<T> {
     };
 
     @Override
-    public void initialized(final IEnvironment<T> env) {
+    public void initialized(final Environment<T> env) {
         super.initialized(env);
         Arrays.stream(getMouseListeners()).forEach(mapView::addMouseListener);
         Arrays.stream(getMouseMotionListeners()).forEach(mapView::addMouseMotionListener);
@@ -112,7 +112,7 @@ public class MapDisplay<T> extends Generic2DDisplay<T> {
     }
 
     @Override
-    public void finished(final IEnvironment<T> env, final ITime time, final long step) {
+    public void finished(final Environment<T> env, final Time time, final long step) {
         /*
          * Shut down the download threads, preventing memory leaks
          */

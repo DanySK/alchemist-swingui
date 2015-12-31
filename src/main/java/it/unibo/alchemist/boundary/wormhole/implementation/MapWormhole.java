@@ -19,8 +19,8 @@ import org.mapsforge.core.util.MercatorProjection;
 import org.mapsforge.map.model.MapViewPosition;
 
 import it.unibo.alchemist.model.implementations.positions.LatLongPosition;
-import it.unibo.alchemist.model.interfaces.IEnvironment;
-import it.unibo.alchemist.model.interfaces.IPosition;
+import it.unibo.alchemist.model.interfaces.Environment;
+import it.unibo.alchemist.model.interfaces.Position;
 
 /**
  * Wormhole used for maps rendering.
@@ -40,20 +40,20 @@ public final class MapWormhole extends Wormhole2D {
      * input.
      * 
      * @param env
-     *            the {@link IEnvironment}
+     *            the {@link Environment}
      * @param comp
      *            the controlled {@link Component}
      * @param m
      *            the {@link MapViewPosition}
      */
-    public MapWormhole(final IEnvironment<?> env, final Component comp, final MapViewPosition m) {
+    public MapWormhole(final Environment<?> env, final Component comp, final MapViewPosition m) {
         super(env, comp);
         mapModel = m;
         super.setMode(Mode.MAP);
     }
 
     @Override
-    public IPosition getEnvPoint(final Point viewPoint) {
+    public Position getEnvPoint(final Point viewPoint) {
         final LatLong l = mapModel.getCenter();
         final PointAdapter c = coordToPx(from(l.longitude, l.latitude));
         final PointAdapter d = from(viewPoint).diff(from(getViewPosition()));
@@ -96,7 +96,7 @@ public final class MapWormhole extends Wormhole2D {
     }
 
     @Override
-    public Point getViewPoint(final IPosition envPoint) {
+    public Point getViewPoint(final Position envPoint) {
         final LatLong l = mapModel.getCenter();
         final PointAdapter viewPoint = coordToPx(from(envPoint));
         final PointAdapter centerView = coordToPx(from(l.longitude, l.latitude));
@@ -116,7 +116,7 @@ public final class MapWormhole extends Wormhole2D {
     }
 
     @Override
-    public void setEnvPosition(final IPosition ep) {
+    public void setEnvPosition(final Position ep) {
         LatLong center;
         try {
             center = new LatLong(ep.getCoordinate(1), ep.getCoordinate(0));
@@ -130,7 +130,7 @@ public final class MapWormhole extends Wormhole2D {
     public void optimalZoom() {
         byte zoom = MAX_ZOOM;
         @SuppressWarnings("unchecked")
-        final IEnvironment<Object> env = (IEnvironment<Object>) getEnvironment();
+        final Environment<Object> env = (Environment<Object>) getEnvironment();
         do {
             setZoom(zoom);
             zoom--;

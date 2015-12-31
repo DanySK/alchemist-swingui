@@ -29,7 +29,7 @@ import it.unibo.alchemist.boundary.gui.util.GraphicalMonitorFactory;
 import it.unibo.alchemist.boundary.interfaces.GraphicalOutputMonitor;
 import it.unibo.alchemist.boundary.l10n.R;
 import it.unibo.alchemist.boundary.monitors.TimeStepMonitor;
-import it.unibo.alchemist.core.interfaces.ISimulation;
+import it.unibo.alchemist.core.interfaces.Simulation;
 
 /**
  * Utility class for quickly creating non-reusable graphical interfaces.
@@ -52,7 +52,7 @@ public final class SingleRunGUI {
      * @param <T>
      *            concentration type
      */
-    public static <T> void make(final ISimulation<T> sim) {
+    public static <T> void make(final Simulation<T> sim) {
         make(sim, (InputStream) null);
     }
 
@@ -67,7 +67,7 @@ public final class SingleRunGUI {
      *            concentration type
      * @throws FileNotFoundException 
      */
-    public static <T> void make(final ISimulation<T> sim, final String effectsFile) {
+    public static <T> void make(final Simulation<T> sim, final String effectsFile) {
         make(sim, new File(effectsFile));
     }
 
@@ -82,7 +82,7 @@ public final class SingleRunGUI {
      *            concentration type
      * @throws FileNotFoundException 
      */
-    public static <T> void make(final ISimulation<T> sim, final File effectsFile) {
+    public static <T> void make(final Simulation<T> sim, final File effectsFile) {
         try {
             make(sim, new FileInputStream(effectsFile));
         } catch (FileNotFoundException e) {
@@ -106,7 +106,7 @@ public final class SingleRunGUI {
      *            concentration type
      */
     @SuppressWarnings("unchecked")
-    public static <T> void make(final ISimulation<T> sim, final InputStream effectsFile) {
+    public static <T> void make(final Simulation<T> sim, final InputStream effectsFile) {
         final GraphicalOutputMonitor<T> main = GraphicalMonitorFactory.createMonitor(sim,
                 e -> L.error("Cannot init the UI.", e));
         if (main instanceof Component) {

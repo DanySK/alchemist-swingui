@@ -27,7 +27,7 @@ import it.unibo.alchemist.boundary.gui.tape.JTapeSection;
 import it.unibo.alchemist.boundary.gui.tape.JTapeTab;
 import it.unibo.alchemist.boundary.l10n.R;
 import it.unibo.alchemist.boundary.monitors.TimeStepMonitor;
-import it.unibo.alchemist.core.interfaces.ISimulation;
+import it.unibo.alchemist.core.interfaces.Simulation;
 
 /**
  */
@@ -294,7 +294,7 @@ public final class UpperBar extends JTape {
      * @param s
      *            simulation
      */
-    public void setSimulation(final ISimulation<?> s) {
+    public void setSimulation(final Simulation<?> s) {
         monTab.setSimulation(s);
     }
 }

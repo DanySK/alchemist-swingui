@@ -26,9 +26,9 @@ import javax.swing.border.LineBorder;
 
 import it.unibo.alchemist.boundary.interfaces.OutputMonitor;
 import it.unibo.alchemist.model.implementations.times.DoubleTime;
-import it.unibo.alchemist.model.interfaces.IEnvironment;
-import it.unibo.alchemist.model.interfaces.IReaction;
-import it.unibo.alchemist.model.interfaces.ITime;
+import it.unibo.alchemist.model.interfaces.Environment;
+import it.unibo.alchemist.model.interfaces.Reaction;
+import it.unibo.alchemist.model.interfaces.Time;
 
 /**
  * @param <T>
@@ -45,7 +45,7 @@ public class TimeStepMonitor<T> extends JPanel implements OutputMonitor<T> {
     private final JLabel s;
     private long step;
     private final JLabel t;
-    private ITime time = new DoubleTime();
+    private Time time = new DoubleTime();
     private Updater updater;
 
     private class Updater implements Runnable {
@@ -87,7 +87,7 @@ public class TimeStepMonitor<T> extends JPanel implements OutputMonitor<T> {
     }
 
     @Override
-    public void finished(final IEnvironment<T> env, final ITime tt, final long cs) {
+    public void finished(final Environment<T> env, final Time tt, final long cs) {
         isFinished = true;
         stepDone(env, null, tt, cs);
         updater.stop();
@@ -96,13 +96,13 @@ public class TimeStepMonitor<T> extends JPanel implements OutputMonitor<T> {
     }
 
     @Override
-    public void initialized(final IEnvironment<T> env) {
+    public void initialized(final Environment<T> env) {
         isFinished = false;
         stepDone(env, null, new DoubleTime(), 0);
     }
 
     @Override
-    public void stepDone(final IEnvironment<T> env, final IReaction<T> r, final ITime curTime, final long curStep) {
+    public void stepDone(final Environment<T> env, final Reaction<T> r, final Time curTime, final long curStep) {
         if (updater == null) {
             updater = new Updater();
             new Thread(updater, TimeStepMonitor.class.getSimpleName() + " updater thread").start();

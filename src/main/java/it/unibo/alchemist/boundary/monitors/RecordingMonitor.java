@@ -42,10 +42,10 @@ import it.unibo.alchemist.boundary.gui.effects.Effect;
 import it.unibo.alchemist.boundary.interfaces.Graphical2DOutputMonitor;
 import it.unibo.alchemist.model.implementations.positions.Continuous2DEuclidean;
 import it.unibo.alchemist.model.implementations.times.DoubleTime;
-import it.unibo.alchemist.model.interfaces.IEnvironment;
-import it.unibo.alchemist.model.interfaces.IPosition;
-import it.unibo.alchemist.model.interfaces.IReaction;
-import it.unibo.alchemist.model.interfaces.ITime;
+import it.unibo.alchemist.model.interfaces.Environment;
+import it.unibo.alchemist.model.interfaces.Position;
+import it.unibo.alchemist.model.interfaces.Reaction;
+import it.unibo.alchemist.model.interfaces.Time;
 
 /**
  * @param <T>
@@ -119,7 +119,7 @@ public class RecordingMonitor<T> extends EnvironmentInspector<T> {
     }
 
     @SuppressWarnings("unchecked")
-    private void createMonitor(final IEnvironment<T> env) {
+    private void createMonitor(final Environment<T> env) {
         String monitorClassName = Optional.ofNullable(env.getPreferredMonitor()).orElse(DEFAULT_MONITOR_CLASS);
         if (!monitorClassName.contains(".")) {
             monitorClassName = DEFAULT_MONITOR_PACKAGE + monitorClassName;
@@ -150,7 +150,7 @@ public class RecordingMonitor<T> extends EnvironmentInspector<T> {
     }
 
     @Override
-    public void finished(final IEnvironment<T> env, final ITime time, final long step) {
+    public void finished(final Environment<T> env, final Time time, final long step) {
         saveScreenshot(env, null, time, step);
         source.finished(env, time, step);
     }
@@ -163,7 +163,7 @@ public class RecordingMonitor<T> extends EnvironmentInspector<T> {
     }
 
     @Override
-    public void initialized(final IEnvironment<T> env) {
+    public void initialized(final Environment<T> env) {
         assert source == sourceComponent; // NOPMD
         createMonitor(env);
         sourceComponent.setVisible(true);
@@ -191,7 +191,7 @@ public class RecordingMonitor<T> extends EnvironmentInspector<T> {
     }
 
     @Override
-    public void stepDone(final IEnvironment<T> env, final IReaction<T> r, final ITime time, final long step) {
+    public void stepDone(final Environment<T> env, final Reaction<T> r, final Time time, final long step) {
         mutex.acquireUninterruptibly();
         final double sample = getInterval().getVal() * FastMath.pow(10, getIntervalOrderOfMagnitude().getVal());
         final boolean log = getMode().equals(Mode.TIME) ? time.toDouble() - lastUpdate >= sample
@@ -219,7 +219,7 @@ public class RecordingMonitor<T> extends EnvironmentInspector<T> {
      *            file name
      */
     @SuppressWarnings("unchecked")
-    private void saveScreenshot(final IEnvironment<T> env, final IReaction<T> r, final ITime time, final long step) {
+    private void saveScreenshot(final Environment<T> env, final Reaction<T> r, final Time time, final long step) {
         assert source == sourceComponent; // NOPMD
         if (source != null) {
             source.stepDone(env, r, time, step);
@@ -245,7 +245,7 @@ public class RecordingMonitor<T> extends EnvironmentInspector<T> {
             final double[] size = env.getSize();
             offset[0] += size[0] / 2;
             offset[1] += size[1] / 2;
-            final IPosition center = new Continuous2DEuclidean(offset);
+            final Position center = new Continuous2DEuclidean(offset);
             source.zoomTo(center, zoomVal);
             sourceComponent.revalidate();
 
@@ -278,7 +278,7 @@ public class RecordingMonitor<T> extends EnvironmentInspector<T> {
     }
 
     @Override
-    protected double[] extractValues(final IEnvironment<T> env, final IReaction<T> r, final ITime time,
+    protected double[] extractValues(final Environment<T> env, final Reaction<T> r, final Time time,
             final long step) {
         /**
          * Unused.

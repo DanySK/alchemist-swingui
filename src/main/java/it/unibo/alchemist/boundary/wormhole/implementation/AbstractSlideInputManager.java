@@ -9,7 +9,6 @@
 package it.unibo.alchemist.boundary.wormhole.implementation;
 
 import it.unibo.alchemist.boundary.wormhole.interfaces.ISlideInputManager;
-import it.unibo.alchemist.utils.MathUtils;
 
 /**
  * <code>ASlideInputManager</code> is the base class for any class whose aim is
@@ -66,7 +65,7 @@ public class AbstractSlideInputManager implements ISlideInputManager {
      *            is the new value
      */
     protected void setValue(final double val) {
-        value = MathUtils.forceRange(val, min, max);
+        value = val < min ? min : val > max ? max : val;
     }
 
 }

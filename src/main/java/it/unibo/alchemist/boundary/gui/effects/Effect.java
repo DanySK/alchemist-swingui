@@ -8,7 +8,7 @@
  */
 package it.unibo.alchemist.boundary.gui.effects;
 
-import it.unibo.alchemist.model.interfaces.INode;
+import it.unibo.alchemist.model.interfaces.Node;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -30,7 +30,7 @@ public interface Effect extends Serializable {
      * @param y
      *            y screen position
      */
-    void apply(Graphics2D g, INode<?> n, int x, int y);
+    void apply(Graphics2D g, Node<?> n, int x, int y);
 
     /**
      * @return a color which resembles the color of this effect

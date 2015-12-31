@@ -1,6 +1,6 @@
 package it.unibo.alchemist.boundary.interfaces;
 
-import it.unibo.alchemist.model.interfaces.IPosition;
+import it.unibo.alchemist.model.interfaces.Position;
 
 /**
  * An output monitor that supports zooming on bidimensional environments.
@@ -15,6 +15,6 @@ public interface Graphical2DOutputMonitor<T> extends GraphicalOutputMonitor<T> {
      * @param zoomLevel
      *            the desired zoom level
      */
-    void zoomTo(IPosition center, double zoomLevel);
+    void zoomTo(Position center, double zoomLevel);
 
 }

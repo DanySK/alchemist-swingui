@@ -5,7 +5,7 @@ import java.util.function.Consumer;
 
 import it.unibo.alchemist.boundary.interfaces.GraphicalOutputMonitor;
 import it.unibo.alchemist.boundary.monitors.Generic2DDisplay;
-import it.unibo.alchemist.core.interfaces.ISimulation;
+import it.unibo.alchemist.core.interfaces.Simulation;
 
 /**
  * A factory class for reflectively instancing {@link GraphicalOutputMonitor}.
@@ -28,7 +28,7 @@ public final class GraphicalMonitorFactory {
      * @param <T>
      *            concentration type
      * @return a {@link GraphicalOutputMonitor} whose type depends on the passed
-     *         {@link ISimulation} preferred type
+     *         {@link Simulation} preferred type
      * @throws SecurityException in case of problem with reflective instantiation
      * @throws NoSuchMethodException in case of problem with reflective instantiation
      * @throws InvocationTargetException in case of problem with reflective instantiation
@@ -38,7 +38,7 @@ public final class GraphicalMonitorFactory {
      * 
      */
     @SuppressWarnings("unchecked")
-    public static <T> GraphicalOutputMonitor<T> createMonitor(final ISimulation<T> sim) throws InstantiationException,
+    public static <T> GraphicalOutputMonitor<T> createMonitor(final Simulation<T> sim) throws InstantiationException,
             IllegalAccessException, InvocationTargetException, NoSuchMethodException, SecurityException {
         String monitorClassName = sim.getEnvironment().getPreferredMonitor();
         Class<? extends GraphicalOutputMonitor<T>> monitorClass;
@@ -70,7 +70,7 @@ public final class GraphicalMonitorFactory {
      * @return null in case of {@link Exception}, the
      *         {@link GraphicalOutputMonitor} otherwise
      */
-    public static <T> GraphicalOutputMonitor<T> createMonitor(final ISimulation<T> sim,
+    public static <T> GraphicalOutputMonitor<T> createMonitor(final Simulation<T> sim,
             final Consumer<Exception> onException) {
         try {
             return createMonitor(sim);
