@@ -10,8 +10,8 @@ package it.unibo.alchemist.boundary.gui.effects;
 
 import it.unibo.alchemist.SupportedIncarnations;
 import it.unibo.alchemist.boundary.gui.ColorChannel;
-import it.unibo.alchemist.model.interfaces.IMolecule;
-import it.unibo.alchemist.model.interfaces.INode;
+import it.unibo.alchemist.model.interfaces.Molecule;
+import it.unibo.alchemist.model.interfaces.Node;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -102,13 +102,13 @@ public class DrawShape implements Effect {
     private RangedInteger maxprop = new RangedInteger(-PROPERTY_SCALE, PROPERTY_SCALE, PROPERTY_SCALE);
 
     private Color colorCache = Color.BLACK;
-    private transient IMolecule molecule;
+    private transient Molecule molecule;
     private transient Object molStringCached;
     @SuppressFBWarnings(value = "SE_TRANSIENT_FIELD_NOT_RESTORED", justification = "If null, it gets reinitialized anyway if needed")
     private transient SupportedIncarnations prevIncarnation = incarnation;
 
     @Override
-    public void apply(final Graphics2D g, final INode<?> n, final int x, final int y) {
+    public void apply(final Graphics2D g, final Node<?> n, final int x, final int y) {
         if (!HashUtils.pointerEquals(molString, molStringCached) || !incarnation.equals(prevIncarnation)) {
             molStringCached = molString;
             prevIncarnation = incarnation;
@@ -230,7 +230,7 @@ public class DrawShape implements Effect {
     /**
      * @return molecule
      */
-    protected IMolecule getMolecule() {
+    protected Molecule getMolecule() {
         return molecule;
     }
 

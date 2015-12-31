@@ -7,7 +7,7 @@ import java.io.Serializable;
 import org.danilopianini.lang.HashUtils;
 
 import it.unibo.alchemist.model.implementations.positions.Continuous2DEuclidean;
-import it.unibo.alchemist.model.interfaces.IPosition;
+import it.unibo.alchemist.model.interfaces.Position;
 
 /**
  * Adapts various representations of bidimensional positions.
@@ -16,7 +16,7 @@ public final class PointAdapter implements Serializable {
 
     private static final long serialVersionUID = 4144646922749713533L;
     private final double x, y;
-    private IPosition pos;
+    private Position pos;
     private int hash;
 
     private PointAdapter(final double x, final double y) {
@@ -24,7 +24,7 @@ public final class PointAdapter implements Serializable {
         this.y = y;
     }
 
-    private PointAdapter(final IPosition pos) {
+    private PointAdapter(final Position pos) {
         assert pos.getDimensions() == 2;
         this.pos = pos;
         x = pos.getCoordinate(0);
@@ -52,11 +52,11 @@ public final class PointAdapter implements Serializable {
      * Builds a {@link PointAdapter}.
      * 
      * @param p
-     *            the {@link IPosition}
+     *            the {@link Position}
      * 
      * @return a {@link PointAdapter}
      */
-    public static PointAdapter from(final IPosition p) {
+    public static PointAdapter from(final Position p) {
         return new PointAdapter(p);
     }
 
@@ -87,9 +87,9 @@ public final class PointAdapter implements Serializable {
     }
 
     /**
-     * @return the {@link IPosition} view of this {@link PointAdapter}
+     * @return the {@link Position} view of this {@link PointAdapter}
      */
-    public IPosition toPosition() {
+    public Position toPosition() {
         if (pos == null) {
             pos = new Continuous2DEuclidean(x, y);
         }

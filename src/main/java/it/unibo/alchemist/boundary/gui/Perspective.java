@@ -27,6 +27,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import it.unibo.alchemist.boundary.gui.ReactivityPanel.Status;
 import it.unibo.alchemist.boundary.gui.UpperBar.Commands;
 import it.unibo.alchemist.boundary.gui.effects.JEffectsTab;
@@ -34,13 +35,13 @@ import it.unibo.alchemist.boundary.gui.util.GraphicalMonitorFactory;
 import it.unibo.alchemist.boundary.interfaces.GraphicalOutputMonitor;
 import it.unibo.alchemist.boundary.monitors.Generic2DDisplay;
 import it.unibo.alchemist.boundary.monitors.TimeStepMonitor;
-import it.unibo.alchemist.core.implementations.Simulation;
-import it.unibo.alchemist.core.interfaces.ISimulation;
-import it.unibo.alchemist.external.cern.jet.random.engine.RandomEngine;
+import it.unibo.alchemist.core.implementations.Engine;
+import it.unibo.alchemist.core.interfaces.Simulation;
+import org.apache.commons.math3.random.RandomGenerator;
 import it.unibo.alchemist.language.EnvironmentBuilder;
 import it.unibo.alchemist.language.EnvironmentBuilder.Result;
 import it.unibo.alchemist.model.implementations.times.DoubleTime;
-import it.unibo.alchemist.model.interfaces.IEnvironment;
+import it.unibo.alchemist.model.interfaces.Environment;
 
 import static it.unibo.alchemist.boundary.l10n.R.getString;
 
@@ -62,10 +63,11 @@ public class Perspective<T> extends JPanel implements ChangeListener, ActionList
 
     private File currentDirectory = new File(System.getProperty("user.home"));
     private GraphicalOutputMonitor<T> main;
-    private RandomEngine rand;
+    @SuppressFBWarnings(value = "SE_BAD_FIELD", justification = "All the random engines provided by Apache are Serializable")
+    private RandomGenerator rand;
     private final SimControlPanel scp = SimControlPanel.createControlPanel(null);
     private JEffectsTab<T> effectsTab;
-    private transient ISimulation<T> sim;
+    private transient Simulation<T> sim;
     private final StatusBar status;
     private File xml;
 
@@ -191,9 +193,9 @@ public class Perspective<T> extends JPanel implements ChangeListener, ActionList
         try {
             sim = null;
             final Future<Result<T>> fenv = EnvironmentBuilder.build(new FileInputStream(xml));
-            final IEnvironment<T> env = fenv.get().getEnvironment();
-            rand = fenv.get().getRandomEngine();
-            sim = new Simulation<>(env, new DoubleTime(Double.POSITIVE_INFINITY), parallel);
+            final Environment<T> env = fenv.get().getEnvironment();
+            rand = fenv.get().getRandomGenerator();
+            sim = new Engine<>(env, new DoubleTime(Double.POSITIVE_INFINITY), parallel);
             bar.setSimulation(sim);
             scp.setSimulation(sim);
             final Thread simThread = new Thread(sim);
@@ -201,7 +203,6 @@ public class Perspective<T> extends JPanel implements ChangeListener, ActionList
             simThread.start();
             final TimeStepMonitor<T> tm = bar.getTimeMonitor();
             sim.addOutputMonitor(tm);
-            bar.setRandom(rand.getSeed());
             bar.setFileOK(true);
             bar.setProcessOK(true);
             effectsTab.setEnabled(true);
@@ -243,14 +244,14 @@ public class Perspective<T> extends JPanel implements ChangeListener, ActionList
             try {
                 rand.setSeed(bar.getRandomText());
                 status.setOK();
-                status.setText(RANDOM_REINIT_SUCCESS + ": " + rand.getSeed());
+                status.setText(RANDOM_REINIT_SUCCESS);
             } catch (final NumberFormatException e) {
                 status.setNo();
                 status.setText(RANDOM_REINIT_FAILURE + ": " + NOT_AN_INTEGER);
             }
         } else {
             status.setNo();
-            status.setText(RANDOM_REINIT_FAILURE + ": RandomEngine " + NOT_INITIALIZED_YET);
+            status.setText(RANDOM_REINIT_FAILURE + ": RandomGenerator " + NOT_INITIALIZED_YET);
         }
     }
 

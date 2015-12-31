@@ -9,7 +9,6 @@
 package it.unibo.alchemist.boundary.wormhole.implementation;
 
 import it.unibo.alchemist.boundary.wormhole.interfaces.AngleManager;
-import it.unibo.alchemist.utils.MathUtils;
 
 import java.awt.Toolkit;
 
@@ -36,7 +35,7 @@ public class AngleManagerImpl extends AbstractSlideInputManager implements Angle
      * This constant is intended for an implementation that converts mouse
      * motion over x axis into degrees.
      */
-    public static final double DEF_DEG_PER_PIXEL = 3d * MathUtils.DEGREES_IN_CIRCLE / Toolkit.getDefaultToolkit().getScreenSize().getWidth();
+    public static final double DEF_DEG_PER_PIXEL = 3d * 360 / Toolkit.getDefaultToolkit().getScreenSize().getWidth();
 
     private double degPhase;
     private double degUnit;

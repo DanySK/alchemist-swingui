@@ -11,7 +11,7 @@ package it.unibo.alchemist.boundary.wormhole.interfaces;
 import java.awt.Point;
 import java.awt.geom.Dimension2D;
 
-import it.unibo.alchemist.model.interfaces.IPosition;
+import it.unibo.alchemist.model.interfaces.Position;
 
 /**
  * A Wormhole (in this context) is an entity that "connects" two worlds: the
@@ -72,9 +72,9 @@ public interface IWormhole2D {
      * @param viewPoint
      *            is the {@link Point} object whose coordinates are from
      *            view-space
-     * @return a {@link IPosition} object whose coordinates are from env-space
+     * @return a {@link Position} object whose coordinates are from env-space
      */
-    IPosition getEnvPoint(Point viewPoint);
+    Position getEnvPoint(Point viewPoint);
 
     /**
      * Gets the rendering mode.
@@ -87,11 +87,11 @@ public interface IWormhole2D {
      * Converts a point from the env-space to the view-space.
      * 
      * @param envPoint
-     *            is the {@link IPosition} object whose coordinates are from
+     *            is the {@link Position} object whose coordinates are from
      *            env-space
      * @return a {@link Point} object whose coordinates are from view-space
      */
-    Point getViewPoint(IPosition envPoint);
+    Point getViewPoint(Position envPoint);
 
     /**
      * Gets the Position.
@@ -140,10 +140,10 @@ public interface IWormhole2D {
      * <code>envPoint</code>.
      * 
      * @param envPoint
-     *            is the {@link IPosition} object representing the new position
+     *            is the {@link Position} object representing the new position
      *            with env-coordinates
      */
-    void setEnvPosition(IPosition envPoint);
+    void setEnvPosition(Position envPoint);
 
     /**
      * Automatically sets the zoom rate in order to make the environment

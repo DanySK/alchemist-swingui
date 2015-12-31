@@ -35,7 +35,7 @@ import it.unibo.alchemist.boundary.interfaces.GraphicalOutputMonitor;
 import it.unibo.alchemist.boundary.interfaces.OutputMonitor;
 import it.unibo.alchemist.boundary.l10n.R;
 import it.unibo.alchemist.boundary.monitors.ExportInspector;
-import it.unibo.alchemist.core.interfaces.ISimulation;
+import it.unibo.alchemist.core.interfaces.Simulation;
 
 /**
  * @param <T>
@@ -54,7 +54,7 @@ public class JMonitorsTab<T> extends JTapeTab implements ItemListener {
     private final JTapeSection monitorsFS = new JTapeFeatureStack(Type.HORIZONTAL_STACK);
     private final List<JOutputMonitorRepresentation<T>> monitors = new LinkedList<>();
     private JOutputMonitorRepresentation<T> selected;
-    private ISimulation<T> simulation;
+    private Simulation<T> simulation;
 
     /**
      * 
@@ -156,7 +156,7 @@ public class JMonitorsTab<T> extends JTapeTab implements ItemListener {
      * @param sim the simulation
      */
     @SuppressWarnings("unchecked")
-    public void setSimulation(final ISimulation<?> sim) {
+    public void setSimulation(final Simulation<?> sim) {
         if (simulation != null) {
             for (final JOutputMonitorRepresentation<T> jor : monitors) {
                 final OutputMonitor<T> mon = jor.getMonitor();
@@ -164,7 +164,7 @@ public class JMonitorsTab<T> extends JTapeTab implements ItemListener {
             }
             simulation.stopAndWait();
         }
-        simulation = (ISimulation<T>) sim;
+        simulation = (Simulation<T>) sim;
         for (final JOutputMonitorRepresentation<T> jor : monitors) {
             simulation.addOutputMonitor(jor.getMonitor());
         }

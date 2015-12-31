@@ -20,8 +20,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import it.unibo.alchemist.boundary.wormhole.interfaces.IWormhole2D;
-import it.unibo.alchemist.model.interfaces.IEnvironment;
-import it.unibo.alchemist.model.interfaces.IPosition;
+import it.unibo.alchemist.model.interfaces.Environment;
+import it.unibo.alchemist.model.interfaces.Position;
 
 import static it.unibo.alchemist.boundary.wormhole.implementation.PointAdapter.from;
 /**
@@ -32,7 +32,7 @@ import static it.unibo.alchemist.boundary.wormhole.implementation.PointAdapter.f
  */
 public class Wormhole2D implements IWormhole2D {
 
-    private final IEnvironment<?> model;
+    private final Environment<?> model;
     private final Component view;
     private PointAdapter position;
     private PointAdapter effectCenter = from(0, 0);
@@ -47,10 +47,10 @@ public class Wormhole2D implements IWormhole2D {
      * Initializes a new instance directly setting the size of both view and
      * environment, and the offset too.
      * 
-     * @param env the {@link IEnvironment}
+     * @param env the {@link Environment}
      * @param comp the controlled {@link Component}
      */
-    public Wormhole2D(final IEnvironment<?> env, final Component comp) {
+    public Wormhole2D(final Environment<?> env, final Component comp) {
         model = env;
         view = comp;
         position = from(0, comp.getHeight());
@@ -157,7 +157,7 @@ public class Wormhole2D implements IWormhole2D {
     }
 
     @Override
-    public void setEnvPosition(final IPosition pos) {
+    public void setEnvPosition(final Position pos) {
         setViewPosition(getViewPoint(pos));
     }
 
@@ -259,7 +259,7 @@ public class Wormhole2D implements IWormhole2D {
     }
 
     @Override
-    public IPosition getEnvPoint(final Point viewPoint) {
+    public Position getEnvPoint(final Point viewPoint) {
         return envPointFromView(from(viewPoint)).toPosition();
     }
 
@@ -297,14 +297,14 @@ public class Wormhole2D implements IWormhole2D {
     }
 
     @Override
-    public Point getViewPoint(final IPosition envPoint) {
+    public Point getViewPoint(final Position envPoint) {
         return viewPointFromEnv(from(envPoint)).toPoint();
     }
 
     /**
-     * @return the {@link IEnvironment}
+     * @return the {@link Environment}
      */
-    protected final IEnvironment<?> getEnvironment() {
+    protected final Environment<?> getEnvironment() {
         return model;
     }
 
