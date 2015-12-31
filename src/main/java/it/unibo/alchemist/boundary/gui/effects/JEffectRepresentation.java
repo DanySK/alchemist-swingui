@@ -134,7 +134,7 @@ public class JEffectRepresentation<T> extends JTapeFeatureStack implements ItemS
     }
 
     @Override
-    public void addItemListener(final ItemListener l) {
+    public final void addItemListener(final ItemListener l) {
         itemListeners.add(l);
     }
 
