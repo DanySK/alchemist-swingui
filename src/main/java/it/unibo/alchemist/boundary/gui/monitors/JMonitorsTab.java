@@ -91,17 +91,13 @@ public class JMonitorsTab<T> extends JTapeTab implements ItemListener {
         registerGroup(monitorsGroup1);
         registerGroup(monitorsGroup2);
 
-        btnAddMonitor.addActionListener(e -> addOutputMonitor(getSelectedItem()));
+        btnAddMonitor.addActionListener(e -> 
+            addOutputMonitor(((ClassItem<OutputMonitor<T>>) monitorCombo.getSelectedItem()).getPayload()));
         btnRemMonitor.addActionListener(e -> {
                 removeOutputMonitor(selected);
                 selected = null;
             }
         );
-    }
-
-    @SuppressWarnings("unchecked")
-    private Class<? extends OutputMonitor<T>> getSelectedItem() {
-        return ((ClassItem<OutputMonitor<T>>) monitorCombo.getSelectedItem()).getPayload();
     }
 
     private void addOutputMonitor(final Class<? extends OutputMonitor<T>> monClass) {
