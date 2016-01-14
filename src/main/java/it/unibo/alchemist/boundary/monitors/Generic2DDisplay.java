@@ -24,6 +24,7 @@ import java.awt.event.WindowEvent;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -55,6 +56,7 @@ import it.unibo.alchemist.boundary.wormhole.implementation.PointerSpeedImpl;
 import it.unibo.alchemist.boundary.wormhole.implementation.Wormhole2D;
 import it.unibo.alchemist.boundary.wormhole.interfaces.IWormhole2D;
 import it.unibo.alchemist.boundary.wormhole.interfaces.IWormhole2D.Mode;
+import it.unibo.alchemist.commands.CommandsFactory;
 import it.unibo.alchemist.boundary.wormhole.interfaces.PointerSpeed;
 import it.unibo.alchemist.boundary.wormhole.interfaces.ZoomManager;
 import it.unibo.alchemist.core.implementations.Engine;
@@ -112,7 +114,7 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
     private double lasttime;
     private final Semaphore mapConsistencyMutex = new Semaphore(1);
     private boolean markCloser = true;
-    private final transient PointerSpeed mouseVelocity = new PointerSpeedImpl();
+    private final transient PointerSpeed mouseMovement = new PointerSpeedImpl();
     private int mousex, mousey;
     private Node<T> nearest;
     private final ConcurrentMap<Node<T>, Neighborhood<T>> neighbors = new ConcurrentHashMap<>();
@@ -161,9 +163,9 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
         bindKey(KeyEvent.VK_P, () -> Optional.ofNullable(Engine.fromEnvironment(currentEnv))
                 .ifPresent(sim -> {
                     if (sim.getStatus() == Status.RUNNING) {
-                        sim.pause();
+                        sim.addCommand(new Engine.StateCommand<T>().pause().build());
                     } else {
-                        sim.play();
+                        sim.addCommand(new Engine.StateCommand<T>().run().build());
                     }
                 }));
         bindKey(KeyEvent.VK_R, () -> setRealTime(!isRealTime()));
@@ -580,21 +582,25 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
         @Override
         public void mouseDragged(final MouseEvent e) {
             setDist(e.getX(), e.getY());
-            if (wormhole == null || mouseVelocity == null) {
+            if (wormhole == null || mouseMovement == null) {
                 return;
             }
             if (SwingUtilities.isLeftMouseButton(e)) {
-                if (mouseVelocity != null && !hooked.isPresent()) {
+                if (mouseMovement != null && !hooked.isPresent()) {
                     final Point previous = wormhole.getViewPosition();
                     wormhole.setViewPosition(
                             PointAdapter.from(previous)
-                                .sum(PointAdapter.from(mouseVelocity.getVariation())).toPoint());
+                                .sum(PointAdapter.from(mouseMovement.getVariation())).toPoint());
+                } else if (mouseMovement != null && hooked.isPresent()) {
+                    final Point previous = wormhole.getViewPosition();
+                    Engine.fromEnvironment(currentEnv).addCommand(CommandsFactory.newMoveNodeCommand(hooked.get(),
+                            PointAdapter.from(previous).sum(PointAdapter.from(mouseMovement.getVariation())).toPosition()));
                 }
-            } else if (SwingUtilities.isRightMouseButton(e) && mouseVelocity != null && angleManager != null && wormhole.getMode() != Mode.MAP) {
-                angleManager.inc(mouseVelocity.getVariation().getX());
+            } else if (SwingUtilities.isRightMouseButton(e) && mouseMovement != null && angleManager != null && wormhole.getMode() != Mode.MAP) {
+                angleManager.inc(mouseMovement.getVariation().getX());
                 wormhole.rotateAroundPoint(getCenter(), angleManager.getAngle());
             }
-            mouseVelocity.setCurrentPosition(e.getPoint());
+            mouseMovement.setCurrentPosition(e.getPoint());
             repaint();
         }
 
@@ -610,8 +616,8 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
 
         @Override
         public void mouseMoved(final MouseEvent e) {
-            if (mouseVelocity != null) {
-                mouseVelocity.setCurrentPosition(e.getPoint());
+            if (mouseMovement != null) {
+                mouseMovement.setCurrentPosition(e.getPoint());
             }
             updateMouse(e);
         }

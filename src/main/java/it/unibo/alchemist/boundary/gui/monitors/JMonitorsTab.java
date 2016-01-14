@@ -17,6 +17,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -35,7 +36,9 @@ import it.unibo.alchemist.boundary.interfaces.GraphicalOutputMonitor;
 import it.unibo.alchemist.boundary.interfaces.OutputMonitor;
 import it.unibo.alchemist.boundary.l10n.R;
 import it.unibo.alchemist.boundary.monitors.ExportInspector;
+import it.unibo.alchemist.core.implementations.Engine;
 import it.unibo.alchemist.core.interfaces.Simulation;
+import it.unibo.alchemist.core.interfaces.Status;
 
 /**
  * @param <T>
@@ -140,7 +143,7 @@ public class JMonitorsTab<T> extends JTapeTab implements ItemListener {
     private void removeOutputMonitor(final JOutputMonitorRepresentation<T> mon) {
         if (mon != null) {
             if (simulation != null) {
-                simulation.stop();
+                simulation.addCommand(new Engine.StateCommand<T>().stop().build());
             }
             monitors.remove(mon);
             monitorsFS.remove(mon);
@@ -158,7 +161,8 @@ public class JMonitorsTab<T> extends JTapeTab implements ItemListener {
                 final OutputMonitor<T> mon = jor.getMonitor();
                 simulation.removeOutputMonitor(mon);
             }
-            simulation.stopAndWait();
+            simulation.addCommand(new Engine.StateCommand<T>().stop().build());
+            simulation.waitFor(Status.STOPPED, 0, TimeUnit.MILLISECONDS);
         }
         simulation = (Simulation<T>) sim;
         for (final JOutputMonitorRepresentation<T> jor : monitors) {

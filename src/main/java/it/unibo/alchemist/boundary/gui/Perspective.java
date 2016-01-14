@@ -15,6 +15,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
@@ -28,7 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import it.unibo.alchemist.boundary.gui.ReactivityPanel.Status;
 import it.unibo.alchemist.boundary.gui.UpperBar.Commands;
 import it.unibo.alchemist.boundary.gui.effects.JEffectsTab;
 import it.unibo.alchemist.boundary.gui.util.GraphicalMonitorFactory;
@@ -37,6 +37,7 @@ import it.unibo.alchemist.boundary.monitors.Generic2DDisplay;
 import it.unibo.alchemist.boundary.monitors.TimeStepMonitor;
 import it.unibo.alchemist.core.implementations.Engine;
 import it.unibo.alchemist.core.interfaces.Simulation;
+import it.unibo.alchemist.core.interfaces.Status;
 import org.apache.commons.math3.random.RandomGenerator;
 import it.unibo.alchemist.language.EnvironmentBuilder;
 import it.unibo.alchemist.language.EnvironmentBuilder.Result;
@@ -124,16 +125,16 @@ public class Perspective<T> extends JPanel implements ChangeListener, ActionList
         } else if (Commands.DICE.equalsToString(e.getActionCommand())) {
             setRandom();
         } else if (SimControlCommand.PLAY.equalsToString(e.getActionCommand())) {
-            sim.play();
+            sim.addCommand(new Engine.StateCommand<T>().run().build());
             bar.setPlay(true);
         } else if (SimControlCommand.PAUSE.equalsToString(e.getActionCommand())) {
-            sim.pause();
+            sim.addCommand(new Engine.StateCommand<T>().pause().build());
             bar.setPlay(false);
         } else if (SimControlCommand.STEP.equalsToString(e.getActionCommand())) {
-            sim.play();
-            sim.pause();
+            sim.addCommand(new Engine.StateCommand<T>().run().build());
+            sim.addCommand(new Engine.StateCommand<T>().pause().build());
         } else if (SimControlCommand.STOP.equalsToString(e.getActionCommand())) {
-            sim.stop();
+            sim.addCommand(new Engine.StateCommand<T>().stop().build());
             bar.setFileOK(true);
         } else if (Commands.REACTIVITY.equalsToString(e.getActionCommand())) {
             switch (bar.getReactivityStatus()) {
@@ -175,7 +176,7 @@ public class Perspective<T> extends JPanel implements ChangeListener, ActionList
                 status.setText(getString("ready_to_process") + " " + xml.getAbsolutePath());
                 status.setOK();
                 if (sim != null) {
-                    sim.stop();
+                    sim.addCommand(new Engine.StateCommand<T>().stop().build());
                 }
                 bar.setFileOK(true);
             } else {
@@ -188,7 +189,8 @@ public class Perspective<T> extends JPanel implements ChangeListener, ActionList
 
     private void process(final boolean parallel) {
         if (sim != null) {
-            sim.stopAndWait();
+            sim.addCommand(new Engine.StateCommand<T>().stop().build());
+            sim.waitFor(Status.STOPPED, 0, TimeUnit.MILLISECONDS);
         }
         try {
             sim = null;
@@ -257,7 +259,7 @@ public class Perspective<T> extends JPanel implements ChangeListener, ActionList
 
     @Override
     public void stateChanged(final ChangeEvent e) {
-        if (bar.getReactivityStatus().equals(Status.USER_SELECTED)) {
+        if (bar.getReactivityStatus().equals(it.unibo.alchemist.boundary.gui.ReactivityPanel.Status.USER_SELECTED)) {
             main.setStep(bar.getReactivity());
         }
     }
@@ -265,7 +267,7 @@ public class Perspective<T> extends JPanel implements ChangeListener, ActionList
     @Override
     protected void finalize() throws Throwable {
         if (sim != null) {
-            sim.stop();
+            sim.addCommand(new Engine.StateCommand<T>().stop().build());
         }
         super.finalize();
     }
