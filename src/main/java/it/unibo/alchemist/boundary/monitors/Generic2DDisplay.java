@@ -24,7 +24,6 @@ import java.awt.event.WindowEvent;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -56,7 +55,6 @@ import it.unibo.alchemist.boundary.wormhole.implementation.PointerSpeedImpl;
 import it.unibo.alchemist.boundary.wormhole.implementation.Wormhole2D;
 import it.unibo.alchemist.boundary.wormhole.interfaces.IWormhole2D;
 import it.unibo.alchemist.boundary.wormhole.interfaces.IWormhole2D.Mode;
-import it.unibo.alchemist.commands.CommandsFactory;
 import it.unibo.alchemist.boundary.wormhole.interfaces.PointerSpeed;
 import it.unibo.alchemist.boundary.wormhole.interfaces.ZoomManager;
 import it.unibo.alchemist.core.implementations.Engine;
@@ -129,6 +127,10 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
 
     private transient ZoomManager zoomManager;
 
+    private boolean selecting = false;
+    private Point selectionOrigin;
+    private Point selectionEnd;
+
     /**
      * Initializes a new display with out redrawing the first step.
      */
@@ -158,6 +160,11 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
     }
 
     private void bindKeys() {
+        bindKey(KeyEvent.VK_S, () -> this.selecting = !this.selecting);
+//        bindKey(KeyEvent.VK_M, () -> this.displayStatus = DisplayStatus.MOVING);
+//        bindKey(KeyEvent.VK_C, () -> this.displayStatus = DisplayStatus.CLONING);
+//        bindKey(KeyEvent.VK_D, () -> this.displayStatus = DisplayStatus.DELETING);
+
         bindKey(KeyEvent.VK_M, () -> setMarkCloserNode(!isCloserNodeMarked()));
         bindKey(KeyEvent.VK_L, () -> setDrawLinks(!paintLinks));
         bindKey(KeyEvent.VK_P, () -> Optional.ofNullable(Engine.fromEnvironment(currentEnv))
@@ -558,6 +565,9 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
         @Override
         public void mouseClicked(final MouseEvent e) {
             setDist(e.getX(), e.getY());
+            if (SwingUtilities.isLeftMouseButton(e) && selecting) {
+                selectionOrigin = e.getPoint();
+            }
             if (isCloserNodeMarked() && nearest != null && SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2) {
                 final NodeTracker<T> monitor = new NodeTracker<>(nearest);
                 monitor.stepDone(currentEnv, null, new DoubleTime(lasttime), st);
@@ -586,15 +596,15 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
                 return;
             }
             if (SwingUtilities.isLeftMouseButton(e)) {
+                if (selecting) {
+                    selectionEnd = e.getPoint();
+                    getGraphics().drawRect(selectionOrigin.x, selectionOrigin.y, selectionEnd.x - selectionOrigin.x, selectionEnd.y - selectionOrigin.y);
+                }
                 if (mouseMovement != null && !hooked.isPresent()) {
                     final Point previous = wormhole.getViewPosition();
                     wormhole.setViewPosition(
                             PointAdapter.from(previous)
                                 .sum(PointAdapter.from(mouseMovement.getVariation())).toPoint());
-                } else if (mouseMovement != null && hooked.isPresent()) {
-                    final Point previous = wormhole.getViewPosition();
-                    Engine.fromEnvironment(currentEnv).addCommand(CommandsFactory.newMoveNodeCommand(hooked.get(),
-                            PointAdapter.from(previous).sum(PointAdapter.from(mouseMovement.getVariation())).toPosition()));
                 }
             } else if (SwingUtilities.isRightMouseButton(e) && mouseMovement != null && angleManager != null && wormhole.getMode() != Mode.MAP) {
                 angleManager.inc(mouseMovement.getVariation().getX());
