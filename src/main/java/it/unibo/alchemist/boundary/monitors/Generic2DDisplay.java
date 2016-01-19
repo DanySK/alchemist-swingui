@@ -127,9 +127,9 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
 
     private transient ZoomManager zoomManager;
 
-    private boolean selecting = false;
-    private Point selectionOrigin;
-    private Point selectionEnd;
+    private transient boolean selecting = false;
+    private transient Optional<Point> selectionOrigin = Optional.empty();
+    private transient Optional<Point> selectionEnd = Optional.empty();
 
     /**
      * Initializes a new display with out redrawing the first step.
@@ -160,7 +160,16 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
     }
 
     private void bindKeys() {
-        bindKey(KeyEvent.VK_S, () -> this.selecting = !this.selecting);
+        bindKey(KeyEvent.VK_S, () -> {
+            if (this.selecting) {
+                this.selecting = false;
+                this.selectionOrigin = Optional.empty();
+                this.selectionEnd = Optional.empty();
+                this.repaint();
+            } else {
+                this.selecting = true;
+            } 
+        });
 //        bindKey(KeyEvent.VK_M, () -> this.displayStatus = DisplayStatus.MOVING);
 //        bindKey(KeyEvent.VK_C, () -> this.displayStatus = DisplayStatus.CLONING);
 //        bindKey(KeyEvent.VK_D, () -> this.displayStatus = DisplayStatus.DELETING);
@@ -565,9 +574,6 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
         @Override
         public void mouseClicked(final MouseEvent e) {
             setDist(e.getX(), e.getY());
-            if (SwingUtilities.isLeftMouseButton(e) && selecting) {
-                selectionOrigin = e.getPoint();
-            }
             if (isCloserNodeMarked() && nearest != null && SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2) {
                 final NodeTracker<T> monitor = new NodeTracker<>(nearest);
                 monitor.stepDone(currentEnv, null, new DoubleTime(lasttime), st);
@@ -596,11 +602,8 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
                 return;
             }
             if (SwingUtilities.isLeftMouseButton(e)) {
-                if (selecting) {
-                    selectionEnd = e.getPoint();
-                    getGraphics().drawRect(selectionOrigin.x, selectionOrigin.y, selectionEnd.x - selectionOrigin.x, selectionEnd.y - selectionOrigin.y);
-                }
-                if (mouseMovement != null && !hooked.isPresent()) {
+                selectionEnd = Optional.of(e.getPoint());
+                if (mouseMovement != null && !hooked.isPresent() && !selecting) {
                     final Point previous = wormhole.getViewPosition();
                     wormhole.setViewPosition(
                             PointAdapter.from(previous)
@@ -634,6 +637,9 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
 
         @Override
         public void mousePressed(final MouseEvent e) {
+            if (SwingUtilities.isLeftMouseButton(e) && selecting) {
+                selectionOrigin = Optional.of(e.getPoint());
+            }
         }
 
         @Override
@@ -656,6 +662,19 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
             }
         }
 
+    }
+
+    @Override
+    public void paint(final Graphics g) {
+        super.paint(g);
+        if (selecting && selectionOrigin.isPresent() && selectionEnd.isPresent()) {
+            g.setColor(Color.BLACK);
+            final int x = selectionOrigin.get().x < selectionEnd.get().x ? selectionOrigin.get().x : selectionEnd.get().x;
+            final int y = selectionOrigin.get().y < selectionEnd.get().y ? selectionOrigin.get().y : selectionEnd.get().y;
+            final int width = Math.abs(selectionEnd.get().x - selectionOrigin.get().x);
+            final int height = Math.abs(selectionEnd.get().y - selectionOrigin.get().y);
+            g.drawRect(x, y, width, height);
+        }
     }
 
     private static JFrame makeFrame(final String title, final JPanel content) {
