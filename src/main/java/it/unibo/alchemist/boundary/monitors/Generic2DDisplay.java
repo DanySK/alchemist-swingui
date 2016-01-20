@@ -24,10 +24,13 @@ import java.awt.event.WindowEvent;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Semaphore;
@@ -130,6 +133,7 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
     private transient boolean selecting = false;
     private transient Optional<Point> selectionOrigin = Optional.empty();
     private transient Optional<Point> selectionEnd = Optional.empty();
+    private transient Set<Node<T>> selectedNodes;
 
     /**
      * Initializes a new display with out redrawing the first step.
@@ -284,7 +288,7 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
                 });
             });
         }
-        if (isCloserNodeMarked()) {
+        if (isCloserNodeMarked() && !selecting) {
             final Optional<Map.Entry<Node<T>, Point>> closest = onView.entrySet().parallelStream()
                     .min((pair1, pair2) -> {
                         final Point p1 = pair1.getValue();
@@ -302,6 +306,29 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
                 g.setColor(Color.YELLOW);
                 g.fillOval(nearestx - SELECTED_NODE_INTERNAL_SIZE / 2, nearesty - SELECTED_NODE_INTERNAL_SIZE / 2, SELECTED_NODE_INTERNAL_SIZE, SELECTED_NODE_INTERNAL_SIZE);
             }
+        }
+        if (selecting && selectionOrigin.isPresent() && selectionEnd.isPresent()) {
+            selectedNodes = new HashSet<Node<T>>();
+            g.setColor(Color.BLACK);
+            final int x = selectionOrigin.get().x < selectionEnd.get().x ? selectionOrigin.get().x : selectionEnd.get().x;
+            final int y = selectionOrigin.get().y < selectionEnd.get().y ? selectionOrigin.get().y : selectionEnd.get().y;
+            final int width = Math.abs(selectionEnd.get().x - selectionOrigin.get().x);
+            final int height = Math.abs(selectionEnd.get().y - selectionOrigin.get().y);
+            g.drawRect(x, y, width, height);
+            final Map<Node<T>, Point> selectedNodesOnScreen = positions.entrySet().parallelStream()
+                    .map(pair -> new Pair<>(pair.getKey(), wormhole.getViewPoint(pair.getValue())))
+                    .filter(p -> isInsideRectangle(p.getSecond(), x, y, width, height))
+                    .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
+            for (final Entry<Node<T>, Point> e : selectedNodesOnScreen.entrySet()) {
+                selectedNodes.add(e.getKey());
+                final int nodex = e.getValue().x;
+                final int nodey = e.getValue().y;
+                g.setColor(Color.RED);
+                g.fillOval(nodex - SELECTED_NODE_DRAWING_SIZE / 2, nodey - SELECTED_NODE_DRAWING_SIZE / 2, SELECTED_NODE_DRAWING_SIZE, SELECTED_NODE_DRAWING_SIZE);
+                g.setColor(Color.YELLOW);
+                g.fillOval(nodex - SELECTED_NODE_INTERNAL_SIZE / 2, nodey - SELECTED_NODE_INTERNAL_SIZE / 2, SELECTED_NODE_INTERNAL_SIZE, SELECTED_NODE_INTERNAL_SIZE);
+            }
+            System.out.println(selectedNodes.size());
         }
     }
 
@@ -354,6 +381,13 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
      *            the current simulation step
      */
     private void initAll(final Environment<T> env) {
+        System.out.println("LA MIA ALTEZZA È: " + this.getHeight());
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         wormhole = new Wormhole2D(env, this);
         wormhole.center();
         wormhole.optimalZoom();
@@ -491,12 +525,14 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
     @Override
     public void stepDone(final Environment<T> environment, final Reaction<T> r, final Time time, final long step) {
         if (firstTime) {
-            if (firstTime) {
-                initAll(environment);
-                lasttime = -TIME_STEP;
-                firstTime = false;
-                timeInit = System.currentTimeMillis();
-                update(environment, time);
+            synchronized (this) {
+                if (firstTime) {
+                    initAll(environment);
+                    lasttime = -TIME_STEP;
+                    firstTime = false;
+                    timeInit = System.currentTimeMillis();
+                    update(environment, time);
+                } 
             }
         } else if (st < 1 || step % st == 0) {
             if (isRealTime()) {
@@ -664,19 +700,6 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
 
     }
 
-    @Override
-    public void paint(final Graphics g) {
-        super.paint(g);
-        if (selecting && selectionOrigin.isPresent() && selectionEnd.isPresent()) {
-            g.setColor(Color.BLACK);
-            final int x = selectionOrigin.get().x < selectionEnd.get().x ? selectionOrigin.get().x : selectionEnd.get().x;
-            final int y = selectionOrigin.get().y < selectionEnd.get().y ? selectionOrigin.get().y : selectionEnd.get().y;
-            final int width = Math.abs(selectionEnd.get().x - selectionOrigin.get().x);
-            final int height = Math.abs(selectionEnd.get().y - selectionOrigin.get().y);
-            g.drawRect(x, y, width, height);
-        }
-    }
-
     private static JFrame makeFrame(final String title, final JPanel content) {
         final JFrame frame = new JFrame(title);
         frame.getContentPane().add(content);
@@ -696,5 +719,11 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
                 fun.run();
             }
         });
+    }
+
+    private static boolean isInsideRectangle(final Point viewPoint, final int rx, final int ry, final int width, final int height) {
+        final double x = viewPoint.getX();
+        final double y = viewPoint.getY();
+        return x >= rx && x <= rx + width && y >= ry && y <= ry + height;
     }
 }
