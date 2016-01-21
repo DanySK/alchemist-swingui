@@ -34,6 +34,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Semaphore;
 import java.util.function.Function;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import javax.swing.AbstractAction;
@@ -311,11 +312,10 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
             final int width = Math.abs(selectionEnd.get().x - selectionOrigin.get().x);
             final int height = Math.abs(selectionEnd.get().y - selectionOrigin.get().y);
             g.drawRect(x, y, width, height);
-            final Map<Node<T>, Point> selectedNodesOnScreen = positions.entrySet().parallelStream()
-                    .map(pair -> new Pair<>(pair.getKey(), wormhole.getViewPoint(pair.getValue())))
-                    .filter(p -> isInsideRectangle(p.getSecond(), x, y, width, height))
-                    .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
-            selectedNodes.addAll(selectedNodesOnScreen.keySet());
+            selectedNodes = onView.entrySet().parallelStream()
+                    .filter(node -> isInsideRectangle(node.getValue(), x, y, width, height))
+                    .map(onScreen -> onScreen.getKey())
+                    .collect(Collectors.toSet());
         }
         selectedNodes.parallelStream()
             .map(e -> Optional.ofNullable(onView.get(e)))
