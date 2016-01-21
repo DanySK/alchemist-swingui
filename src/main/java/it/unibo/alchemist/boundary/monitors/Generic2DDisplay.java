@@ -133,7 +133,7 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
     private transient boolean isDraggingSelection;
     private transient Optional<Point> selectionOrigin = Optional.empty();
     private transient Optional<Point> selectionEnd = Optional.empty();
-    private transient Optional<Set<Node<T>>> selectedNodes = Optional.empty();
+    private transient Set<Node<T>> selectedNodes = new HashSet<>();
 
     /**
      * Initializes a new display with out redrawing the first step.
@@ -167,7 +167,7 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
         bindKey(KeyEvent.VK_S, () -> {
             if (this.selecting) {
                 this.selecting = false;
-                this.selectedNodes = Optional.empty();
+                this.selectedNodes.clear();
                 this.repaint();
             } else {
                 this.selecting = true;
@@ -304,7 +304,7 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
             }
         }
         if (isDraggingSelection && selectionOrigin.isPresent() && selectionEnd.isPresent()) {
-            selectedNodes = Optional.of(new HashSet<>());
+            selectedNodes.clear();
             g.setColor(Color.BLACK);
             final int x = selectionOrigin.get().x < selectionEnd.get().x ? selectionOrigin.get().x : selectionEnd.get().x;
             final int y = selectionOrigin.get().y < selectionEnd.get().y ? selectionOrigin.get().y : selectionEnd.get().y;
@@ -315,16 +315,13 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
                     .map(pair -> new Pair<>(pair.getKey(), wormhole.getViewPoint(pair.getValue())))
                     .filter(p -> isInsideRectangle(p.getSecond(), x, y, width, height))
                     .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
-            selectedNodes.get().addAll(selectedNodesOnScreen.keySet());
-            System.out.println(selectedNodes.get().size());
+            selectedNodes.addAll(selectedNodesOnScreen.keySet());
         }
-        if (!onView.isEmpty() && selectedNodes.isPresent()) {
-            selectedNodes.get().parallelStream()
-                .map(e -> Optional.ofNullable(onView.get(e)))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .forEachOrdered(p -> drawFriedEgg(g, p.x, p.y));
-        }
+        selectedNodes.parallelStream()
+            .map(e -> Optional.ofNullable(onView.get(e)))
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .forEachOrdered(p -> drawFriedEgg(g, p.x, p.y));
     }
 
     private void drawFriedEgg(final Graphics g, final int x, final int y) {
