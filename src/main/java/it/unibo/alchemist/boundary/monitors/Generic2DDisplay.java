@@ -27,7 +27,6 @@ import java.awt.geom.Rectangle2D;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -130,10 +129,11 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
 
     private transient ZoomManager zoomManager;
 
-    private transient boolean selecting = false;
+    private transient boolean selecting; //a boolean value is false by default
+    private transient boolean isDraggingSelection;
     private transient Optional<Point> selectionOrigin = Optional.empty();
     private transient Optional<Point> selectionEnd = Optional.empty();
-    private transient Set<Node<T>> selectedNodes;
+    private transient Optional<Set<Node<T>>> selectedNodes = Optional.empty();
 
     /**
      * Initializes a new display with out redrawing the first step.
@@ -167,8 +167,7 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
         bindKey(KeyEvent.VK_S, () -> {
             if (this.selecting) {
                 this.selecting = false;
-                this.selectionOrigin = Optional.empty();
-                this.selectionEnd = Optional.empty();
+                this.selectedNodes = Optional.empty();
                 this.repaint();
             } else {
                 this.selecting = true;
@@ -301,14 +300,11 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
                 nearest = closest.get().getKey();
                 final int nearestx = closest.get().getValue().x;
                 final int nearesty = closest.get().getValue().y;
-                g.setColor(Color.RED);
-                g.fillOval(nearestx - SELECTED_NODE_DRAWING_SIZE / 2, nearesty - SELECTED_NODE_DRAWING_SIZE / 2, SELECTED_NODE_DRAWING_SIZE, SELECTED_NODE_DRAWING_SIZE);
-                g.setColor(Color.YELLOW);
-                g.fillOval(nearestx - SELECTED_NODE_INTERNAL_SIZE / 2, nearesty - SELECTED_NODE_INTERNAL_SIZE / 2, SELECTED_NODE_INTERNAL_SIZE, SELECTED_NODE_INTERNAL_SIZE);
+                drawFriedEgg(g, nearestx, nearesty);
             }
         }
-        if (selecting && selectionOrigin.isPresent() && selectionEnd.isPresent()) {
-            selectedNodes = new HashSet<Node<T>>();
+        if (isDraggingSelection && selectionOrigin.isPresent() && selectionEnd.isPresent()) {
+            selectedNodes = Optional.of(new HashSet<>());
             g.setColor(Color.BLACK);
             final int x = selectionOrigin.get().x < selectionEnd.get().x ? selectionOrigin.get().x : selectionEnd.get().x;
             final int y = selectionOrigin.get().y < selectionEnd.get().y ? selectionOrigin.get().y : selectionEnd.get().y;
@@ -319,17 +315,23 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
                     .map(pair -> new Pair<>(pair.getKey(), wormhole.getViewPoint(pair.getValue())))
                     .filter(p -> isInsideRectangle(p.getSecond(), x, y, width, height))
                     .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
-            for (final Entry<Node<T>, Point> e : selectedNodesOnScreen.entrySet()) {
-                selectedNodes.add(e.getKey());
-                final int nodex = e.getValue().x;
-                final int nodey = e.getValue().y;
-                g.setColor(Color.RED);
-                g.fillOval(nodex - SELECTED_NODE_DRAWING_SIZE / 2, nodey - SELECTED_NODE_DRAWING_SIZE / 2, SELECTED_NODE_DRAWING_SIZE, SELECTED_NODE_DRAWING_SIZE);
-                g.setColor(Color.YELLOW);
-                g.fillOval(nodex - SELECTED_NODE_INTERNAL_SIZE / 2, nodey - SELECTED_NODE_INTERNAL_SIZE / 2, SELECTED_NODE_INTERNAL_SIZE, SELECTED_NODE_INTERNAL_SIZE);
-            }
-            System.out.println(selectedNodes.size());
+            selectedNodes.get().addAll(selectedNodesOnScreen.keySet());
+            System.out.println(selectedNodes.get().size());
         }
+        if (!onView.isEmpty() && selectedNodes.isPresent()) {
+            selectedNodes.get().parallelStream()
+                .map(e -> Optional.ofNullable(onView.get(e)))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .forEachOrdered(p -> drawFriedEgg(g, p.x, p.y));
+        }
+    }
+
+    private void drawFriedEgg(final Graphics g, final int x, final int y) {
+        g.setColor(Color.RED);
+        g.fillOval(x - SELECTED_NODE_DRAWING_SIZE / 2, y - SELECTED_NODE_DRAWING_SIZE / 2, SELECTED_NODE_DRAWING_SIZE, SELECTED_NODE_DRAWING_SIZE);
+        g.setColor(Color.YELLOW);
+        g.fillOval(x - SELECTED_NODE_INTERNAL_SIZE / 2, y - SELECTED_NODE_INTERNAL_SIZE / 2, SELECTED_NODE_INTERNAL_SIZE, SELECTED_NODE_INTERNAL_SIZE);
     }
 
     @Override
@@ -385,7 +387,6 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         wormhole = new Wormhole2D(env, this);
@@ -674,12 +675,20 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
         @Override
         public void mousePressed(final MouseEvent e) {
             if (SwingUtilities.isLeftMouseButton(e) && selecting) {
+                isDraggingSelection = true;
                 selectionOrigin = Optional.of(e.getPoint());
+                repaint();
             }
         }
 
         @Override
         public void mouseReleased(final MouseEvent e) {
+            if (SwingUtilities.isLeftMouseButton(e) && selecting) {
+                isDraggingSelection = false;
+                selectionOrigin = Optional.empty();
+                selectionEnd = Optional.empty();
+                repaint();
+            }
         }
 
         @Override
