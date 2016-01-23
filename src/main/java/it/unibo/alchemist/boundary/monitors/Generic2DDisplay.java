@@ -34,7 +34,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Semaphore;
 import java.util.function.Function;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import javax.swing.AbstractAction;
@@ -109,7 +108,8 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
     private transient AngleManagerImpl angleManager;
     private Environment<T> currentEnv;
     private List<Effect> effectStack;
-    private boolean firstTime = true, paintLinks;
+    private volatile boolean firstTime = true; 
+    private boolean paintLinks;
     private transient Optional<Node<T>> hooked = Optional.empty();
     private boolean inited;
     private double lasttime;
@@ -313,7 +313,7 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
             final int height = Math.abs(selectionEnd.get().y - selectionOrigin.get().y);
             g.drawRect(x, y, width, height);
             selectedNodes = onView.entrySet().parallelStream()
-                    .filter(node -> isInsideRectangle(node.getValue(), x, y, width, height))
+                    .filter(nodes -> isInsideRectangle(nodes.getValue(), x, y, width, height))
                     .map(onScreen -> onScreen.getKey())
                     .collect(Collectors.toSet());
         }
@@ -380,12 +380,9 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
      *            the current simulation step
      */
     private void initAll(final Environment<T> env) {
-        System.out.println("LA MIA ALTEZZA È: " + this.getHeight());
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+//        System.out.println("IS VISIBLE: " + this.isVisible());
+//        System.out.println("LA MIA ALTEZZA È: " + this.getHeight());
+//        System.out.println(this.getParent().getClass());
         wormhole = new Wormhole2D(env, this);
         wormhole.center();
         wormhole.optimalZoom();
@@ -522,6 +519,8 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
 
     @Override
     public void stepDone(final Environment<T> environment, final Reaction<T> r, final Time time, final long step) {
+//        Thread.dumpStack();
+//        System.out.println(Thread.currentThread().getName());
         if (firstTime) {
             synchronized (this) {
                 if (firstTime) {
