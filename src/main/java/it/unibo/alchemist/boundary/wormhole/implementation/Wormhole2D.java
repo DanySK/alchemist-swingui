@@ -276,7 +276,7 @@ public class Wormhole2D implements IWormhole2D {
         try {
             t.inverseTransform(vp, vp);
         } catch (final NoninvertibleTransformException e) {
-            L.error(e.getMessage());
+            L.error(e.getMessage() + " Is the simulation visible FOR REAL?");
         }
         return from(vp);
     }

@@ -59,6 +59,7 @@ import it.unibo.alchemist.boundary.wormhole.interfaces.IWormhole2D;
 import it.unibo.alchemist.boundary.wormhole.interfaces.IWormhole2D.Mode;
 import it.unibo.alchemist.boundary.wormhole.interfaces.PointerSpeed;
 import it.unibo.alchemist.boundary.wormhole.interfaces.ZoomManager;
+import it.unibo.alchemist.commands.CommandsFactory;
 import it.unibo.alchemist.core.implementations.Engine;
 import it.unibo.alchemist.core.interfaces.Simulation;
 import it.unibo.alchemist.core.interfaces.Status;
@@ -113,6 +114,7 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
     private transient Optional<Node<T>> hooked = Optional.empty();
     private boolean inited;
     private double lasttime;
+    private Time time;
     private final Semaphore mapConsistencyMutex = new Semaphore(1);
     private boolean markCloser = true;
     private final transient PointerSpeed mouseMovement = new PointerSpeedImpl();
@@ -130,10 +132,10 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
 
     private transient ZoomManager zoomManager;
 
-    private transient boolean selecting; //a boolean value is false by default
-    private transient boolean isDraggingSelection;
-    private transient Optional<Point> selectionOrigin = Optional.empty();
-    private transient Optional<Point> selectionEnd = Optional.empty();
+    private transient Optional<SelectionStatus> status = Optional.empty();
+    private transient boolean isDraggingMouse;
+    private transient Optional<Point> originPoint = Optional.empty();
+    private transient Optional<Point> endingPoint = Optional.empty();
     private transient Set<Node<T>> selectedNodes = new HashSet<>();
 
     /**
@@ -166,15 +168,18 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
 
     private void bindKeys() {
         bindKey(KeyEvent.VK_S, () -> {
-            if (this.selecting) {
-                this.selecting = false;
+            if (status.isPresent() && status.get() == SelectionStatus.SELECTING) {
+                this.status = Optional.empty();
                 this.selectedNodes.clear();
                 this.repaint();
             } else {
-                this.selecting = true;
+                this.status = Optional.of(SelectionStatus.SELECTING);
             } 
         });
-//        bindKey(KeyEvent.VK_M, () -> this.displayStatus = DisplayStatus.MOVING);
+        bindKey(KeyEvent.VK_O, () -> {
+                this.endingPoint = Optional.empty();
+                this.status = Optional.of(SelectionStatus.MOVING);
+        });
 //        bindKey(KeyEvent.VK_C, () -> this.displayStatus = DisplayStatus.CLONING);
 //        bindKey(KeyEvent.VK_D, () -> this.displayStatus = DisplayStatus.DELETING);
 
@@ -288,7 +293,7 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
                 });
             });
         }
-        if (isCloserNodeMarked() && !selecting) {
+        if (isCloserNodeMarked() && !status.isPresent()) {
             final Optional<Map.Entry<Node<T>, Point>> closest = onView.entrySet().parallelStream()
                     .min((pair1, pair2) -> {
                         final Point p1 = pair1.getValue();
@@ -304,18 +309,18 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
                 drawFriedEgg(g, nearestx, nearesty);
             }
         }
-        if (isDraggingSelection && selectionOrigin.isPresent() && selectionEnd.isPresent()) {
-            selectedNodes.clear();
-            g.setColor(Color.BLACK);
-            final int x = selectionOrigin.get().x < selectionEnd.get().x ? selectionOrigin.get().x : selectionEnd.get().x;
-            final int y = selectionOrigin.get().y < selectionEnd.get().y ? selectionOrigin.get().y : selectionEnd.get().y;
-            final int width = Math.abs(selectionEnd.get().x - selectionOrigin.get().x);
-            final int height = Math.abs(selectionEnd.get().y - selectionOrigin.get().y);
-            g.drawRect(x, y, width, height);
-            selectedNodes = onView.entrySet().parallelStream()
-                    .filter(nodes -> isInsideRectangle(nodes.getValue(), x, y, width, height))
-                    .map(onScreen -> onScreen.getKey())
-                    .collect(Collectors.toSet());
+        if (isDraggingMouse && status.get() == SelectionStatus.SELECTING && originPoint.isPresent() && endingPoint.isPresent()) {
+                selectedNodes.clear(); //TODO: this can probably be deleted
+                g.setColor(Color.BLACK);
+                final int x = originPoint.get().x < endingPoint.get().x ? originPoint.get().x : endingPoint.get().x;
+                final int y = originPoint.get().y < endingPoint.get().y ? originPoint.get().y : endingPoint.get().y;
+                final int width = Math.abs(endingPoint.get().x - originPoint.get().x);
+                final int height = Math.abs(endingPoint.get().y - originPoint.get().y);
+                g.drawRect(x, y, width, height);
+                selectedNodes = onView.entrySet().parallelStream()
+                        .filter(nodes -> isInsideRectangle(nodes.getValue(), x, y, width, height))
+                        .map(onScreen -> onScreen.getKey())
+                        .collect(Collectors.toSet());
         }
         selectedNodes.parallelStream()
             .map(e -> Optional.ofNullable(onView.get(e)))
@@ -380,9 +385,6 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
      *            the current simulation step
      */
     private void initAll(final Environment<T> env) {
-//        System.out.println("IS VISIBLE: " + this.isVisible());
-//        System.out.println("LA MIA ALTEZZA È: " + this.getHeight());
-//        System.out.println(this.getParent().getClass());
         wormhole = new Wormhole2D(env, this);
         wormhole.center();
         wormhole.optimalZoom();
@@ -519,8 +521,6 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
 
     @Override
     public void stepDone(final Environment<T> environment, final Reaction<T> r, final Time time, final long step) {
-//        Thread.dumpStack();
-//        System.out.println(Thread.currentThread().getName());
         if (firstTime) {
             synchronized (this) {
                 if (firstTime) {
@@ -560,7 +560,8 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
         if (envHasMobileObstacles(env)) {
             loadObstacles(env);
         }
-        lasttime = time.toDouble();
+        this.time = time;
+        lasttime = this.time.toDouble();
         currentEnv = env;
         accessData();
         positions.clear();
@@ -625,6 +626,19 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
             if (nearest != null && SwingUtilities.isMiddleMouseButton(e)) {
                 hooked = hooked.isPresent() ? Optional.empty() : Optional.of(nearest);
             }
+            if (status.isPresent() && status.get() == SelectionStatus.MOVING) {
+                endingPoint = Optional.of(e.getPoint());
+                final Engine<T> eng = Engine.fromEnvironment(currentEnv);
+                for (final Node<T> n : selectedNodes) {
+                    final PointAdapter initialPos = PointAdapter.from(currentEnv.getPosition(n));
+                    final PointAdapter mousePos = PointAdapter.from(wormhole.getEnvPoint(endingPoint.get()));
+                    eng.addCommand(CommandsFactory.newMoveNodeCommand(n, mousePos.diff(initialPos).toPosition()));
+                }
+                selectedNodes.clear();
+                status = Optional.empty();
+                endingPoint = Optional.empty();
+                update(currentEnv, time);
+            }
             repaint();
         }
 
@@ -635,8 +649,10 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
                 return;
             }
             if (SwingUtilities.isLeftMouseButton(e)) {
-                selectionEnd = Optional.of(e.getPoint());
-                if (mouseMovement != null && !hooked.isPresent() && !selecting) {
+                if (status.isPresent() && status.get() == SelectionStatus.SELECTING) {
+                    endingPoint = Optional.of(e.getPoint());
+                }
+                if (mouseMovement != null && !hooked.isPresent() && !status.isPresent()) {
                     final Point previous = wormhole.getViewPosition();
                     wormhole.setViewPosition(
                             PointAdapter.from(previous)
@@ -670,21 +686,25 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
 
         @Override
         public void mousePressed(final MouseEvent e) {
-            if (SwingUtilities.isLeftMouseButton(e) && selecting) {
-                isDraggingSelection = true;
-                selectionOrigin = Optional.of(e.getPoint());
-                repaint();
+            if (SwingUtilities.isLeftMouseButton(e) && status.isPresent()) {
+                if (status.get() == SelectionStatus.SELECTING) {
+                    isDraggingMouse = true;
+                    originPoint = Optional.of(e.getPoint());
+                    repaint();
+                }
             }
         }
 
         @Override
         public void mouseReleased(final MouseEvent e) {
-            if (SwingUtilities.isLeftMouseButton(e) && selecting) {
-                isDraggingSelection = false;
-                selectionOrigin = Optional.empty();
-                selectionEnd = Optional.empty();
-                repaint();
-            }
+            if (SwingUtilities.isLeftMouseButton(e) && status.isPresent()) {
+                if (status.get() == SelectionStatus.SELECTING) {
+                    isDraggingMouse = false;
+                    originPoint = Optional.empty();
+                    endingPoint = Optional.empty();
+                    repaint();
+                }
+            } 
         }
 
         @Override
@@ -730,5 +750,16 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
         final double x = viewPoint.getX();
         final double y = viewPoint.getY();
         return x >= rx && x <= rx + width && y >= ry && y <= ry + height;
+    }
+
+    private enum SelectionStatus {
+
+        SELECTING,
+
+        MOVING,
+
+        CLONING,
+
+        DELETING;
     }
 }
