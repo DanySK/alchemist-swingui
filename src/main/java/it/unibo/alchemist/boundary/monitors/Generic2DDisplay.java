@@ -114,7 +114,6 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
     private transient Optional<Node<T>> hooked = Optional.empty();
     private boolean inited;
     private double lasttime;
-    private Time time;
     private final Semaphore mapConsistencyMutex = new Semaphore(1);
     private boolean markCloser = true;
     private final transient PointerSpeed mouseMovement = new PointerSpeedImpl();
@@ -177,8 +176,10 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
             } 
         });
         bindKey(KeyEvent.VK_O, () -> {
+            if (status.isPresent() && status.get() == SelectionStatus.SELECTING) {
                 this.endingPoint = Optional.empty();
                 this.status = Optional.of(SelectionStatus.MOVING);
+            }
         });
 //        bindKey(KeyEvent.VK_C, () -> this.displayStatus = DisplayStatus.CLONING);
 //        bindKey(KeyEvent.VK_D, () -> this.displayStatus = DisplayStatus.DELETING);
@@ -284,6 +285,14 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
                 });
         }
         releaseData();
+        if (isDraggingMouse && status.get() == SelectionStatus.MOVING && originPoint.isPresent() && endingPoint.isPresent()) {
+            for (final Node<T> n : selectedNodes) {
+                if (onView.containsKey(n)) {
+                    onView.put(n, new Point(onView.get(n).x + (endingPoint.get().x - originPoint.get().x), 
+                            onView.get(n).y + (endingPoint.get().y - originPoint.get().y)));
+                }
+            }
+        }
         g.setColor(Color.GREEN);
         if (effectStack != null) {
             effectStack.forEach(effect -> {
@@ -310,17 +319,16 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
             }
         }
         if (isDraggingMouse && status.get() == SelectionStatus.SELECTING && originPoint.isPresent() && endingPoint.isPresent()) {
-                selectedNodes.clear(); //TODO: this can probably be deleted
-                g.setColor(Color.BLACK);
-                final int x = originPoint.get().x < endingPoint.get().x ? originPoint.get().x : endingPoint.get().x;
-                final int y = originPoint.get().y < endingPoint.get().y ? originPoint.get().y : endingPoint.get().y;
-                final int width = Math.abs(endingPoint.get().x - originPoint.get().x);
-                final int height = Math.abs(endingPoint.get().y - originPoint.get().y);
-                g.drawRect(x, y, width, height);
-                selectedNodes = onView.entrySet().parallelStream()
-                        .filter(nodes -> isInsideRectangle(nodes.getValue(), x, y, width, height))
-                        .map(onScreen -> onScreen.getKey())
-                        .collect(Collectors.toSet());
+            g.setColor(Color.BLACK);
+            final int x = originPoint.get().x < endingPoint.get().x ? originPoint.get().x : endingPoint.get().x;
+            final int y = originPoint.get().y < endingPoint.get().y ? originPoint.get().y : endingPoint.get().y;
+            final int width = Math.abs(endingPoint.get().x - originPoint.get().x);
+            final int height = Math.abs(endingPoint.get().y - originPoint.get().y);
+            g.drawRect(x, y, width, height);
+            selectedNodes = onView.entrySet().parallelStream()
+                    .filter(nodes -> isInsideRectangle(nodes.getValue(), x, y, width, height))
+                    .map(onScreen -> onScreen.getKey())
+                    .collect(Collectors.toSet());
         }
         selectedNodes.parallelStream()
             .map(e -> Optional.ofNullable(onView.get(e)))
@@ -560,8 +568,7 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
         if (envHasMobileObstacles(env)) {
             loadObstacles(env);
         }
-        this.time = time;
-        lasttime = this.time.toDouble();
+        lasttime = time.toDouble();
         currentEnv = env;
         accessData();
         positions.clear();
@@ -626,19 +633,6 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
             if (nearest != null && SwingUtilities.isMiddleMouseButton(e)) {
                 hooked = hooked.isPresent() ? Optional.empty() : Optional.of(nearest);
             }
-            if (status.isPresent() && status.get() == SelectionStatus.MOVING) {
-                endingPoint = Optional.of(e.getPoint());
-                final Engine<T> eng = Engine.fromEnvironment(currentEnv);
-                for (final Node<T> n : selectedNodes) {
-                    final PointAdapter initialPos = PointAdapter.from(currentEnv.getPosition(n));
-                    final PointAdapter mousePos = PointAdapter.from(wormhole.getEnvPoint(endingPoint.get()));
-                    eng.addCommand(CommandsFactory.newMoveNodeCommand(n, mousePos.diff(initialPos).toPosition()));
-                }
-                selectedNodes.clear();
-                status = Optional.empty();
-                endingPoint = Optional.empty();
-                update(currentEnv, time);
-            }
             repaint();
         }
 
@@ -649,7 +643,7 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
                 return;
             }
             if (SwingUtilities.isLeftMouseButton(e)) {
-                if (status.isPresent() && status.get() == SelectionStatus.SELECTING) {
+                if (status.isPresent()) {
                     endingPoint = Optional.of(e.getPoint());
                 }
                 if (mouseMovement != null && !hooked.isPresent() && !status.isPresent()) {
@@ -687,24 +681,42 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
         @Override
         public void mousePressed(final MouseEvent e) {
             if (SwingUtilities.isLeftMouseButton(e) && status.isPresent()) {
-                if (status.get() == SelectionStatus.SELECTING) {
-                    isDraggingMouse = true;
-                    originPoint = Optional.of(e.getPoint());
-                    repaint();
-                }
+                isDraggingMouse = true;
+                originPoint = Optional.of(e.getPoint());
+                endingPoint = Optional.of(e.getPoint());
+                repaint();
             }
         }
 
         @Override
         public void mouseReleased(final MouseEvent e) {
             if (SwingUtilities.isLeftMouseButton(e) && status.isPresent()) {
-                if (status.get() == SelectionStatus.SELECTING) {
-                    isDraggingMouse = false;
-                    originPoint = Optional.empty();
-                    endingPoint = Optional.empty();
-                    repaint();
+                if (status.get() == SelectionStatus.MOVING && originPoint.isPresent() && endingPoint.isPresent()) {
+                    if (currentEnv.getDimensions() == 2) {
+                        for (final Node<T> n : selectedNodes) {
+                            final Engine<T> engine = Engine.fromEnvironment(currentEnv);
+                            final Position envEnding = wormhole.getEnvPoint(endingPoint.get());
+                            final Position envOrigin = wormhole.getEnvPoint(originPoint.get());
+                            final double finalX = currentEnv.getPosition(n).getCoordinate(0) + (envEnding.getCoordinate(0) - envOrigin.getCoordinate(0));
+                            final double finalY = currentEnv.getPosition(n).getCoordinate(1) + (envEnding.getCoordinate(1) - envOrigin.getCoordinate(1));
+                            final PointAdapter initialNodePos = PointAdapter.from(currentEnv.getPosition(n));
+                            final PointAdapter movementPos = PointAdapter.from(finalX, finalY);
+                            engine.addCommand(CommandsFactory.newMoveNodeCommand(n, movementPos.diff(initialNodePos).toPosition()));
+                            System.out.println(movementPos.diff(initialNodePos).toPosition());
+                            //engine.addCommand(sim -> sim.getEnvironment().moveNodeToPosition(n, PointAdapter.from(finalX, finalY).toPosition()));
+                            engine.addCommand(sim -> update(sim.getEnvironment(), sim.getTime()));
+                        }
+                    } else {
+                        L.error("Unable to move nodes: unsupported environment dimension.");
+                    }
+                    selectedNodes.clear();
+                    status = Optional.empty();
                 }
-            } 
+                isDraggingMouse = false;
+                originPoint = Optional.empty();
+                endingPoint = Optional.empty();
+                repaint();
+            }
         }
 
         @Override
