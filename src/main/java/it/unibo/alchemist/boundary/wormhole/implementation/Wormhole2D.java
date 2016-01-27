@@ -271,7 +271,7 @@ public class Wormhole2D implements IWormhole2D {
      * @return env space point
      */
     protected final PointAdapter envPointFromView(final PointAdapter viewPoint) {
-        final Point vp = viewPoint.toPoint();
+        final Point2D.Double vp = new Point2D.Double(viewPoint.toPoint().x, viewPoint.toPoint().y);
         final AffineTransform t = calculateTransform();
         try {
             t.inverseTransform(vp, vp);

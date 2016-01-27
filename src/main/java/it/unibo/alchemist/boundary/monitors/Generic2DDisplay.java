@@ -691,19 +691,20 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
         @Override
         public void mouseReleased(final MouseEvent e) {
             if (SwingUtilities.isLeftMouseButton(e) && status.isPresent()) {
+                endingPoint = Optional.of(e.getPoint());
                 if (status.get() == SelectionStatus.MOVING && originPoint.isPresent() && endingPoint.isPresent()) {
                     if (currentEnv.getDimensions() == 2) {
+                        final Engine<T> engine = Engine.fromEnvironment(currentEnv);
+                        final Position envEnding = wormhole.getEnvPoint(endingPoint.get());
+                        final Position envOrigin = wormhole.getEnvPoint(originPoint.get());
                         for (final Node<T> n : selectedNodes) {
-                            final Engine<T> engine = Engine.fromEnvironment(currentEnv);
-                            final Position envEnding = wormhole.getEnvPoint(endingPoint.get());
-                            final Position envOrigin = wormhole.getEnvPoint(originPoint.get());
-                            final double finalX = currentEnv.getPosition(n).getCoordinate(0) + (envEnding.getCoordinate(0) - envOrigin.getCoordinate(0));
-                            final double finalY = currentEnv.getPosition(n).getCoordinate(1) + (envEnding.getCoordinate(1) - envOrigin.getCoordinate(1));
+                            final double finalX = currentEnv.getPosition(n).getCoordinate(0) 
+                                    + (envEnding.getCoordinate(0) - envOrigin.getCoordinate(0));
+                            final double finalY = currentEnv.getPosition(n).getCoordinate(1) 
+                                    + (envEnding.getCoordinate(1) - envOrigin.getCoordinate(1));
                             final PointAdapter initialNodePos = PointAdapter.from(currentEnv.getPosition(n));
                             final PointAdapter movementPos = PointAdapter.from(finalX, finalY);
                             engine.addCommand(CommandsFactory.newMoveNodeCommand(n, movementPos.diff(initialNodePos).toPosition()));
-                            System.out.println(movementPos.diff(initialNodePos).toPosition());
-                            //engine.addCommand(sim -> sim.getEnvironment().moveNodeToPosition(n, PointAdapter.from(finalX, finalY).toPosition()));
                             engine.addCommand(sim -> update(sim.getEnvironment(), sim.getTime()));
                         }
                     } else {
