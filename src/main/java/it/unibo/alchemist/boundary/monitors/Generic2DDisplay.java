@@ -180,7 +180,11 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
                 this.status = Optional.of(SelectionStatus.MOVING);
             }
         });
-//        bindKey(KeyEvent.VK_C, () -> this.displayStatus = DisplayStatus.CLONING);
+        bindKey(KeyEvent.VK_C, () -> {
+            if (status.isPresent() && status.get() == SelectionStatus.SELECTING) {
+                this.status = Optional.of(SelectionStatus.CLONING);
+            }
+        });
         bindKey(KeyEvent.VK_D, () -> {
             if (status.isPresent() && status.get() == SelectionStatus.SELECTING) {
                 this.status = Optional.of(SelectionStatus.DELETING);
@@ -638,6 +642,15 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
                         }
                     });
                 }
+            } else if (status.isPresent() && status.get() == SelectionStatus.CLONING && SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 1) {
+                final Engine<T> engine = Engine.fromEnvironment(currentEnv);
+                final Position envEnding = wormhole.getEnvPoint(e.getPoint());
+                for (final Node<T> n : selectedNodes) {
+                    engine.addCommand(CommandsFactory.newCloneNodeCommand(n, envEnding));
+                }
+                engine.addCommand(sim -> update(sim.getEnvironment(), sim.getTime()));
+                selectedNodes.clear();
+                status = Optional.empty();
             }
             if (nearest != null && SwingUtilities.isMiddleMouseButton(e)) {
                 hooked = hooked.isPresent() ? Optional.empty() : Optional.of(nearest);
@@ -713,8 +726,8 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
                                     + (envEnding.getCoordinate(1) - envOrigin.getCoordinate(1));
                             final Position finalPos = PointAdapter.from(finalX, finalY).toPosition();
                             engine.addCommand(sim -> sim.getEnvironment().moveNodeToPosition(n, finalPos));
-                            engine.addCommand(sim -> update(sim.getEnvironment(), sim.getTime()));
                         }
+                        engine.addCommand(sim -> update(sim.getEnvironment(), sim.getTime()));
                     } else {
                         L.error("Unable to move nodes: unsupported environment dimension.");
                     }
