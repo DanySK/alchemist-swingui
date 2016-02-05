@@ -177,13 +177,19 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
         });
         bindKey(KeyEvent.VK_O, () -> {
             if (status.isPresent() && status.get() == SelectionStatus.SELECTING) {
-                this.endingPoint = Optional.empty();
                 this.status = Optional.of(SelectionStatus.MOVING);
             }
         });
 //        bindKey(KeyEvent.VK_C, () -> this.displayStatus = DisplayStatus.CLONING);
-//        bindKey(KeyEvent.VK_D, () -> this.displayStatus = DisplayStatus.DELETING);
-
+        bindKey(KeyEvent.VK_D, () -> {
+            if (status.isPresent() && status.get() == SelectionStatus.SELECTING) {
+                this.status = Optional.of(SelectionStatus.DELETING);
+                for (final Node<T> n : selectedNodes) {
+                    Engine.fromEnvironment(currentEnv).addCommand(CommandsFactory.newRemoveNodeCommand(n));
+                }
+                repaint();
+            }
+        });
         bindKey(KeyEvent.VK_M, () -> setMarkCloserNode(!isCloserNodeMarked()));
         bindKey(KeyEvent.VK_L, () -> setDrawLinks(!paintLinks));
         bindKey(KeyEvent.VK_P, () -> Optional.ofNullable(Engine.fromEnvironment(currentEnv))
@@ -315,8 +321,10 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
                 nearest = closest.get().getKey();
                 final int nearestx = closest.get().getValue().x;
                 final int nearesty = closest.get().getValue().y;
-                drawFriedEgg(g, nearestx, nearesty);
+                drawFriedEgg(g, nearestx, nearesty, Color.RED, Color.YELLOW);
             }
+        } else {
+            nearest = null;
         }
         if (isDraggingMouse && status.get() == SelectionStatus.SELECTING && originPoint.isPresent() && endingPoint.isPresent()) {
             g.setColor(Color.BLACK);
@@ -334,13 +342,13 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
             .map(e -> Optional.ofNullable(onView.get(e)))
             .filter(Optional::isPresent)
             .map(Optional::get)
-            .forEachOrdered(p -> drawFriedEgg(g, p.x, p.y));
+            .forEachOrdered(p -> drawFriedEgg(g, p.x, p.y, Color.BLUE, Color.CYAN));
     }
 
-    private void drawFriedEgg(final Graphics g, final int x, final int y) {
-        g.setColor(Color.RED);
+    private void drawFriedEgg(final Graphics g, final int x, final int y, final Color c1, final Color c2) {
+        g.setColor(c1);
         g.fillOval(x - SELECTED_NODE_DRAWING_SIZE / 2, y - SELECTED_NODE_DRAWING_SIZE / 2, SELECTED_NODE_DRAWING_SIZE, SELECTED_NODE_DRAWING_SIZE);
-        g.setColor(Color.YELLOW);
+        g.setColor(c2);
         g.fillOval(x - SELECTED_NODE_INTERNAL_SIZE / 2, y - SELECTED_NODE_INTERNAL_SIZE / 2, SELECTED_NODE_INTERNAL_SIZE, SELECTED_NODE_INTERNAL_SIZE);
     }
 
@@ -702,9 +710,8 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
                                     + (envEnding.getCoordinate(0) - envOrigin.getCoordinate(0));
                             final double finalY = currentEnv.getPosition(n).getCoordinate(1) 
                                     + (envEnding.getCoordinate(1) - envOrigin.getCoordinate(1));
-                            final PointAdapter initialNodePos = PointAdapter.from(currentEnv.getPosition(n));
-                            final PointAdapter movementPos = PointAdapter.from(finalX, finalY);
-                            engine.addCommand(CommandsFactory.newMoveNodeCommand(n, movementPos.diff(initialNodePos).toPosition()));
+                            final Position finalPos = PointAdapter.from(finalX, finalY).toPosition();
+                            engine.addCommand(sim -> sim.getEnvironment().moveNodeToPosition(n, finalPos));
                             engine.addCommand(sim -> update(sim.getEnvironment(), sim.getTime()));
                         }
                     } else {
