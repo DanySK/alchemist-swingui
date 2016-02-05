@@ -187,7 +187,8 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
                 for (final Node<T> n : selectedNodes) {
                     Engine.fromEnvironment(currentEnv).addCommand(CommandsFactory.newRemoveNodeCommand(n));
                 }
-                repaint();
+                Engine.fromEnvironment(currentEnv).addCommand(sim -> update(sim.getEnvironment(), sim.getTime()));
+                status = Optional.empty();
             }
         });
         bindKey(KeyEvent.VK_M, () -> setMarkCloserNode(!isCloserNodeMarked()));
