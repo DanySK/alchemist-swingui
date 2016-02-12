@@ -131,7 +131,7 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
 
     private transient ZoomManager zoomManager;
 
-    private transient Optional<SelectionStatus> status = Optional.empty();
+    private transient Optional<ViewStatus> status = Optional.empty();
     private transient boolean isDraggingMouse;
     private transient Optional<Point> originPoint = Optional.empty();
     private transient Optional<Point> endingPoint = Optional.empty();
@@ -167,27 +167,41 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
 
     private void bindKeys() {
         bindKey(KeyEvent.VK_S, () -> {
-            if (status.isPresent() && status.get() == SelectionStatus.SELECTING) {
+            if (status.isPresent() && status.get() == ViewStatus.SELECTING) {
                 this.status = Optional.empty();
                 this.selectedNodes.clear();
                 this.repaint();
-            } else {
-                this.status = Optional.of(SelectionStatus.SELECTING);
+            } else if (!status.isPresent()) {
+                this.status = Optional.of(ViewStatus.SELECTING);
             } 
         });
         bindKey(KeyEvent.VK_O, () -> {
-            if (status.isPresent() && status.get() == SelectionStatus.SELECTING) {
-                this.status = Optional.of(SelectionStatus.MOVING);
+            if (status.isPresent() && status.get() == ViewStatus.SELECTING) {
+                this.status = Optional.of(ViewStatus.MOVING);
             }
         });
         bindKey(KeyEvent.VK_C, () -> {
-            if (status.isPresent() && status.get() == SelectionStatus.SELECTING) {
-                this.status = Optional.of(SelectionStatus.CLONING);
+            if (status.isPresent() && status.get() == ViewStatus.SELECTING) {
+                this.status = Optional.of(ViewStatus.CLONING);
             }
         });
+        bindKey(KeyEvent.VK_E, () -> {
+            if (status.isPresent() && status.get() == ViewStatus.SELECTING) {
+                this.status = Optional.of(ViewStatus.MOLECULING);
+                final JFrame mol = Generic2DDisplay.makeFrame("Moleculing", new MoleculeInjectorGUI<>(selectedNodes));
+                mol.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                mol.addWindowListener(new WindowAdapter() {
+                    @Override
+                    public void windowClosed(final WindowEvent e) {
+                        selectedNodes.clear();
+                        status = Optional.empty();
+                    }
+                });
+            } 
+        });
         bindKey(KeyEvent.VK_D, () -> {
-            if (status.isPresent() && status.get() == SelectionStatus.SELECTING) {
-                this.status = Optional.of(SelectionStatus.DELETING);
+            if (status.isPresent() && status.get() == ViewStatus.SELECTING) {
+                this.status = Optional.of(ViewStatus.DELETING);
                 for (final Node<T> n : selectedNodes) {
                     Engine.fromEnvironment(currentEnv).addCommand(CommandsFactory.newRemoveNodeCommand(n));
                 }
@@ -296,7 +310,7 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
                 });
         }
         releaseData();
-        if (isDraggingMouse && status.get() == SelectionStatus.MOVING && originPoint.isPresent() && endingPoint.isPresent()) {
+        if (isDraggingMouse && status.get() == ViewStatus.MOVING && originPoint.isPresent() && endingPoint.isPresent()) {
             for (final Node<T> n : selectedNodes) {
                 if (onView.containsKey(n)) {
                     onView.put(n, new Point(onView.get(n).x + (endingPoint.get().x - originPoint.get().x), 
@@ -331,7 +345,7 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
         } else {
             nearest = null;
         }
-        if (isDraggingMouse && status.get() == SelectionStatus.SELECTING && originPoint.isPresent() && endingPoint.isPresent()) {
+        if (isDraggingMouse && status.get() == ViewStatus.SELECTING && originPoint.isPresent() && endingPoint.isPresent()) {
             g.setColor(Color.BLACK);
             final int x = originPoint.get().x < endingPoint.get().x ? originPoint.get().x : endingPoint.get().x;
             final int y = originPoint.get().y < endingPoint.get().y ? originPoint.get().y : endingPoint.get().y;
@@ -642,7 +656,7 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
                         }
                     });
                 }
-            } else if (status.isPresent() && status.get() == SelectionStatus.CLONING && SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 1) {
+            } else if (status.isPresent() && status.get() == ViewStatus.CLONING && SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 1) {
                 final Engine<T> engine = Engine.fromEnvironment(currentEnv);
                 final Position envEnding = wormhole.getEnvPoint(e.getPoint());
                 for (final Node<T> n : selectedNodes) {
@@ -714,7 +728,7 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
         public void mouseReleased(final MouseEvent e) {
             if (SwingUtilities.isLeftMouseButton(e) && status.isPresent()) {
                 endingPoint = Optional.of(e.getPoint());
-                if (status.get() == SelectionStatus.MOVING && originPoint.isPresent() && endingPoint.isPresent()) {
+                if (status.get() == ViewStatus.MOVING && originPoint.isPresent() && endingPoint.isPresent()) {
                     if (currentEnv.getDimensions() == 2) {
                         final Engine<T> engine = Engine.fromEnvironment(currentEnv);
                         final Position envEnding = wormhole.getEnvPoint(endingPoint.get());
@@ -786,7 +800,9 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
         return x >= rx && x <= rx + width && y >= ry && y <= ry + height;
     }
 
-    private enum SelectionStatus {
+    private enum ViewStatus {
+
+        MARK_CLOSER,
 
         SELECTING,
 
@@ -794,6 +810,8 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
 
         CLONING,
 
-        DELETING;
+        DELETING,
+
+        MOLECULING;
     }
 }
