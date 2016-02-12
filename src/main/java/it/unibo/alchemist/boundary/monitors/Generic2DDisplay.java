@@ -131,7 +131,7 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
     private transient ZoomManager zoomManager;
 
     private transient boolean isPreviousStateMarking = true;
-    private transient ViewStatus status = ViewStatus.MARK_CLOSER;
+    private ViewStatus status = ViewStatus.MARK_CLOSER;
     private transient boolean isDraggingMouse;
     private transient Optional<Point> originPoint = Optional.empty();
     private transient Optional<Point> endingPoint = Optional.empty();
@@ -525,14 +525,16 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
 
     @Override
     public void setMarkCloserNode(final boolean mark) {
-        if (mark) {
-            isPreviousStateMarking = true;
-            status = ViewStatus.MARK_CLOSER;
-        } else {
-            isPreviousStateMarking = false;
-            status = ViewStatus.VIEW_ONLY;
+        if (!isInteracting()) {
+            if (mark) {
+                isPreviousStateMarking = true;
+                status = ViewStatus.MARK_CLOSER;
+            } else {
+                isPreviousStateMarking = false;
+                status = ViewStatus.VIEW_ONLY;
+            }
+            repaint();
         }
-        repaint();
     }
 
     @Override
