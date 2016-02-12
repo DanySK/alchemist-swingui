@@ -697,7 +697,7 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
                 return;
             }
             if (SwingUtilities.isLeftMouseButton(e)) {
-                if (isInteracting()) {
+                if (isDraggingMouse) {
                     endingPoint = Optional.of(e.getPoint());
                 }
                 if (mouseMovement != null && !hooked.isPresent() && !isInteracting()) {
@@ -734,7 +734,7 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
 
         @Override
         public void mousePressed(final MouseEvent e) {
-            if (SwingUtilities.isLeftMouseButton(e) && isInteracting()) {
+            if (SwingUtilities.isLeftMouseButton(e) && (status == ViewStatus.MOVING || status == ViewStatus.SELECTING)) {
                 isDraggingMouse = true;
                 originPoint = Optional.of(e.getPoint());
                 endingPoint = Optional.of(e.getPoint());
@@ -744,7 +744,7 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
 
         @Override
         public void mouseReleased(final MouseEvent e) {
-            if (SwingUtilities.isLeftMouseButton(e) && isInteracting()) {
+            if (SwingUtilities.isLeftMouseButton(e) && isDraggingMouse) {
                 endingPoint = Optional.of(e.getPoint());
                 if (status == ViewStatus.MOVING && originPoint.isPresent() && endingPoint.isPresent()) {
                     if (currentEnv.getDimensions() == 2) {
