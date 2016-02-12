@@ -115,7 +115,6 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
     private boolean inited;
     private double lasttime;
     private final Semaphore mapConsistencyMutex = new Semaphore(1);
-    private boolean markCloser = true;
     private final transient PointerSpeed mouseMovement = new PointerSpeedImpl();
     private int mousex, mousey;
     private Node<T> nearest;
@@ -131,7 +130,8 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
 
     private transient ZoomManager zoomManager;
 
-    private transient Optional<ViewStatus> status = Optional.empty();
+    private transient boolean isPreviousStateMarking = true;
+    private transient ViewStatus status = ViewStatus.MARK_CLOSER;
     private transient boolean isDraggingMouse;
     private transient Optional<Point> originPoint = Optional.empty();
     private transient Optional<Point> endingPoint = Optional.empty();
@@ -165,48 +165,60 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
         bindKeys();
     }
 
+    private boolean isInteracting() {
+        return status != ViewStatus.MARK_CLOSER && status != ViewStatus.VIEW_ONLY;
+    }
+
+    private void resetStatus() {
+        if (isPreviousStateMarking) {
+            this.status = ViewStatus.MARK_CLOSER;
+        } else {
+            this.status = ViewStatus.VIEW_ONLY;
+        }
+    }
+
     private void bindKeys() {
         bindKey(KeyEvent.VK_S, () -> {
-            if (status.isPresent() && status.get() == ViewStatus.SELECTING) {
-                this.status = Optional.empty();
+            if (status == ViewStatus.SELECTING) {
+                resetStatus();
                 this.selectedNodes.clear();
-                this.repaint();
-            } else if (!status.isPresent()) {
-                this.status = Optional.of(ViewStatus.SELECTING);
+            } else if (!isInteracting()) {
+                this.status = ViewStatus.SELECTING;
             } 
+            this.repaint();
         });
         bindKey(KeyEvent.VK_O, () -> {
-            if (status.isPresent() && status.get() == ViewStatus.SELECTING) {
-                this.status = Optional.of(ViewStatus.MOVING);
+            if (status == ViewStatus.SELECTING) {
+                this.status = ViewStatus.MOVING;
             }
         });
         bindKey(KeyEvent.VK_C, () -> {
-            if (status.isPresent() && status.get() == ViewStatus.SELECTING) {
-                this.status = Optional.of(ViewStatus.CLONING);
+            if (status == ViewStatus.SELECTING) {
+                this.status = ViewStatus.CLONING;
             }
         });
         bindKey(KeyEvent.VK_E, () -> {
-            if (status.isPresent() && status.get() == ViewStatus.SELECTING) {
-                this.status = Optional.of(ViewStatus.MOLECULING);
+            if (status == ViewStatus.SELECTING) {
+                this.status = ViewStatus.MOLECULING;
                 final JFrame mol = Generic2DDisplay.makeFrame("Moleculing", new MoleculeInjectorGUI<>(selectedNodes));
                 mol.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                 mol.addWindowListener(new WindowAdapter() {
                     @Override
                     public void windowClosed(final WindowEvent e) {
                         selectedNodes.clear();
-                        status = Optional.empty();
+                        resetStatus();
                     }
                 });
             } 
         });
         bindKey(KeyEvent.VK_D, () -> {
-            if (status.isPresent() && status.get() == ViewStatus.SELECTING) {
-                this.status = Optional.of(ViewStatus.DELETING);
+            if (status == ViewStatus.SELECTING) {
+                this.status = ViewStatus.DELETING;
                 for (final Node<T> n : selectedNodes) {
                     Engine.fromEnvironment(currentEnv).addCommand(CommandsFactory.newRemoveNodeCommand(n));
                 }
                 Engine.fromEnvironment(currentEnv).addCommand(sim -> update(sim.getEnvironment(), sim.getTime()));
-                status = Optional.empty();
+                resetStatus();
             }
         });
         bindKey(KeyEvent.VK_M, () -> setMarkCloserNode(!isCloserNodeMarked()));
@@ -310,7 +322,7 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
                 });
         }
         releaseData();
-        if (isDraggingMouse && status.get() == ViewStatus.MOVING && originPoint.isPresent() && endingPoint.isPresent()) {
+        if (isDraggingMouse && status == ViewStatus.MOVING && originPoint.isPresent() && endingPoint.isPresent()) {
             for (final Node<T> n : selectedNodes) {
                 if (onView.containsKey(n)) {
                     onView.put(n, new Point(onView.get(n).x + (endingPoint.get().x - originPoint.get().x), 
@@ -327,7 +339,7 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
                 });
             });
         }
-        if (isCloserNodeMarked() && !status.isPresent()) {
+        if (isCloserNodeMarked() && status == ViewStatus.MARK_CLOSER) {
             final Optional<Map.Entry<Node<T>, Point>> closest = onView.entrySet().parallelStream()
                     .min((pair1, pair2) -> {
                         final Point p1 = pair1.getValue();
@@ -345,7 +357,7 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
         } else {
             nearest = null;
         }
-        if (isDraggingMouse && status.get() == ViewStatus.SELECTING && originPoint.isPresent() && endingPoint.isPresent()) {
+        if (isDraggingMouse && status == ViewStatus.SELECTING && originPoint.isPresent() && endingPoint.isPresent()) {
             g.setColor(Color.BLACK);
             final int x = originPoint.get().x < endingPoint.get().x ? originPoint.get().x : endingPoint.get().x;
             final int y = originPoint.get().y < endingPoint.get().y ? originPoint.get().y : endingPoint.get().y;
@@ -441,7 +453,7 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
      * @return true if the closer node is marked
      */
     protected final boolean isCloserNodeMarked() {
-        return markCloser;
+        return status == ViewStatus.MARK_CLOSER;
     }
 
     /**
@@ -513,10 +525,14 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
 
     @Override
     public void setMarkCloserNode(final boolean mark) {
-        if (mark != markCloser) {
-            markCloser = mark;
-            repaint();
+        if (mark) {
+            isPreviousStateMarking = true;
+            status = ViewStatus.MARK_CLOSER;
+        } else {
+            isPreviousStateMarking = false;
+            status = ViewStatus.VIEW_ONLY;
         }
+        repaint();
     }
 
     @Override
@@ -656,7 +672,7 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
                         }
                     });
                 }
-            } else if (status.isPresent() && status.get() == ViewStatus.CLONING && SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 1) {
+            } else if (status == ViewStatus.CLONING && SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 1) {
                 final Engine<T> engine = Engine.fromEnvironment(currentEnv);
                 final Position envEnding = wormhole.getEnvPoint(e.getPoint());
                 for (final Node<T> n : selectedNodes) {
@@ -664,7 +680,7 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
                 }
                 engine.addCommand(sim -> update(sim.getEnvironment(), sim.getTime()));
                 selectedNodes.clear();
-                status = Optional.empty();
+                resetStatus();
             }
             if (nearest != null && SwingUtilities.isMiddleMouseButton(e)) {
                 hooked = hooked.isPresent() ? Optional.empty() : Optional.of(nearest);
@@ -679,10 +695,10 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
                 return;
             }
             if (SwingUtilities.isLeftMouseButton(e)) {
-                if (status.isPresent()) {
+                if (isInteracting()) {
                     endingPoint = Optional.of(e.getPoint());
                 }
-                if (mouseMovement != null && !hooked.isPresent() && !status.isPresent()) {
+                if (mouseMovement != null && !hooked.isPresent() && !isInteracting()) {
                     final Point previous = wormhole.getViewPosition();
                     wormhole.setViewPosition(
                             PointAdapter.from(previous)
@@ -716,7 +732,7 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
 
         @Override
         public void mousePressed(final MouseEvent e) {
-            if (SwingUtilities.isLeftMouseButton(e) && status.isPresent()) {
+            if (SwingUtilities.isLeftMouseButton(e) && isInteracting()) {
                 isDraggingMouse = true;
                 originPoint = Optional.of(e.getPoint());
                 endingPoint = Optional.of(e.getPoint());
@@ -726,9 +742,9 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
 
         @Override
         public void mouseReleased(final MouseEvent e) {
-            if (SwingUtilities.isLeftMouseButton(e) && status.isPresent()) {
+            if (SwingUtilities.isLeftMouseButton(e) && isInteracting()) {
                 endingPoint = Optional.of(e.getPoint());
-                if (status.get() == ViewStatus.MOVING && originPoint.isPresent() && endingPoint.isPresent()) {
+                if (status == ViewStatus.MOVING && originPoint.isPresent() && endingPoint.isPresent()) {
                     if (currentEnv.getDimensions() == 2) {
                         final Engine<T> engine = Engine.fromEnvironment(currentEnv);
                         final Position envEnding = wormhole.getEnvPoint(endingPoint.get());
@@ -746,7 +762,7 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
                         L.error("Unable to move nodes: unsupported environment dimension.");
                     }
                     selectedNodes.clear();
-                    status = Optional.empty();
+                    resetStatus();
                 }
                 isDraggingMouse = false;
                 originPoint = Optional.empty();
@@ -801,6 +817,8 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
     }
 
     private enum ViewStatus {
+
+        VIEW_ONLY,
 
         MARK_CLOSER,
 
