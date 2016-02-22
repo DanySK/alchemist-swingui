@@ -752,10 +752,9 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
                         final Position envEnding = wormhole.getEnvPoint(endingPoint.get());
                         final Position envOrigin = wormhole.getEnvPoint(originPoint.get());
                         for (final Node<T> n : selectedNodes) {
-                            final double finalX = currentEnv.getPosition(n).getCoordinate(0) 
-                                    + (envEnding.getCoordinate(0) - envOrigin.getCoordinate(0));
-                            final double finalY = currentEnv.getPosition(n).getCoordinate(1) 
-                                    + (envEnding.getCoordinate(1) - envOrigin.getCoordinate(1));
+                            final Position p = currentEnv.getPosition(n);
+                            final double finalX = p.getCoordinate(0) + (envEnding.getCoordinate(0) - envOrigin.getCoordinate(0));
+                            final double finalY = p.getCoordinate(1) + (envEnding.getCoordinate(1) - envOrigin.getCoordinate(1));
                             final Position finalPos = PointAdapter.from(finalX, finalY).toPosition();
                             engine.addCommand(sim -> sim.getEnvironment().moveNodeToPosition(n, finalPos));
                         }
