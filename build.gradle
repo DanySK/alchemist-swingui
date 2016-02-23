@@ -214,6 +214,11 @@ uploadArchives {
                         email 'turin.gianluca@educ.di.unito.it'
                         url 'https://github.com/giaku'
                     }
+                    developer {
+                        name 'Giacomo Scaparrotti'
+                        email 'tgiacomo.scaparrotti@studio.unibo.it'
+                        url 'https://github.com/gscaparrotti'
+                    }
                 }
                 scm {
                     url "$scmRootUrl/$artifactId"
