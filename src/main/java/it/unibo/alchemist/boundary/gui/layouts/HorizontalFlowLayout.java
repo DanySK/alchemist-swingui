@@ -30,7 +30,6 @@ import java.awt.Insets;
  * 
  * Revision date 12th July 2001
  * 
- * @author Colin Mummery e-mail: colin_mummery@yahoo.com
  *         Homepage:www.kagi.com/equitysoft - Based on 'FlexLayout' in Java
  *         class libraries Vol 2 Chan/Lee Addison-Wesley 1998
  */
@@ -41,22 +40,27 @@ public class HorizontalFlowLayout extends AFlowLayout {
      * 
      */
     private static final long serialVersionUID = 5625120689939529161L;
+    private static final int DEFAULTVGAP = 5;
 
     /**
      * Constructs an instance of VerticalLayout with a vertical vgap of 5
      * pixels, horizontal centering and anchored to the top of the display area.
+     * 
+     * @param ordered 
      */
+    //CHECKSTYLE:OFF
     public HorizontalFlowLayout(final boolean ordered) {
-        this(5, CENTER, TOP, ordered);
+        this(DEFAULTVGAP, CENTER, TOP, ordered);
     }
+    //CHECKSTYLE:ON
 
     /**
      * Constructs a VerticalLayout instance with horizontal centering, anchored
-     * to the top with the specified vgap
+     * to the top with the specified vgap.
      * 
-     * @param getGap
-     *            () An int value indicating the vertical seperation of the
+     * @param hgap An int value indicating the vertical seperation of the
      *            components
+     * @param ordered true if the components must be ordered
      */
     public HorizontalFlowLayout(final int hgap, final boolean ordered) {
         this(hgap, CENTER, TOP, ordered);
@@ -64,15 +68,14 @@ public class HorizontalFlowLayout extends AFlowLayout {
 
     /**
      * Constructs a VerticalLayout instance anchored to the top with the
-     * specified vgap and horizontal getAlignment()
+     * specified hgap and horizontal alignment.
      * 
-     * @param getGap
-     *            () An int value indicating the vertical seperation of the
+     * @param hgap An int value indicating the vertical seperation of the
      *            components
-     * @param getAlignment
-     *            () An int value which is one of
+     * @param align An int value which is one of
      *            <code>RIGHT, LEFT, CENTER, BOTH</code> for the horizontal
      *            getAlignment().
+     * @param ordered true if the components must be ordered
      */
     public HorizontalFlowLayout(final int hgap, final int align, final boolean ordered) {
         this(hgap, align, RIGHT, ordered);
@@ -80,20 +83,18 @@ public class HorizontalFlowLayout extends AFlowLayout {
 
     /**
      * Constructs a VerticalLayout instance with the specified vgap, horizontal
-     * getAlignment() and anchoring
+     * getAlignment() and anchoring.
      * 
-     * @param getGap
-     *            () An int value indicating the vertical seperation of the
+     * @param hgap An int value indicating the vertical seperation of the
      *            components
-     * @param getAlignment
-     *            () An int value which is one of
+     * @param align An int value which is one of
      *            <code>RIGHT, LEFT, CENTER, BOTH</code> for the horizontal
      *            getAlignment().
-     * @param getAnchor
-     *            () An int value which is one of
+     * @param anchor An int value which is one of
      *            <code>TOP, BOTTOM, CENTER</code> indicating where the
      *            components are to appear if the display area exceeds the
      *            minimum necessary.
+     * @param ordered true if the components must be ordered
      */
     public HorizontalFlowLayout(final int hgap, final int align, final int anchor, final boolean ordered) {
         super(hgap, align, anchor, ordered);

@@ -65,10 +65,10 @@ public abstract class AFlowLayout implements LayoutManager, Serializable {
 
     /**
      * 
-     * @param hgap
-     * @param alignment
-     * @param anchor
-     * @param ordered
+     * @param hgap the vertical gap between components
+     * @param alignment how the components are justified
+     * @param anchor where the components are positioned
+     * @param ordered true if the components must be ordered
      */
     public AFlowLayout(final int hgap, final int alignment, final int anchor, final boolean ordered) {
         this.gap = hgap;
@@ -88,7 +88,7 @@ public abstract class AFlowLayout implements LayoutManager, Serializable {
 
     /**
      * 
-     * @return
+     * @return the current alignment
      */
     protected int getAlignment() {
         return alignment;
@@ -96,7 +96,7 @@ public abstract class AFlowLayout implements LayoutManager, Serializable {
 
     /**
      * 
-     * @return
+     * @return the current anchor
      */
     protected int getAnchor() {
         return anchor;
@@ -104,8 +104,8 @@ public abstract class AFlowLayout implements LayoutManager, Serializable {
 
     /**
      * 
-     * @param c
-     * @return
+     * @param c the component you want to know the order
+     * @return the order
      */
     public int getComponentOrder(final Component c) {
         if (isOrdered()) {
@@ -124,7 +124,7 @@ public abstract class AFlowLayout implements LayoutManager, Serializable {
 
     /**
      * 
-     * @return
+     * @return a list with the ordered components
      */
     public List<Component> getComponentsList() {
         return compOrder;
@@ -132,7 +132,7 @@ public abstract class AFlowLayout implements LayoutManager, Serializable {
 
     /**
      * 
-     * @return
+     * @return the current gap
      */
     protected int getGap() {
         return gap;
@@ -140,7 +140,7 @@ public abstract class AFlowLayout implements LayoutManager, Serializable {
 
     /**
      * 
-     * @return
+     * @return true if the components are ordered
      */
     public boolean isOrdered() {
         return compOrder != null;
@@ -150,10 +150,11 @@ public abstract class AFlowLayout implements LayoutManager, Serializable {
     public abstract void layoutContainer(final Container parent);
 
     /**
+     * Calculates the size dimensions for the specified container, given the components it contains.
      * 
-     * @param parent
-     * @param minimum
-     * @return
+     * @param parent the component to be laid out.
+     * @param minimum true if the returned dimension is the minimum one
+     * @return a Dimension with the desired size
      */
     protected abstract Dimension layoutSize(final Container parent, final boolean minimum);
 
@@ -176,7 +177,7 @@ public abstract class AFlowLayout implements LayoutManager, Serializable {
 
     /**
      * 
-     * @param alignment
+     * @param alignment the new alignment
      */
     protected void setAlignment(final int alignment) {
         this.alignment = alignment;
@@ -184,7 +185,7 @@ public abstract class AFlowLayout implements LayoutManager, Serializable {
 
     /**
      * 
-     * @param anchor
+     * @param anchor the new anchor
      */
     protected void setAnchor(final int anchor) {
         this.anchor = anchor;
@@ -192,9 +193,9 @@ public abstract class AFlowLayout implements LayoutManager, Serializable {
 
     /**
      * 
-     * @param c
-     * @param order
-     * @throws IllegalStateException
+     * @param c the component you want to order
+     * @param order the position of the component
+     * @throws IllegalStateException 
      */
     public void setComponentOrder(final Component c, final int order) throws IllegalStateException {
         if (!isOrdered()) {
@@ -208,7 +209,7 @@ public abstract class AFlowLayout implements LayoutManager, Serializable {
 
     /**
      * 
-     * @param gap
+     * @param gap the new gap
      */
     protected void setGap(final int gap) {
         this.gap = gap;
