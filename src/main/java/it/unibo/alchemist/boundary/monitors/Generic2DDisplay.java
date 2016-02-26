@@ -24,10 +24,12 @@ import java.awt.event.WindowEvent;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Semaphore;
@@ -57,6 +59,7 @@ import it.unibo.alchemist.boundary.wormhole.interfaces.IWormhole2D;
 import it.unibo.alchemist.boundary.wormhole.interfaces.IWormhole2D.Mode;
 import it.unibo.alchemist.boundary.wormhole.interfaces.PointerSpeed;
 import it.unibo.alchemist.boundary.wormhole.interfaces.ZoomManager;
+import it.unibo.alchemist.commands.CommandsFactory;
 import it.unibo.alchemist.core.implementations.Engine;
 import it.unibo.alchemist.core.interfaces.Simulation;
 import it.unibo.alchemist.core.interfaces.Status;
@@ -106,13 +109,13 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
     private transient AngleManagerImpl angleManager;
     private Environment<T> currentEnv;
     private List<Effect> effectStack;
-    private boolean firstTime = true, paintLinks;
+    private volatile boolean firstTime = true; 
+    private boolean paintLinks;
     private transient Optional<Node<T>> hooked = Optional.empty();
     private boolean inited;
     private double lasttime;
     private final Semaphore mapConsistencyMutex = new Semaphore(1);
-    private boolean markCloser = true;
-    private final transient PointerSpeed mouseVelocity = new PointerSpeedImpl();
+    private final transient PointerSpeed mouseMovement = new PointerSpeedImpl();
     private int mousex, mousey;
     private Node<T> nearest;
     private final ConcurrentMap<Node<T>, Neighborhood<T>> neighbors = new ConcurrentHashMap<>();
@@ -126,6 +129,13 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
     private transient IWormhole2D wormhole;
 
     private transient ZoomManager zoomManager;
+
+    private transient boolean isPreviousStateMarking = true;
+    private ViewStatus status = ViewStatus.MARK_CLOSER;
+    private transient boolean isDraggingMouse;
+    private transient Optional<Point> originPoint = Optional.empty();
+    private transient Optional<Point> endingPoint = Optional.empty();
+    private transient Set<Node<T>> selectedNodes = new HashSet<>();
 
     /**
      * Initializes a new display with out redrawing the first step.
@@ -155,15 +165,70 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
         bindKeys();
     }
 
+    private boolean isInteracting() {
+        return status != ViewStatus.MARK_CLOSER && status != ViewStatus.VIEW_ONLY;
+    }
+
+    private void resetStatus() {
+        if (isPreviousStateMarking) {
+            this.status = ViewStatus.MARK_CLOSER;
+        } else {
+            this.status = ViewStatus.VIEW_ONLY;
+        }
+    }
+
     private void bindKeys() {
+        bindKey(KeyEvent.VK_S, () -> {
+            if (status == ViewStatus.SELECTING) {
+                resetStatus();
+                this.selectedNodes.clear();
+            } else if (!isInteracting()) {
+                this.status = ViewStatus.SELECTING;
+            } 
+            this.repaint();
+        });
+        bindKey(KeyEvent.VK_O, () -> {
+            if (status == ViewStatus.SELECTING) {
+                this.status = ViewStatus.MOVING;
+            }
+        });
+        bindKey(KeyEvent.VK_C, () -> {
+            if (status == ViewStatus.SELECTING) {
+                this.status = ViewStatus.CLONING;
+            }
+        });
+        bindKey(KeyEvent.VK_E, () -> {
+            if (status == ViewStatus.SELECTING) {
+                this.status = ViewStatus.MOLECULING;
+                final JFrame mol = Generic2DDisplay.makeFrame("Moleculing", new MoleculeInjectorGUI<>(selectedNodes));
+                mol.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                mol.addWindowListener(new WindowAdapter() {
+                    @Override
+                    public void windowClosed(final WindowEvent e) {
+                        selectedNodes.clear();
+                        resetStatus();
+                    }
+                });
+            } 
+        });
+        bindKey(KeyEvent.VK_D, () -> {
+            if (status == ViewStatus.SELECTING) {
+                this.status = ViewStatus.DELETING;
+                for (final Node<T> n : selectedNodes) {
+                    Engine.fromEnvironment(currentEnv).addCommand(CommandsFactory.newRemoveNodeCommand(n));
+                }
+                Engine.fromEnvironment(currentEnv).addCommand(sim -> update(sim.getEnvironment(), sim.getTime()));
+                resetStatus();
+            }
+        });
         bindKey(KeyEvent.VK_M, () -> setMarkCloserNode(!isCloserNodeMarked()));
         bindKey(KeyEvent.VK_L, () -> setDrawLinks(!paintLinks));
         bindKey(KeyEvent.VK_P, () -> Optional.ofNullable(Engine.fromEnvironment(currentEnv))
                 .ifPresent(sim -> {
                     if (sim.getStatus() == Status.RUNNING) {
-                        sim.pause();
+                        sim.addCommand(new Engine.StateCommand<T>().pause().build());
                     } else {
-                        sim.play();
+                        sim.addCommand(new Engine.StateCommand<T>().run().build());
                     }
                 }));
         bindKey(KeyEvent.VK_R, () -> setRealTime(!isRealTime()));
@@ -257,6 +322,14 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
                 });
         }
         releaseData();
+        if (isDraggingMouse && status == ViewStatus.MOVING && originPoint.isPresent() && endingPoint.isPresent()) {
+            for (final Node<T> n : selectedNodes) {
+                if (onView.containsKey(n)) {
+                    onView.put(n, new Point(onView.get(n).x + (endingPoint.get().x - originPoint.get().x), 
+                            onView.get(n).y + (endingPoint.get().y - originPoint.get().y)));
+                }
+            }
+        }
         g.setColor(Color.GREEN);
         if (effectStack != null) {
             effectStack.forEach(effect -> {
@@ -266,7 +339,7 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
                 });
             });
         }
-        if (isCloserNodeMarked()) {
+        if (isCloserNodeMarked() && status == ViewStatus.MARK_CLOSER) {
             final Optional<Map.Entry<Node<T>, Point>> closest = onView.entrySet().parallelStream()
                     .min((pair1, pair2) -> {
                         final Point p1 = pair1.getValue();
@@ -279,12 +352,35 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
                 nearest = closest.get().getKey();
                 final int nearestx = closest.get().getValue().x;
                 final int nearesty = closest.get().getValue().y;
-                g.setColor(Color.RED);
-                g.fillOval(nearestx - SELECTED_NODE_DRAWING_SIZE / 2, nearesty - SELECTED_NODE_DRAWING_SIZE / 2, SELECTED_NODE_DRAWING_SIZE, SELECTED_NODE_DRAWING_SIZE);
-                g.setColor(Color.YELLOW);
-                g.fillOval(nearestx - SELECTED_NODE_INTERNAL_SIZE / 2, nearesty - SELECTED_NODE_INTERNAL_SIZE / 2, SELECTED_NODE_INTERNAL_SIZE, SELECTED_NODE_INTERNAL_SIZE);
+                drawFriedEgg(g, nearestx, nearesty, Color.RED, Color.YELLOW);
             }
+        } else {
+            nearest = null;
         }
+        if (isDraggingMouse && status == ViewStatus.SELECTING && originPoint.isPresent() && endingPoint.isPresent()) {
+            g.setColor(Color.BLACK);
+            final int x = originPoint.get().x < endingPoint.get().x ? originPoint.get().x : endingPoint.get().x;
+            final int y = originPoint.get().y < endingPoint.get().y ? originPoint.get().y : endingPoint.get().y;
+            final int width = Math.abs(endingPoint.get().x - originPoint.get().x);
+            final int height = Math.abs(endingPoint.get().y - originPoint.get().y);
+            g.drawRect(x, y, width, height);
+            selectedNodes = onView.entrySet().parallelStream()
+                    .filter(nodes -> isInsideRectangle(nodes.getValue(), x, y, width, height))
+                    .map(onScreen -> onScreen.getKey())
+                    .collect(Collectors.toSet());
+        }
+        selectedNodes.parallelStream()
+            .map(e -> Optional.ofNullable(onView.get(e)))
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .forEachOrdered(p -> drawFriedEgg(g, p.x, p.y, Color.BLUE, Color.CYAN));
+    }
+
+    private void drawFriedEgg(final Graphics g, final int x, final int y, final Color c1, final Color c2) {
+        g.setColor(c1);
+        g.fillOval(x - SELECTED_NODE_DRAWING_SIZE / 2, y - SELECTED_NODE_DRAWING_SIZE / 2, SELECTED_NODE_DRAWING_SIZE, SELECTED_NODE_DRAWING_SIZE);
+        g.setColor(c2);
+        g.fillOval(x - SELECTED_NODE_INTERNAL_SIZE / 2, y - SELECTED_NODE_INTERNAL_SIZE / 2, SELECTED_NODE_INTERNAL_SIZE, SELECTED_NODE_INTERNAL_SIZE);
     }
 
     @Override
@@ -357,7 +453,7 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
      * @return true if the closer node is marked
      */
     protected final boolean isCloserNodeMarked() {
-        return markCloser;
+        return status == ViewStatus.MARK_CLOSER;
     }
 
     /**
@@ -429,8 +525,14 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
 
     @Override
     public void setMarkCloserNode(final boolean mark) {
-        if (mark != markCloser) {
-            markCloser = mark;
+        if (!isInteracting()) {
+            if (mark) {
+                isPreviousStateMarking = true;
+                status = ViewStatus.MARK_CLOSER;
+            } else {
+                isPreviousStateMarking = false;
+                status = ViewStatus.VIEW_ONLY;
+            }
             repaint();
         }
     }
@@ -473,12 +575,14 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
     @Override
     public void stepDone(final Environment<T> environment, final Reaction<T> r, final Time time, final long step) {
         if (firstTime) {
-            if (firstTime) {
-                initAll(environment);
-                lasttime = -TIME_STEP;
-                firstTime = false;
-                timeInit = System.currentTimeMillis();
-                update(environment, time);
+            synchronized (this) {
+                if (firstTime) {
+                    initAll(environment);
+                    lasttime = -TIME_STEP;
+                    firstTime = false;
+                    timeInit = System.currentTimeMillis();
+                    update(environment, time);
+                } 
             }
         } else if (st < 1 || step % st == 0) {
             if (isRealTime()) {
@@ -570,6 +674,15 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
                         }
                     });
                 }
+            } else if (status == ViewStatus.CLONING && SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 1) {
+                final Engine<T> engine = Engine.fromEnvironment(currentEnv);
+                final Position envEnding = wormhole.getEnvPoint(e.getPoint());
+                for (final Node<T> n : selectedNodes) {
+                    engine.addCommand(CommandsFactory.newCloneNodeCommand(n, envEnding));
+                }
+                engine.addCommand(sim -> update(sim.getEnvironment(), sim.getTime()));
+                selectedNodes.clear();
+                resetStatus();
             }
             if (nearest != null && SwingUtilities.isMiddleMouseButton(e)) {
                 hooked = hooked.isPresent() ? Optional.empty() : Optional.of(nearest);
@@ -580,21 +693,24 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
         @Override
         public void mouseDragged(final MouseEvent e) {
             setDist(e.getX(), e.getY());
-            if (wormhole == null || mouseVelocity == null) {
+            if (wormhole == null || mouseMovement == null) {
                 return;
             }
             if (SwingUtilities.isLeftMouseButton(e)) {
-                if (mouseVelocity != null && !hooked.isPresent()) {
+                if (isDraggingMouse) {
+                    endingPoint = Optional.of(e.getPoint());
+                }
+                if (mouseMovement != null && !hooked.isPresent() && !isInteracting()) {
                     final Point previous = wormhole.getViewPosition();
                     wormhole.setViewPosition(
                             PointAdapter.from(previous)
-                                .sum(PointAdapter.from(mouseVelocity.getVariation())).toPoint());
+                                .sum(PointAdapter.from(mouseMovement.getVariation())).toPoint());
                 }
-            } else if (SwingUtilities.isRightMouseButton(e) && mouseVelocity != null && angleManager != null && wormhole.getMode() != Mode.MAP) {
-                angleManager.inc(mouseVelocity.getVariation().getX());
+            } else if (SwingUtilities.isRightMouseButton(e) && mouseMovement != null && angleManager != null && wormhole.getMode() != Mode.MAP) {
+                angleManager.inc(mouseMovement.getVariation().getX());
                 wormhole.rotateAroundPoint(getCenter(), angleManager.getAngle());
             }
-            mouseVelocity.setCurrentPosition(e.getPoint());
+            mouseMovement.setCurrentPosition(e.getPoint());
             repaint();
         }
 
@@ -610,18 +726,50 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
 
         @Override
         public void mouseMoved(final MouseEvent e) {
-            if (mouseVelocity != null) {
-                mouseVelocity.setCurrentPosition(e.getPoint());
+            if (mouseMovement != null) {
+                mouseMovement.setCurrentPosition(e.getPoint());
             }
             updateMouse(e);
         }
 
         @Override
         public void mousePressed(final MouseEvent e) {
+            if (SwingUtilities.isLeftMouseButton(e) && (status == ViewStatus.MOVING || status == ViewStatus.SELECTING)) {
+                isDraggingMouse = true;
+                originPoint = Optional.of(e.getPoint());
+                endingPoint = Optional.of(e.getPoint());
+                repaint();
+            }
         }
 
         @Override
         public void mouseReleased(final MouseEvent e) {
+            if (SwingUtilities.isLeftMouseButton(e) && isDraggingMouse) {
+                endingPoint = Optional.of(e.getPoint());
+                if (status == ViewStatus.MOVING && originPoint.isPresent() && endingPoint.isPresent()) {
+                    if (currentEnv.getDimensions() == 2) {
+                        final Engine<T> engine = Engine.fromEnvironment(currentEnv);
+                        final Position envEnding = wormhole.getEnvPoint(endingPoint.get());
+                        final Position envOrigin = wormhole.getEnvPoint(originPoint.get());
+                        for (final Node<T> n : selectedNodes) {
+                            final Position p = currentEnv.getPosition(n);
+                            final double finalX = p.getCoordinate(0) + (envEnding.getCoordinate(0) - envOrigin.getCoordinate(0));
+                            final double finalY = p.getCoordinate(1) + (envEnding.getCoordinate(1) - envOrigin.getCoordinate(1));
+                            final Position finalPos = PointAdapter.from(finalX, finalY).toPosition();
+                            engine.addCommand(sim -> sim.getEnvironment().moveNodeToPosition(n, finalPos));
+                        }
+                        engine.addCommand(sim -> update(sim.getEnvironment(), sim.getTime()));
+                    } else {
+                        L.error("Unable to move nodes: unsupported environment dimension.");
+                    }
+                    selectedNodes.clear();
+                    resetStatus();
+                }
+                isDraggingMouse = false;
+                originPoint = Optional.empty();
+                endingPoint = Optional.empty();
+                repaint();
+            }
         }
 
         @Override
@@ -661,5 +809,28 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
                 fun.run();
             }
         });
+    }
+
+    private static boolean isInsideRectangle(final Point viewPoint, final int rx, final int ry, final int width, final int height) {
+        final double x = viewPoint.getX();
+        final double y = viewPoint.getY();
+        return x >= rx && x <= rx + width && y >= ry && y <= ry + height;
+    }
+
+    private enum ViewStatus {
+
+        VIEW_ONLY,
+
+        MARK_CLOSER,
+
+        SELECTING,
+
+        MOVING,
+
+        CLONING,
+
+        DELETING,
+
+        MOLECULING;
     }
 }

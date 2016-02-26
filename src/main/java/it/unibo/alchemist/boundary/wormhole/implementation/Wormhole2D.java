@@ -271,12 +271,12 @@ public class Wormhole2D implements IWormhole2D {
      * @return env space point
      */
     protected final PointAdapter envPointFromView(final PointAdapter viewPoint) {
-        final Point vp = viewPoint.toPoint();
+        final Point2D.Double vp = new Point2D.Double(viewPoint.toPoint().x, viewPoint.toPoint().y);
         final AffineTransform t = calculateTransform();
         try {
             t.inverseTransform(vp, vp);
         } catch (final NoninvertibleTransformException e) {
-            L.error(e.getMessage());
+            L.error("Unable to perform the transformation from view point to env point. Please check if this method has been called after making the UI visible", e);
         }
         return from(vp);
     }

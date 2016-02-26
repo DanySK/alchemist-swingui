@@ -30,7 +30,6 @@ import java.awt.Insets;
  * 
  * Revision date 12th July 2001
  * 
- * @author Colin Mummery e-mail: colin_mummery@yahoo.com
  *         Homepage:www.kagi.com/equitysoft - Based on 'FlexLayout' in Java
  *         class libraries Vol 2 Chan/Lee Addison-Wesley 1998
  */
@@ -40,22 +39,24 @@ public class VerticalFlowLayout extends AFlowLayout {
      * 
      */
     private static final long serialVersionUID = -4226183812841326639L;
+    private static final int DEFAULTVGAP = 5;
 
     /**
      * Constructs an instance of VerticalLayout with a vertical vgap of 5
      * pixels, horizontal centering and anchored to the top of the display area.
+     * 
+     * @param ordered true if the components must be ordered
      */
     public VerticalFlowLayout(final boolean ordered) {
-        this(5, CENTER, TOP, ordered);
+        this(DEFAULTVGAP, CENTER, TOP, ordered);
     }
 
     /**
      * Constructs a VerticalLayout instance with horizontal centering, anchored
-     * to the top with the specified vgap
+     * to the top with the specified vgap.
      * 
-     * @param vgap
-     *            An int value indicating the vertical seperation of the
-     *            components
+     * @param vgap An int value indicating the vertical seperation of the components
+     * @param ordered true if the components must be ordered
      */
     public VerticalFlowLayout(final int vgap, final boolean ordered) {
         this(vgap, CENTER, TOP, ordered);
@@ -63,7 +64,7 @@ public class VerticalFlowLayout extends AFlowLayout {
 
     /**
      * Constructs a VerticalLayout instance anchored to the top with the
-     * specified vgap and horizontal alignment
+     * specified vgap and horizontal alignment.
      * 
      * @param vgap
      *            An int value indicating the vertical seperation of the
@@ -72,6 +73,7 @@ public class VerticalFlowLayout extends AFlowLayout {
      *            An int value which is one of
      *            <code>RIGHT, LEFT, CENTER, BOTH</code> for the horizontal
      *            alignment.
+     * @param ordered true if the components must be ordered
      */
     public VerticalFlowLayout(final int vgap, final int alignment, final boolean ordered) {
         this(vgap, alignment, TOP, ordered);
@@ -79,7 +81,7 @@ public class VerticalFlowLayout extends AFlowLayout {
 
     /**
      * Constructs a VerticalLayout instance with the specified vgap, horizontal
-     * alignment and anchoring
+     * alignment and anchoring.
      * 
      * @param vgap
      *            An int value indicating the vertical seperation of the
@@ -92,6 +94,7 @@ public class VerticalFlowLayout extends AFlowLayout {
      *            An int value which is one of <code>TOP, BOTTOM, CENTER</code>
      *            indicating where the components are to appear if the display
      *            area exceeds the minimum necessary.
+     * @param ordered true if the components must be ordered
      */
     public VerticalFlowLayout(final int vgap, final int alignment, final int anchor, final boolean ordered) {
         super(vgap, alignment, anchor, ordered);
