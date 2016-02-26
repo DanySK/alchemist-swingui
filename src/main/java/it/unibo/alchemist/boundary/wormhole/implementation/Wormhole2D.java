@@ -276,7 +276,7 @@ public class Wormhole2D implements IWormhole2D {
         try {
             t.inverseTransform(vp, vp);
         } catch (final NoninvertibleTransformException e) {
-            L.error(e.getMessage() + " Is the simulation visible FOR REAL?");
+            L.error("Unable to perform the transformation from view point to env point. Please check if this method has been called after making the UI visible", e);
         }
         return from(vp);
     }
