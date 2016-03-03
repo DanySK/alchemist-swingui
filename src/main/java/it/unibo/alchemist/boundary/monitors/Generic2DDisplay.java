@@ -339,7 +339,7 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
                 });
             });
         }
-        if (isCloserNodeMarked() && status == ViewStatus.MARK_CLOSER) {
+        if (isCloserNodeMarked()) {
             final Optional<Map.Entry<Node<T>, Point>> closest = onView.entrySet().parallelStream()
                     .min((pair1, pair2) -> {
                         final Point p1 = pair1.getValue();
