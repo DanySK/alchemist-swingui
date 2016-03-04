@@ -95,21 +95,105 @@ public class RecordingMonitor<T> extends EnvironmentInspector<T> {
     private static final int MAXIMUM_INT = 100;
 
     @ExportForGUI(nameToExport = "Zoom rate (leave 0 for optimal)")
-    private final RangedInteger zoom = new RangedInteger(0, MAX_ZOOM, 0);
+    private RangedInteger zoom = new RangedInteger(0, MAX_ZOOM, 0);
     @ExportForGUI(nameToExport = "Reactivity")
-    private final ReactivityMode reactMode = ReactivityMode.MAX;
+    private ReactivityMode reactMode = ReactivityMode.MAX;
     @ExportForGUI(nameToExport = "Width")
-    private final RangedInteger width = new RangedInteger(MIN_WIDTH, MAX_WIDTH, DEF_WIDTH);
+    private RangedInteger width = new RangedInteger(MIN_WIDTH, MAX_WIDTH, DEF_WIDTH);
     @ExportForGUI(nameToExport = "Height")
-    private final RangedInteger height = new RangedInteger(MIN_HEIGHT, MAX_HEIGHT, DEF_HEIGHT);
+    private RangedInteger height = new RangedInteger(MIN_HEIGHT, MAX_HEIGHT, DEF_HEIGHT);
     @ExportForGUI(nameToExport = "Draw links")
     private boolean drawLinks;
     @ExportForGUI(nameToExport = "Effects file")
     private String effectsFile = defaultEffectsFile;
     @ExportForGUI(nameToExport = "POV dx (%)")
-    private final RangedInteger povX = new RangedInteger(MINIMUM_INT, MAXIMUM_INT, 0); //NOPMD
+    private RangedInteger povX = new RangedInteger(MINIMUM_INT, MAXIMUM_INT, 0);
     @ExportForGUI(nameToExport = "POV dy (%)")
-    private final RangedInteger povY = new RangedInteger(MINIMUM_INT, MAXIMUM_INT, 0); //NOPMD
+    private RangedInteger povY = new RangedInteger(MINIMUM_INT, MAXIMUM_INT, 0);
+
+    /**
+     * @return the current zoom.
+     */
+    public RangedInteger getZoom() {
+        return zoom;
+    }
+
+    /**
+     * @param zoom the zoom to be set.
+     */
+    public void setZoom(final RangedInteger zoom) {
+        this.zoom = zoom;
+    }
+
+    /**
+     * @return the current ReactivityMode.
+     */
+    public ReactivityMode getReactMode() {
+        return reactMode;
+    }
+
+    /**
+     * @param reactMode the ReactivityMode to be set.
+     */
+    public void setReactMode(final ReactivityMode reactMode) {
+        this.reactMode = reactMode;
+    }
+
+    /**
+     * @return the current width.
+     */
+    public RangedInteger getWidth() {
+        return width;
+    }
+
+    /**
+     * @param width the width to be set.
+     */
+    public void setWidth(final RangedInteger width) {
+        this.width = width;
+    }
+
+    /**
+     * @return the current heigth.
+     */
+    public RangedInteger getHeight() {
+        return height;
+    }
+
+    /**
+     * @param height the heigth to be set.
+     */
+    public void setHeight(final RangedInteger height) {
+        this.height = height;
+    }
+
+    /**
+     * @return povX
+     */
+    public RangedInteger getPovX() {
+        return povX;
+    }
+
+    /**
+     * @param povX 
+     */
+    public void setPovX(final RangedInteger povX) {
+        this.povX = povX;
+    }
+
+    /**
+     * @return povX
+     */
+    public RangedInteger getPovY() {
+        return povY;
+    }
+
+    /**
+     * @param povY 
+     */
+    public void setPovY(final RangedInteger povY) {
+        this.povY = povY;
+    }
 
     /**
      * RecordingMonitor<T> empty constructor.
