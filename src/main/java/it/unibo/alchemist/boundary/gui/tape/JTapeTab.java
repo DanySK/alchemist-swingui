@@ -30,7 +30,7 @@ public class JTapeTab extends JPanel {
      */
     private static final long serialVersionUID = -5784994713230091928L;
     private String title;
-    private final StringBuilder layoutString = new StringBuilder();
+    private String layoutString = "";
     private JProgressBar progressBar;
     private final JPanel contentPanel;
     private int compCount;
@@ -83,12 +83,12 @@ public class JTapeTab extends JPanel {
      */
     public boolean registerGroup(final JTapeGroup g) {
         if (compCount > 0) {
-            layoutString.append("[fill]");
-            contentPanel.setLayout(new MigLayout("", layoutString.toString(), "[grow,fill]"));
+            layoutString = layoutString + "[fill]";
+            contentPanel.setLayout(new MigLayout("", layoutString, "[grow,fill]"));
             contentPanel.add(new JSeparator(SwingConstants.VERTICAL), "cell " + compCount++ + " 0");
         }
-        layoutString.append("[fill]");
-        contentPanel.setLayout(new MigLayout("", layoutString.toString(), "[grow,fill]"));
+        layoutString = layoutString + "[fill]";
+        contentPanel.setLayout(new MigLayout("", layoutString, "[grow,fill]"));
         contentPanel.add(g, "cell " + compCount++ + " 0");
         return true;
     }

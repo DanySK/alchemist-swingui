@@ -91,6 +91,8 @@ public class RecordingMonitor<T> extends EnvironmentInspector<T> {
     private static final int DEF_HEIGHT = 1000;
     private static final int MAX_HEIGHT = 2000;
     private static final int MAX_ZOOM = 255;
+    private static final int MINIMUM_INT = -100;
+    private static final int MAXIMUM_INT = 100;
 
     @ExportForGUI(nameToExport = "Zoom rate (leave 0 for optimal)")
     private RangedInteger zoom = new RangedInteger(0, MAX_ZOOM, 0);
@@ -101,13 +103,97 @@ public class RecordingMonitor<T> extends EnvironmentInspector<T> {
     @ExportForGUI(nameToExport = "Height")
     private RangedInteger height = new RangedInteger(MIN_HEIGHT, MAX_HEIGHT, DEF_HEIGHT);
     @ExportForGUI(nameToExport = "Draw links")
-    private boolean drawLinks = false;
+    private boolean drawLinks;
     @ExportForGUI(nameToExport = "Effects file")
     private String effectsFile = defaultEffectsFile;
     @ExportForGUI(nameToExport = "POV dx (%)")
-    private RangedInteger povX = new RangedInteger(-100, 100, 0);
+    private RangedInteger povX = new RangedInteger(MINIMUM_INT, MAXIMUM_INT, 0);
     @ExportForGUI(nameToExport = "POV dy (%)")
-    private RangedInteger povY = new RangedInteger(-100, 100, 0);
+    private RangedInteger povY = new RangedInteger(MINIMUM_INT, MAXIMUM_INT, 0);
+
+    /**
+     * @return the current zoom.
+     */
+    public RangedInteger getZoom() {
+        return zoom;
+    }
+
+    /**
+     * @param zoom the zoom to be set.
+     */
+    public void setZoom(final RangedInteger zoom) {
+        this.zoom = zoom;
+    }
+
+    /**
+     * @return the current ReactivityMode.
+     */
+    public ReactivityMode getReactMode() {
+        return reactMode;
+    }
+
+    /**
+     * @param reactMode the ReactivityMode to be set.
+     */
+    public void setReactMode(final ReactivityMode reactMode) {
+        this.reactMode = reactMode;
+    }
+
+    /**
+     * @return the current width.
+     */
+    public RangedInteger getWidth() {
+        return width;
+    }
+
+    /**
+     * @param width the width to be set.
+     */
+    public void setWidth(final RangedInteger width) {
+        this.width = width;
+    }
+
+    /**
+     * @return the current heigth.
+     */
+    public RangedInteger getHeight() {
+        return height;
+    }
+
+    /**
+     * @param height the heigth to be set.
+     */
+    public void setHeight(final RangedInteger height) {
+        this.height = height;
+    }
+
+    /**
+     * @return povX
+     */
+    public RangedInteger getPovX() {
+        return povX;
+    }
+
+    /**
+     * @param povX 
+     */
+    public void setPovX(final RangedInteger povX) {
+        this.povX = povX;
+    }
+
+    /**
+     * @return povX
+     */
+    public RangedInteger getPovY() {
+        return povY;
+    }
+
+    /**
+     * @param povY 
+     */
+    public void setPovY(final RangedInteger povY) {
+        this.povY = povY;
+    }
 
     /**
      * RecordingMonitor<T> empty constructor.
@@ -118,7 +204,6 @@ public class RecordingMonitor<T> extends EnvironmentInspector<T> {
         mutex = new Semaphore(1);
     }
 
-    @SuppressWarnings("unchecked")
     private void createMonitor(final Environment<T> env) {
         String monitorClassName = Optional.ofNullable(env.getPreferredMonitor()).orElse(DEFAULT_MONITOR_CLASS);
         if (!monitorClassName.contains(".")) {
@@ -171,7 +256,7 @@ public class RecordingMonitor<T> extends EnvironmentInspector<T> {
         sourceComponent.setSize(width.getVal(), height.getVal());
         source.setRealTime(reactMode.equals(ReactivityMode.REALTIME));
         source.initialized(env);
-        for (MouseListener listener : sourceComponent.getMouseListeners()) {
+        for (final MouseListener listener : sourceComponent.getMouseListeners()) {
             sourceComponent.removeMouseListener(listener);
         }
         // avoid nearest node circle
@@ -258,9 +343,12 @@ public class RecordingMonitor<T> extends EnvironmentInspector<T> {
             final String currentTime = isLoggingTime() ? getSeparator() + time : "";
 
             try {
-                new File(fpCache).mkdirs();
+                final boolean dir = new File(fpCache).mkdirs();
                 writer = new PrintStream(new File(fpCache + System.getProperty("file.separator") + screenCounter++
                         + currentStep + currentTime + ".svg"), StandardCharsets.UTF_8.name());
+                if (!dir) {
+                    L.error("Cannot create monitor");
+                }
             } catch (FileNotFoundException | UnsupportedEncodingException e) {
                 L.error("Cannot create monitor", e);
             }

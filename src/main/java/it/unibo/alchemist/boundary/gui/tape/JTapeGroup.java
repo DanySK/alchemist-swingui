@@ -30,7 +30,7 @@ public class JTapeGroup extends JPanel {
     private static final int DESC_TEXT_SIZE = 8;
     private final JLabel lblDescription;
     private final JPanel contentPanel;
-    private final StringBuilder layoutString = new StringBuilder();
+    private String layoutString = "";
 
     /**
      * Initializes a new {@link JTapeGroup} with the description in input.
@@ -69,8 +69,8 @@ public class JTapeGroup extends JPanel {
      * @return <code>true</code>
      */
     public boolean registerSection(final JTapeSection section) {
-        layoutString.append("[fill]");
-        contentPanel.setLayout(new MigLayout("", layoutString.toString(), "[grow,fill]"));
+        layoutString = layoutString + "[fill]";
+        contentPanel.setLayout(new MigLayout("", layoutString, "[grow,fill]"));
         contentPanel.add(section, "cell " + contentPanel.getComponentCount() + " 0,grow");
         return true;
     }

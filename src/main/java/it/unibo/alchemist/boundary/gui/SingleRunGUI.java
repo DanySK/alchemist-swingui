@@ -110,7 +110,6 @@ public final class SingleRunGUI {
         final GraphicalOutputMonitor<T> main = GraphicalMonitorFactory.createMonitor(sim,
                 e -> L.error("Cannot init the UI.", e));
         if (main instanceof Component) {
-            sim.addOutputMonitor(main);
             final JFrame frame = new JFrame("Alchemist Simulator");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             final JPanel canvas = new JPanel();
@@ -153,6 +152,10 @@ public final class SingleRunGUI {
             frame.setSize(size.orElse(new Dimension(FALLBACK_X_SIZE, FALLBACK_Y_SIZE)));
             frame.setLocationByPlatform(true);
             frame.setVisible(true);
+            /*
+             * OutputMonitor's add to the sim must be done as the last operation
+             */
+            sim.addOutputMonitor(main);
         } else {
             L.error("The default monitor of {} is not compatible with Java Swing.", sim);
         }
