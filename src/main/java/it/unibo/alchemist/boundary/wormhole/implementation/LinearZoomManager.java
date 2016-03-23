@@ -11,17 +11,16 @@ package it.unibo.alchemist.boundary.wormhole.implementation;
 import it.unibo.alchemist.boundary.wormhole.interfaces.ZoomManager;
 
 /**
- * An <code>LinZoomManager</code> converts the sliding of any physical/virtual
+ * A {@link LinearZoomManager} converts the sliding of any physical/virtual
  * device/control into a zoom rate through a linear function.<br>
  * Zoom = amount of slides * rate.
- * 
- * 
  */
 public class LinearZoomManager extends AbstractSlideInputManager implements ZoomManager {
     private final double rate;
 
     /**
-     * Same of {@link #LinZoomManager(double, double)} but rate is 1.
+     * Same of {@link #LinearZoomManager(double, double, double, double)} but
+     * rate is 1, and minimum and maximum are +/- {@link Double#MAX_VALUE}.
      * 
      * @param z
      *            is the desired initial zoom
@@ -31,7 +30,7 @@ public class LinearZoomManager extends AbstractSlideInputManager implements Zoom
     }
 
     /**
-     * Initialize a new <code>LinZoomManager</code> instance with the parameters
+     * Initialize a new {@link LinearZoomManager} instance with the parameters
      * in input.
      * 
      * @param zoom
