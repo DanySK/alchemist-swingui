@@ -177,7 +177,7 @@ public class Wormhole2D implements IWormhole2D {
      * Allows child-classes to modify the {@link #mode} field.
      * 
      * @param m
-     *            is the new {@link Mode}
+     *            is the new {@link #mode}
      */
     protected void setMode(final Mode m) {
         mode = m;
