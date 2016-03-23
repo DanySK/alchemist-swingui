@@ -421,15 +421,8 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
         return zoomManager;
     }
 
-    /**
+    /*
      * Initializes all the internal data.
-     * 
-     * @param r
-     *            the reaction executed
-     * @param time
-     *            the simulation time
-     * @param step
-     *            the current simulation step
      */
     private void initAll(final Environment<T> env) {
         wormhole = new Wormhole2D(env, this);
