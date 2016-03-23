@@ -44,7 +44,7 @@ public class AngleManagerImpl extends AbstractSlideInputManager implements Angle
      * Initializes a new <code>AngleManager</code> instance with
      * <code>dUnit = 1</code> and <code>dPhase = 0</code>.
      * 
-     * @see #AngleManager(double, double)
+     * @see #AngleManagerImpl(double, double)
      */
     public AngleManagerImpl() {
         this(1d);
@@ -57,7 +57,7 @@ public class AngleManagerImpl extends AbstractSlideInputManager implements Angle
      * @param dUnit
      *            is the amount of degrees corresponding to 1 slide (i.e.
      *            <code>inc(1);</code>)
-     * @see #AngleManager(double, double)
+     * @see #AngleManagerImpl(double, double)
      */
     public AngleManagerImpl(final double dUnit) {
         this(dUnit, 0d);

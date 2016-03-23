@@ -32,6 +32,8 @@ jar {
 
 repositories { mavenCentral() }
 
+test { testLogging { exceptionFormat = 'full' } }
+
 configurations {
     doc { transitive false }
     compile { exclude module: 'org.eclipse.xtext.dependencies' }
@@ -47,6 +49,7 @@ dependencies {
 
     compile "com.miglayout:miglayout-swing:$miglayoutVersion"
     compile "it.unibo.alchemist:alchemist-engine:$engineVersion"
+    compile "it.unibo.alchemist:alchemist-enginedependentmodel:$enginedepVersion"
     compile "it.unibo.alchemist:alchemist-implementationbase:$implbaseVersion"
     compile "it.unibo.alchemist:alchemist-incarnations:$incarnationsVersion"
     compile "it.unibo.alchemist:alchemist-maps:$mapsVersion"
