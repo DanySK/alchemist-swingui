@@ -1,4 +1,6 @@
 package it.unibo.alchemist.test;
+import java.awt.AWTError;
+
 import org.junit.Test;
 
 import it.unibo.alchemist.boundary.monitors.Generic2DDisplay;
@@ -18,8 +20,12 @@ public class TestWormhole2D {
     @Test
     public void testZeroSizeEnvironment() {
         final Environment<Object> env = new Continuous2DEnvironment<>();
-        final Wormhole2D worm = new Wormhole2D(env, new Generic2DDisplay<>());
-        worm.center();
+        try {
+            final Wormhole2D worm = new Wormhole2D(env, new Generic2DDisplay<>());
+            worm.center();
+        } catch (AWTError e) {
+            e.printStackTrace();
+        }
     }
 
 }
