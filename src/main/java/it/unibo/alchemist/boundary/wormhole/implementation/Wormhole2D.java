@@ -55,7 +55,7 @@ public class Wormhole2D implements IWormhole2D {
     public Wormhole2D(final Environment<?> env, final Component comp) {
         model = env;
         view = comp;
-        position = from(0, comp.getHeight());
+        position = from(comp.getWidth() / 2, comp.getHeight() / 2);
     }
 
     private double getEnvRatio() {
