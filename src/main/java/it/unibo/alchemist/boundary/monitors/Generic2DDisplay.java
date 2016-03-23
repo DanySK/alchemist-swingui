@@ -742,16 +742,20 @@ public class Generic2DDisplay<T> extends JPanel implements Graphical2DOutputMoni
                 if (status == ViewStatus.MOVING && originPoint.isPresent() && endingPoint.isPresent()) {
                     if (currentEnv.getDimensions() == 2) {
                         final Engine<T> engine = Engine.fromEnvironment(currentEnv);
-                        final Position envEnding = wormhole.getEnvPoint(endingPoint.get());
-                        final Position envOrigin = wormhole.getEnvPoint(originPoint.get());
-                        for (final Node<T> n : selectedNodes) {
-                            final Position p = currentEnv.getPosition(n);
-                            final double finalX = p.getCoordinate(0) + (envEnding.getCoordinate(0) - envOrigin.getCoordinate(0));
-                            final double finalY = p.getCoordinate(1) + (envEnding.getCoordinate(1) - envOrigin.getCoordinate(1));
-                            final Position finalPos = PointAdapter.from(finalX, finalY).toPosition();
-                            engine.addCommand(sim -> sim.getEnvironment().moveNodeToPosition(n, finalPos));
+                        if (engine != null) {
+                            final Position envEnding = wormhole.getEnvPoint(endingPoint.get());
+                            final Position envOrigin = wormhole.getEnvPoint(originPoint.get());
+                            for (final Node<T> n : selectedNodes) {
+                                final Position p = currentEnv.getPosition(n);
+                                final double finalX = p.getCoordinate(0) + (envEnding.getCoordinate(0) - envOrigin.getCoordinate(0));
+                                final double finalY = p.getCoordinate(1) + (envEnding.getCoordinate(1) - envOrigin.getCoordinate(1));
+                                final Position finalPos = PointAdapter.from(finalX, finalY).toPosition();
+                                engine.addCommand(sim -> sim.getEnvironment().moveNodeToPosition(n, finalPos));
+                            }
+                            engine.addCommand(sim -> update(sim.getEnvironment(), sim.getTime()));
+                        } else {
+                            L.warn("Can not handle node movement on a finished simulation.");
                         }
-                        engine.addCommand(sim -> update(sim.getEnvironment(), sim.getTime()));
                     } else {
                         L.error("Unable to move nodes: unsupported environment dimension.");
                     }
