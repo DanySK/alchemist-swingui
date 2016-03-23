@@ -57,7 +57,7 @@ public class AngleManagerImpl extends AbstractSlideInputManager implements Angle
      * @param dUnit
      *            is the amount of degrees corresponding to 1 slide (i.e.
      *            <code>inc(1);</code>)
-     * @see #AngleManager(double, double)
+     * @see #AngleManagerImpl(double, double)
      */
     public AngleManagerImpl(final double dUnit) {
         this(dUnit, 0d);
