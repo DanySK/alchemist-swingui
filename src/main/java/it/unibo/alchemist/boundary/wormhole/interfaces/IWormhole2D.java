@@ -79,7 +79,7 @@ public interface IWormhole2D {
     /**
      * Gets the rendering mode.
      * 
-     * @return a {@link IWormhole2D#Mode} value
+     * @return a {@link IWormhole2D.Mode} value
      */
     Mode getMode();
 
@@ -174,7 +174,6 @@ public interface IWormhole2D {
      * 
      * @param value
      *            is the <code>double</code> value representing the new zoom
-     *            factor
      */
     void setZoom(double value);
 
