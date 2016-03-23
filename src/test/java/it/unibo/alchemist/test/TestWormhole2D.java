@@ -1,7 +1,8 @@
 package it.unibo.alchemist.test;
+import java.awt.Component;
+
 import org.junit.Test;
 
-import it.unibo.alchemist.boundary.monitors.Generic2DDisplay;
 import it.unibo.alchemist.boundary.wormhole.implementation.Wormhole2D;
 import it.unibo.alchemist.model.implementations.environments.Continuous2DEnvironment;
 import it.unibo.alchemist.model.interfaces.Environment;
@@ -18,7 +19,9 @@ public class TestWormhole2D {
     @Test
     public void testZeroSizeEnvironment() {
         final Environment<Object> env = new Continuous2DEnvironment<>();
-        final Wormhole2D worm = new Wormhole2D(env, new Generic2DDisplay<>());
+        @SuppressWarnings("serial") // CHECKSTYLE:OFF
+        final Wormhole2D worm = new Wormhole2D(env, new Component() {} );
+        // CHECKSTYLE:ON
         worm.center();
     }
 
