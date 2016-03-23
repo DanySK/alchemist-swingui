@@ -40,7 +40,7 @@ public interface GraphicalOutputMonitor<T> extends OutputMonitor<T> {
 
     /**
      * @param l
-     *            the {@link EffectStack} to use
+     *            the Effect stack to use
      */
     void setEffectStack(List<Effect> l);
 
