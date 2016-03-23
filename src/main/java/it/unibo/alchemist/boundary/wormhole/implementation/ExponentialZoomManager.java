@@ -48,7 +48,7 @@ public class ExponentialZoomManager extends AbstractSlideInputManager implements
     }
 
     /**
-     * Same of {@link #ExpZoomManager(double, double, double)} but normalization
+     * Same of {@link #ExponentialZoomManager(double, double, double)} but normalization
      * value is 1.
      * 
      * @param b
