@@ -48,7 +48,7 @@ public interface GraphicalOutputMonitor<T> extends OutputMonitor<T> {
      * If enabled, the monitor tries to synchronize the simulation time with the
      * real time, slowing down the simulator if needed. If the simulation is
      * slower than the real time, then the display refreshes fast enough to keep
-     * the {@link #DEFAULT_FRAME_RATE}.
+     * the default frame rate.
      * 
      * @param rt
      *            true for the real time mode
