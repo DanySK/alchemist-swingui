@@ -24,6 +24,8 @@ import it.unibo.alchemist.model.interfaces.Environment;
 import it.unibo.alchemist.model.interfaces.Position;
 
 import static it.unibo.alchemist.boundary.wormhole.implementation.PointAdapter.from;
+import static java.lang.Double.isNaN;
+
 /**
  * Partial implementation for the interface {@link IWormhole2D}.<br>
  * I am considering the particular case of the view as an entity into the
@@ -312,7 +314,10 @@ public class Wormhole2D implements IWormhole2D {
     public void center() {
         final double[] off = getEnvironment().getOffset();
         final double[] size = getEnvironment().getSize();
-        setEnvPosition(from(off[0] + size[0] / 2, off[1] + size[1] / 2).toPosition());
+        final PointAdapter center = isNaN(off[0]) || isNaN(off[1]) || size[0] <= 0 || size[1] <= 0
+                ? from(0, 0)
+                : from(off[0] + size[0] / 2, off[1] + size[1] / 2);
+        setEnvPosition(center.toPosition());
     }
 
 }
