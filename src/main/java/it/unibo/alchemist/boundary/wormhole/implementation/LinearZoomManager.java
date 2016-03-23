@@ -19,7 +19,8 @@ public class LinearZoomManager extends AbstractSlideInputManager implements Zoom
     private final double rate;
 
     /**
-     * Same of {@link #LinearZoomManager(double, double)} but rate is 1.
+     * Same of {@link #LinearZoomManager(double, double, double, double)} but
+     * rate is 1, and minimum and maximum are +/- {@link Double#MAX_VALUE}.
      * 
      * @param z
      *            is the desired initial zoom
