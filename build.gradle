@@ -32,6 +32,8 @@ jar {
 
 repositories { mavenCentral() }
 
+test { testLogging { exceptionFormat = 'full' } }
+
 configurations {
     doc { transitive false }
     compile { exclude module: 'org.eclipse.xtext.dependencies' }
